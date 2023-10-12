@@ -44,7 +44,7 @@ fun PrimaryBackground(
 
 @Composable
 fun SecondaryBackground(
-    content: @Composable () -> Unit,
+    content: @Composable BoxScope.() -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -58,7 +58,7 @@ fun SecondaryBackground(
 @Preview(name = "123", device = "id:pixel_6")
 @Composable
 fun test() {
-    SecondaryBackground {
+    PrimaryBackground {
         Text(text = "112323")
     }
 }
