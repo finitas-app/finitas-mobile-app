@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.background.PrimaryBackground
 import pl.finitas.app.core.presentation.components.spendingeditor.ConstructorBox
 import pl.finitas.app.core.presentation.components.spendingeditor.ConstructorInput
+import pl.finitas.app.core.presentation.components.spendingeditor.preview.CalendarTest
 import pl.finitas.app.ui.theme.FinitasmobileappTheme
 
 class MainActivity : ComponentActivity() {
@@ -37,9 +38,10 @@ class MainActivity : ComponentActivity() {
                     Greeting("Android")
                 }
             }*/
-            ConstructorTest()
+            //ConstructorTest()
             //RoomsTest()
             //MessengerTest()
+            CalendarTest()
         }
     }
 }

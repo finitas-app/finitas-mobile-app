@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -33,13 +34,14 @@ data class ProjectFont(
     constructor(size: Int, fontWeight: FontWeight): this(size.sp, fontWeight)
 
     @Composable
-    fun Text(text: String, modifier: Modifier = Modifier, color: Color = Color.White) {
+    fun Text(text: String, modifier: Modifier = Modifier, color: Color = Color.White, textAlign: TextAlign? = null) {
         Text(
             text = text,
             modifier = modifier,
             fontSize = fontSize,
             fontWeight = fontWeight,
             color = color,
+            textAlign = textAlign
         )
     }
 }
