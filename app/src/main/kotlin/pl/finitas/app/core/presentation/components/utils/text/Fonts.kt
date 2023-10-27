@@ -33,12 +33,13 @@ data class ProjectFont(
     constructor(size: Int, fontWeight: FontWeight): this(size.sp, fontWeight)
 
     @Composable
-    fun Text(text: String, modifier: Modifier = Modifier) {
+    fun Text(text: String, modifier: Modifier = Modifier, color: Color = Color.White) {
         Text(
             text = text,
             modifier = modifier,
             fontSize = fontSize,
             fontWeight = fontWeight,
+            color = color,
         )
     }
 }
