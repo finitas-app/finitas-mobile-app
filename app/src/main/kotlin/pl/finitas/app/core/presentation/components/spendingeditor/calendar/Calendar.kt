@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,16 +37,61 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import pl.finitas.app.R
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Month
+import java.util.LinkedList
 
 @Composable
 fun Calendar() {
-
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color(0xFF213138))
+    ) {
+        var date by remember {
+            mutableStateOf(LocalDate.of(2003, 12, 2))
+        }
+        var dateForCalendarShow by remember {
+            mutableStateOf(LocalDate.of(2003, 12, 2))
+        }
+        Text(text = "$date")
+        Column(modifier = Modifier.align(Alignment.Center)) {
+            YearMonthEditor(
+                date = dateForCalendarShow,
+                onDateChange = { dateForCalendarShow = it },
+            )
+            DaySelectBoard(year = dateForCalendarShow.year, month = dateForCalendarShow.month, onDaySelect = { day ->
+                date = day
+            })
+        }
+    }
 }
 
 @Composable
-fun BoxScope.YearMonthEditor(
+fun DaySelectBoard(year: Int, month: Month, onDaySelect: (LocalDate) -> Unit) {
+    val firstDay = LocalDate.of(year, month, 1)
+    val weeks = prepareCalendarMonthData(firstDay)
+
+
+    var currentDay = 0
+    Row {
+        for (dayOfWeek in 0..6) {
+            Column {
+                for (day in weeks.map { it[dayOfWeek] }) {
+                    if (day == null) {
+                        Text(text = "x", Modifier.padding(end = 10.dp))
+                    } else {
+                        Text(text = "${day.dayOfMonth}", Modifier.padding(5.dp).clip(CircleShape).clickable { onDaySelect(day) })
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun YearMonthEditor(
     date: LocalDate,
     onDateChange: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
@@ -56,8 +102,10 @@ fun BoxScope.YearMonthEditor(
     val closeDialog = { isDialogOpen = false }
 
 
-    Row(modifier = modifier.clickable { openDialog() }) {
-        Text(text = "${date.month} ${date.year}")
+    Row {
+        Text(text = "${date.month} ${date.year}", modifier = modifier
+            .background(Color.White)
+            .clickable { openDialog() })
     }
 
     val background = colorResource(id = R.color.background_dark)
@@ -120,7 +168,7 @@ fun BoxScope.YearMonthEditor(
 
     LaunchedEffect(positionOfYear) {
         val (_, offset, isScrolling) = positionOfYear
-
+        println(positionOfMonth.index)
         if (!isScrolling && offset != 0) {
             yearsListState.animateScrollToItem(positionOfYear.getClosestIndex, 0)
         }
@@ -172,7 +220,7 @@ fun BoxScope.YearMonthEditor(
                 onSave(
                     LocalDate.of(
                         years[(positionOfYear.index + 1) % years.size],
-                        (positionOfMonth.index + 2) % months.size,
+                        (positionOfMonth.index + 1) % months.size + 1,
                         1,
                     )
                 )
@@ -220,6 +268,32 @@ private fun Navigation(
                 },
         )
     }
+}
+
+fun prepareCalendarMonthData(firstDay: LocalDate): List<List<LocalDate?>> {
+    val days = (1..firstDay.lengthOfMonth()).map {
+        LocalDate.of(firstDay.year, firstDay.month, it)
+    }
+
+    val list = LinkedList<LinkedList<LocalDate?>>()
+    list += LinkedList<LocalDate?>()
+
+    days.forEach { day ->
+        list.last() += day
+        if (day.dayOfWeek == DayOfWeek.SUNDAY) list += LinkedList<LocalDate?>()
+    }
+
+    list.first.let { week ->
+        repeat(7 - week.size) {
+            week.addFirst(null)
+        }
+    }
+    list.last.let { week ->
+        repeat(7 - week.size) {
+            week.addLast(null)
+        }
+    }
+    return list
 }
 
 
