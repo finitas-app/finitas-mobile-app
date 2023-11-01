@@ -14,12 +14,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.rounded.KeyboardArrowRight
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -43,50 +48,42 @@ import java.time.Month
 import java.util.LinkedList
 
 @Composable
-fun Calendar() {
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Color(0xFF213138))
+fun Calendar(date: LocalDate, setDate: (LocalDate) -> Unit, modifier: Modifier = Modifier) {
+    var dateForCalendarShow by remember {
+        mutableStateOf(LocalDate.of(2003, 12, 2))
+    }
+    Column(
+        modifier = modifier
+            .background(colorResource(id = R.color.background_dark), RoundedCornerShape(8.dp))
+            .padding(15.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        var date by remember {
-            mutableStateOf(LocalDate.of(2003, 12, 2))
-        }
-        var dateForCalendarShow by remember {
-            mutableStateOf(LocalDate.of(2003, 12, 2))
-        }
-        Text(text = "$date")
-        Column(modifier = Modifier.align(Alignment.Center)) {
+        Row (horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically){
+            IconButton(onClick = { dateForCalendarShow = dateForCalendarShow.minusMonths(1) }) {
+                Icon(
+                    imageVector = Icons.Rounded.KeyboardArrowLeft,
+                    contentDescription = "Left",
+                    tint = calendarTextColor,
+                )
+            }
             YearMonthEditor(
                 date = dateForCalendarShow,
                 onDateChange = { dateForCalendarShow = it },
             )
-            DaySelectBoard(year = dateForCalendarShow.year, month = dateForCalendarShow.month, onDaySelect = { day ->
-                date = day
-            })
-        }
-    }
-}
-
-@Composable
-fun DaySelectBoard(year: Int, month: Month, onDaySelect: (LocalDate) -> Unit) {
-    val firstDay = LocalDate.of(year, month, 1)
-    val weeks = prepareCalendarMonthData(firstDay)
-
-
-    var currentDay = 0
-    Row {
-        for (dayOfWeek in 0..6) {
-            Column {
-                for (day in weeks.map { it[dayOfWeek] }) {
-                    if (day == null) {
-                        Text(text = "x", Modifier.padding(end = 10.dp))
-                    } else {
-                        Text(text = "${day.dayOfMonth}", Modifier.padding(5.dp).clip(CircleShape).clickable { onDaySelect(day) })
-                    }
-                }
+            IconButton(onClick = { dateForCalendarShow = dateForCalendarShow.plusMonths(1) }) {
+                Icon(
+                    imageVector = Icons.Rounded.KeyboardArrowRight,
+                    contentDescription = "Left",
+                    tint = calendarTextColor,
+                )
             }
         }
+        DaySelectBoard(
+            year = dateForCalendarShow.year,
+            month = dateForCalendarShow.month,
+            selectedDay = date,
+            onDaySelect = setDate,
+        )
     }
 }
 
@@ -102,10 +99,14 @@ fun YearMonthEditor(
     val closeDialog = { isDialogOpen = false }
 
 
-    Row {
-        Text(text = "${date.month} ${date.year}", modifier = modifier
-            .background(Color.White)
-            .clickable { openDialog() })
+    Box(Modifier) {
+        Fonts.heading2.Text(
+            text = "${date.month.toString().take(3).firstUpper()} ${date.year}",
+            color = calendarTextColor,
+            modifier = modifier
+                .align(Alignment.Center)
+                .clickable { openDialog() }
+        )
     }
 
     val background = colorResource(id = R.color.background_dark)
@@ -270,34 +271,94 @@ private fun Navigation(
     }
 }
 
-fun prepareCalendarMonthData(firstDay: LocalDate): List<List<LocalDate?>> {
+@Composable
+fun DaySelectBoard(year: Int, month: Month, selectedDay: LocalDate, onDaySelect: (LocalDate) -> Unit) {
+    val firstDay = LocalDate.of(year, month, 1)
+    val weeks = prepareCalendarData(firstDay)
+
+    fun colorOfDayText(dayOfWeek: Int) = if (dayOfWeek >= 5) Color(0xFFFF3B30) else calendarTextColor
+
+    Row {
+        DayOfWeek.values().forEachIndexed { index, day ->
+            Box(modifier = Modifier
+                .padding(1.dp)
+                .size(35.dp)) {
+                Fonts.regular.Text(
+                    text = "$day".take(2).firstUpper(),
+                    color = colorOfDayText(index),
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
+        }
+    }
+    Box(
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .width(245.dp)
+            .height(1.dp)
+            .background(Color(0xFF757575))
+    )
+
+    Row {
+        for (dayOfWeek in 0..6) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                for (day in weeks.map { it[dayOfWeek] }) {
+                    val color = if (selectedDay == day) Color(0xFF4355FA) else Color.Transparent
+                    Box(
+                        modifier = Modifier
+                            .padding(1.dp)
+                            .size(35.dp)
+                            .clip(CircleShape)
+                            .background(color)
+                            .clickable { if (day != null) onDaySelect(day) }
+                    ) {
+                        if (day != null) {
+                            Fonts.regular.Text(
+                                text = "${day.dayOfMonth}",
+                                color = colorOfDayText(dayOfWeek),
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun prepareCalendarData(firstDay: LocalDate): List<List<LocalDate?>> {
     val days = (1..firstDay.lengthOfMonth()).map {
         LocalDate.of(firstDay.year, firstDay.month, it)
     }
 
-    val list = LinkedList<LinkedList<LocalDate?>>()
-    list += LinkedList<LocalDate?>()
+    val weeks = LinkedList<LinkedList<LocalDate?>>()
+    weeks += LinkedList<LocalDate?>()
 
     days.forEach { day ->
-        list.last() += day
-        if (day.dayOfWeek == DayOfWeek.SUNDAY) list += LinkedList<LocalDate?>()
+        weeks.last += day
+        if (day.dayOfWeek == DayOfWeek.SUNDAY) weeks += LinkedList<LocalDate?>()
     }
+    if (weeks.last.isEmpty()) weeks.removeLast()
 
-    list.first.let { week ->
+    weeks.first.let { week ->
         repeat(7 - week.size) {
             week.addFirst(null)
         }
     }
-    list.last.let { week ->
+    weeks.last.let { week ->
         repeat(7 - week.size) {
             week.addLast(null)
         }
     }
-    return list
+    return weeks
 }
 
+private val calendarTextColor = Color(0xFFE0E0E0)
 
-data class ItemPositions(
+private fun String.firstUpper() = first().uppercase() + drop(1).lowercase()
+
+private data class ItemPositions(
     val index: Int,
     val offset: Int,
     val isScrolling: Boolean,
