@@ -18,12 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
-import pl.finitas.app.R
-import pl.finitas.app.core.presentation.components.rooms.messanger.ChatMessage
+import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
-import java.time.LocalTime
 
 @Composable
 fun RoomCard(title: String, lastMessage: String, unreadMessagesNumber: Int, modifier: Modifier = Modifier) {
@@ -52,7 +49,7 @@ fun RoomCard(title: String, lastMessage: String, unreadMessagesNumber: Int, modi
             modifier = Modifier
                 .size(32.dp)
                 .background(
-                    color = colorResource(id = R.color.background_light),
+                    color = Colors.backgroundLight,
                     shape = CircleShape,
                 )
                 .align(alignment = Alignment.CenterVertically)

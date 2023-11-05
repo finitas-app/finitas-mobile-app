@@ -11,10 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
-import pl.finitas.app.R
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
+import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import java.time.format.DateTimeFormatter
 
 private val patternOfMessageTime = DateTimeFormatter.ofPattern("HH:mm")
@@ -27,7 +26,7 @@ fun IncomingMessage(incomingChatMessage: IncomingChatMessage, modifier: Modifier
         modifier = modifier
             .padding(end = 30.dp)
             .background(
-                color = colorResource(id = R.color.incoming_message_background),
+                color = Colors.incomingMessageBackground,
                 shape = RoundedCornerShape(
                     topStart = 16.dp,
                     topEnd = 16.dp,
@@ -54,7 +53,7 @@ fun IncomingMessage(incomingChatMessage: IncomingChatMessage, modifier: Modifier
             Fonts.chatMessageTime.Text(
                 text = time.format(patternOfMessageTime),
                 modifier = Modifier.align(Alignment.End),
-                color = colorResource(id = R.color.background_light),
+                color = Colors.backgroundLight,
             )
         }
     }

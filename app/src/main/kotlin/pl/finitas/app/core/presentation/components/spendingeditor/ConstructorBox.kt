@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -19,15 +20,15 @@ fun ConstructorBox(
             Color(0xFF0D1016)
         ),
     ),
+    shape: Shape = RoundedCornerShape(7.dp),
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .background(
                 brush = brush,
-                shape = RoundedCornerShape(7.dp)
+                shape = shape,
             )
-            .then(modifier),
     ) {
         content()
     }

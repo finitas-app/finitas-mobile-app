@@ -36,11 +36,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import pl.finitas.app.R
+import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -50,11 +49,11 @@ import java.util.LinkedList
 @Composable
 fun Calendar(date: LocalDate, setDate: (LocalDate) -> Unit, modifier: Modifier = Modifier) {
     var dateForCalendarShow by remember {
-        mutableStateOf(LocalDate.of(2003, 12, 2))
+        mutableStateOf(date)
     }
     Column(
         modifier = modifier
-            .background(colorResource(id = R.color.background_dark), RoundedCornerShape(8.dp))
+            .background(Colors.backgroundDark, RoundedCornerShape(8.dp))
             .padding(15.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -91,7 +90,6 @@ fun Calendar(date: LocalDate, setDate: (LocalDate) -> Unit, modifier: Modifier =
 fun YearMonthEditor(
     date: LocalDate,
     onDateChange: (LocalDate) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     var isDialogOpen by remember { mutableStateOf(false) }
 
@@ -103,13 +101,11 @@ fun YearMonthEditor(
         Fonts.heading2.Text(
             text = "${date.month.toString().take(3).firstUpper()} ${date.year}",
             color = calendarTextColor,
-            modifier = modifier
+            modifier = Modifier
                 .align(Alignment.Center)
-                .clickable { openDialog() }
+                .clickable { openDialog() },
         )
     }
-
-    val background = colorResource(id = R.color.background_dark)
 
     if (isDialogOpen)
         Dialog(onDismissRequest = closeDialog) {
@@ -124,7 +120,7 @@ fun YearMonthEditor(
 
                 Box(modifier = Modifier
                     .padding(bottom = 30.dp)
-                    .background(background, shape = RoundedCornerShape(10.dp))
+                    .background(Colors.backgroundLight, shape = RoundedCornerShape(10.dp))
                     .align(Alignment.BottomCenter)
                     .clickable(
                         interactionSource = interactionSource,
@@ -281,7 +277,7 @@ fun DaySelectBoard(year: Int, month: Month, selectedDay: LocalDate, onDaySelect:
     Row {
         DayOfWeek.values().forEachIndexed { index, day ->
             Box(modifier = Modifier
-                .padding(1.dp)
+                .padding(vertical = 1.dp)
                 .size(35.dp)) {
                 Fonts.regular.Text(
                     text = "$day".take(2).firstUpper(),
@@ -294,7 +290,7 @@ fun DaySelectBoard(year: Int, month: Month, selectedDay: LocalDate, onDaySelect:
     Box(
         modifier = Modifier
             .padding(vertical = 4.dp)
-            .width(245.dp)
+            .width(250.dp)
             .height(1.dp)
             .background(Color(0xFF757575))
     )
@@ -306,7 +302,7 @@ fun DaySelectBoard(year: Int, month: Month, selectedDay: LocalDate, onDaySelect:
                     val color = if (selectedDay == day) Color(0xFF4355FA) else Color.Transparent
                     Box(
                         modifier = Modifier
-                            .padding(1.dp)
+                            .padding(vertical = 1.dp)
                             .size(35.dp)
                             .clip(CircleShape)
                             .background(color)

@@ -3,10 +3,15 @@ package pl.finitas.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,13 +22,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.background.PrimaryBackground
 import pl.finitas.app.core.presentation.components.spendingeditor.ConstructorBox
 import pl.finitas.app.core.presentation.components.spendingeditor.ConstructorInput
-import pl.finitas.app.core.presentation.components.spendingeditor.preview.CalendarTest
-import pl.finitas.app.ui.theme.FinitasmobileappTheme
+import pl.finitas.app.core.presentation.components.spendingeditor.DateInput
+import pl.finitas.app.core.presentation.components.spendingeditor.GestureVerticalMenu
+import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,10 +46,41 @@ class MainActivity : ComponentActivity() {
             //ConstructorTest()
             //RoomsTest()
             //MessengerTest()
-            CalendarTest()
+            //CalendarTest()
+            TestMovable()
         }
     }
 }
+
+
+@Composable
+fun TestMovable() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        GestureVerticalMenu(
+            topLimit = 0.25f,
+            bottomLimit = .75f,
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                var date by remember { mutableStateOf(LocalDate.now()) }
+
+                repeat(10) {
+                    DateInput(
+                        date = date,
+                        onDateChange = { date = it },
+                        modifier = Modifier
+                            .padding(horizontal = 20.dp, vertical = 5.dp)
+                            .fillMaxWidth()
+                    )
+                }
+            }
+        }
+    }
+}
+
 
 
 @Composable
@@ -106,14 +142,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         text = "Hello $name!",
         modifier = modifier,
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FinitasmobileappTheme {
-        Greeting("Android")
-    }
 }
 
 /*
