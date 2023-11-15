@@ -1,4 +1,4 @@
-package pl.finitas.app.core.presentation.components.spendingeditor
+package pl.finitas.app.core.presentation.components.constructors
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

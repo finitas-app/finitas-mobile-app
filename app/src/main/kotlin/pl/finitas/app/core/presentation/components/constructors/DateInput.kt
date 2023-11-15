@@ -1,4 +1,4 @@
-package pl.finitas.app.core.presentation.components.spendingeditor
+package pl.finitas.app.core.presentation.components.constructors
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -19,7 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import pl.finitas.app.core.presentation.components.spendingeditor.calendar.Calendar
+import pl.finitas.app.core.presentation.components.constructors.calendar.Calendar
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import java.time.LocalDate
 

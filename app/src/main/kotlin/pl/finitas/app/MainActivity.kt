@@ -3,7 +3,6 @@ package pl.finitas.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,10 +23,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.background.PrimaryBackground
-import pl.finitas.app.core.presentation.components.spendingeditor.ConstructorBox
-import pl.finitas.app.core.presentation.components.spendingeditor.ConstructorInput
-import pl.finitas.app.core.presentation.components.spendingeditor.DateInput
-import pl.finitas.app.core.presentation.components.spendingeditor.GestureVerticalMenu
+import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
+import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
+import pl.finitas.app.core.presentation.components.constructors.DateInput
+import pl.finitas.app.core.presentation.components.constructors.GestureVerticalMenu
+import pl.finitas.app.core.presentation.components.constructors.preview.SpendingListTest
 import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
@@ -47,7 +47,8 @@ class MainActivity : ComponentActivity() {
             //RoomsTest()
             //MessengerTest()
             //CalendarTest()
-            TestMovable()
+            //TestMovable()
+            SpendingListTest()
         }
     }
 }
@@ -55,7 +56,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun TestMovable() {
-    Box(modifier = Modifier.fillMaxSize()) {
+    PrimaryBackground {
         GestureVerticalMenu(
             topLimit = 0.25f,
             bottomLimit = .75f,

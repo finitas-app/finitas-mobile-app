@@ -1,4 +1,4 @@
-package pl.finitas.app.core.presentation.components.spendingeditor.preview
+package pl.finitas.app.core.presentation.components.constructors.preview
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
@@ -14,9 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.background.PrimaryBackground
-import pl.finitas.app.core.presentation.components.spendingeditor.ConstructorBox
-import pl.finitas.app.core.presentation.components.spendingeditor.ConstructorInput
-import pl.finitas.app.core.presentation.components.spendingeditor.DateInput
+import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
+import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
+import pl.finitas.app.core.presentation.components.constructors.DateInput
 import java.time.LocalDate
 
 @Composable

@@ -1,4 +1,4 @@
-package pl.finitas.app.core.presentation.components.spendingeditor.calendar
+package pl.finitas.app.core.presentation.components.constructors.calendar
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
