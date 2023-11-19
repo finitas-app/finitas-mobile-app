@@ -30,24 +30,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
-import java.math.BigDecimal
-
-sealed interface SpendingElement {
-    val name: String
-    val totalPrice: BigDecimal
-}
-
-data class SpendingCategory(
-    override val name: String,
-    val spendingElements: List<SpendingElement>,
-) : SpendingElement {
-    override val totalPrice by lazy { spendingElements.sumOf { it.totalPrice } }
-}
-
-data class SpendingRecord(
-    override val name: String,
-    override val totalPrice: BigDecimal,
-) : SpendingElement
+import pl.finitas.app.manage_spendings_feature.domain.services.SpendingContainer
+import pl.finitas.app.manage_spendings_feature.domain.services.SpendingElement
+import pl.finitas.app.manage_spendings_feature.domain.services.SpendingRecordView
+import pl.finitas.app.manage_spendings_feature.domain.services.TotalSpendingView
 
 private val borderColor = Color.White.copy(alpha = .1f)
 
@@ -106,9 +92,14 @@ private fun SpendingElementComponent(
                 .fillMaxWidth()
         ) {
             when (spendingElement) {
-                is SpendingRecord -> SpendingRecordBody(spendingElement, itemExtras, depth)
-                is SpendingCategory -> SpendingCategoryBody(
-                    spendingCategory = spendingElement,
+                is SpendingRecordView -> SpendingRecordBody(spendingElement, itemExtras, depth)
+                is SpendingContainer -> SpendingCategoryBody(
+                    spendingContainer = spendingElement,
+                    itemExtras = itemExtras,
+                    depth = depth,
+                )
+                is TotalSpendingView -> TotalSpendingBody(
+                    totalSpendingView = spendingElement,
                     itemExtras = itemExtras,
                     depth = depth,
                 )
@@ -118,13 +109,31 @@ private fun SpendingElementComponent(
 }
 
 @Composable
+private fun TotalSpendingBody(
+    totalSpendingView: TotalSpendingView,
+    itemExtras: @Composable RowScope.(SpendingElement) -> Unit,
+    depth: Int,
+) {
+    SpendingCategoryBody(
+        SpendingContainer(
+            totalSpendingView.name,
+            // TODO: remove idCategory and refactor
+            0,
+            totalSpendingView.spendingElements
+        ),
+        itemExtras,
+        depth,
+    )
+}
+
+@Composable
 private fun SpendingCategoryBody(
-    spendingCategory: SpendingCategory,
+    spendingContainer: SpendingContainer,
     itemExtras: @Composable RowScope.(SpendingElement) -> Unit,
     depth: Int,
 ) {
     var isOpenNestedCategories by remember { mutableStateOf(false) }
-    fun hasNested() = spendingCategory.spendingElements.isNotEmpty()
+    fun hasNested() = spendingContainer.spendingElements.isNotEmpty()
 
     Row(
         modifier = Modifier
@@ -132,7 +141,7 @@ private fun SpendingCategoryBody(
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        RenderStarter(spendingElement = spendingCategory, depth = depth)
+        RenderStarter(spendingElement = spendingContainer, depth = depth)
         Row {
             if (hasNested())
                 NestedToggled(
@@ -142,12 +151,12 @@ private fun SpendingCategoryBody(
                         .align(Alignment.CenterVertically)
                         .padding(end = 20.dp)
                 )
-            itemExtras(spendingCategory)
+            itemExtras(spendingContainer)
         }
     }
     if (hasNested() && isOpenNestedCategories)
         SpendingListRecursive(
-            spendingCategory.spendingElements,
+            spendingContainer.spendingElements,
             itemExtras,
             depth + 1
         )
@@ -181,8 +190,8 @@ private fun RowScope.NestedToggled(
 
 @Composable
 private fun SpendingRecordBody(
-    spendingRecord: SpendingRecord,
-    itemExtras: @Composable RowScope.(SpendingRecord) -> Unit,
+    spendingRecordView: SpendingRecordView,
+    itemExtras: @Composable RowScope.(SpendingRecordView) -> Unit,
     depth: Int,
 ) {
     Row(
@@ -191,8 +200,8 @@ private fun SpendingRecordBody(
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        RenderStarter(spendingElement = spendingRecord, depth = depth)
-        itemExtras(spendingRecord)
+        RenderStarter(spendingElement = spendingRecordView, depth = depth)
+        itemExtras(spendingRecordView)
     }
 }
 

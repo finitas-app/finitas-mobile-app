@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Send
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -57,14 +58,25 @@ fun MessengerInput(
                 .padding(end = 50.dp)) {
                 it()
             }
-            IconButton(
-                onClick = {
-                    onSendMessage(value)
-                    value = ""
-                },
-                modifier = Modifier.align(Alignment.CenterEnd)
-            ) {
-                Icon(imageVector = Icons.Rounded.Send, contentDescription = "")
+            if (value.isNotEmpty()) {
+                IconButton(
+                    onClick = {
+                        onSendMessage(value)
+                        value = ""
+                    },
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                ) {
+                    Icon(imageVector = Icons.Rounded.Send, contentDescription = "")
+                }
+            } else {
+                IconButton(
+                    onClick = {
+                        onPinObject()
+                    },
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                ) {
+                    Icon(imageVector = Icons.Rounded.Share, contentDescription = "")
+                }
             }
         }
     }

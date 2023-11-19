@@ -22,18 +22,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import org.koin.androidx.compose.KoinAndroidContext
+import org.koin.core.annotation.KoinExperimentalAPI
 import pl.finitas.app.core.presentation.components.background.PrimaryBackground
 import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
 import pl.finitas.app.core.presentation.components.constructors.DateInput
 import pl.finitas.app.core.presentation.components.constructors.GestureVerticalMenu
-import pl.finitas.app.core.presentation.components.constructors.preview.SpendingListTest
+import pl.finitas.app.navigation.AppNavigation
 import java.time.LocalDate
 
+@OptIn(KoinExperimentalAPI::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
+            KoinAndroidContext {
+                AppNavigation()
+            }
             /*FinitasmobileappTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -48,7 +55,7 @@ class MainActivity : ComponentActivity() {
             //MessengerTest()
             //CalendarTest()
             //TestMovable()
-            SpendingListTest()
+            //SpendingListTest()
         }
     }
 }
@@ -81,7 +88,6 @@ fun TestMovable() {
         }
     }
 }
-
 
 
 @Composable
