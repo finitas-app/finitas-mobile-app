@@ -18,7 +18,6 @@ class TotalSpendingService(
             val categories =
                 spendingCategoryRepository
                 .getSpendingCategories()
-                //listOf<SpendingCategory>()
                 .associateBy { it.idCategory ?: -1 }
 
 

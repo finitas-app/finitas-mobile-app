@@ -8,6 +8,7 @@ import pl.finitas.app.manage_spendings_feature.data.repository.TotalSpendingRepo
 import pl.finitas.app.manage_spendings_feature.domain.repository.SpendingCategoryRepository
 import pl.finitas.app.manage_spendings_feature.domain.repository.TotalSpendingRepository
 import pl.finitas.app.manage_spendings_feature.domain.services.TotalSpendingService
+import pl.finitas.app.manage_spendings_feature.presentation.add_spending.AddSpendingViewModel
 import pl.finitas.app.manage_spendings_feature.presentation.spendings.TotalSpendingViewModel
 
 val manageSpendingsModule = module {
@@ -21,4 +22,5 @@ val manageSpendingsModule = module {
         TotalSpendingService(get(), get())
     }
     viewModel { TotalSpendingViewModel(get(), get()) }
+    viewModel { AddSpendingViewModel() }
 }

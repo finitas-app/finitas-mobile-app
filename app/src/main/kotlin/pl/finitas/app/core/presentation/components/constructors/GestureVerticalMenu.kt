@@ -37,7 +37,7 @@ import kotlin.math.roundToInt
 fun BoxScope.GestureVerticalMenu(
     topLimit: Float,
     bottomLimit: Float,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val height = screenHeight - (topLimit * screenHeight)
@@ -63,16 +63,19 @@ fun BoxScope.GestureVerticalMenu(
         label = "position",
     )
 
-    ConstructorBox(
+    Box(
         modifier = Modifier
             .align(Alignment.BottomCenter)
             .offset { IntOffset(0, position.roundToInt()) }
             .fillMaxWidth()
-            .height(height),
-        shape = RoundedCornerShape(
-            topStart = 7.dp,
-            topEnd = 7.dp,
-        ),
+            .height(height)
+            .constructorBoxBackground(
+                shape = RoundedCornerShape(
+                    topStart = 20.dp,
+                    topEnd = 20.dp,
+                )
+            )
+        ,
     ) {
         Column {
             Box(

@@ -10,8 +10,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Send
 import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +22,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import pl.finitas.app.core.presentation.components.ClickableIcon
 
 @Composable
 fun MessengerInput(
@@ -53,30 +52,30 @@ fun MessengerInput(
             .wrapContentSize(align = Alignment.CenterStart),
     ) {
         Box(Modifier.fillMaxWidth()) {
-            Box(modifier = Modifier
-                .align(Alignment.CenterStart)
-                .padding(end = 50.dp)) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(end = 50.dp)
+            ) {
                 it()
             }
             if (value.isNotEmpty()) {
-                IconButton(
+                ClickableIcon(
+                    imageVector = Icons.Rounded.Send,
                     onClick = {
                         onSendMessage(value)
                         value = ""
                     },
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                ) {
-                    Icon(imageVector = Icons.Rounded.Send, contentDescription = "")
-                }
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                )
             } else {
-                IconButton(
+                ClickableIcon(
+                    imageVector = Icons.Rounded.Share,
                     onClick = {
                         onPinObject()
                     },
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                ) {
-                    Icon(imageVector = Icons.Rounded.Share, contentDescription = "")
-                }
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                )
             }
         }
     }

@@ -14,9 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.background.PrimaryBackground
-import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
 import pl.finitas.app.core.presentation.components.constructors.DateInput
+import pl.finitas.app.core.presentation.components.constructors.constructorBoxBackground
 import java.time.LocalDate
 
 @Composable
@@ -27,9 +27,10 @@ fun CalendarTest() {
                 .padding(top = 150.dp)
                 .align(Alignment.TopCenter)
         ) {
-            ConstructorBox(
+            Box(
                 Modifier
                     .height(600.dp)
+                    .constructorBoxBackground()
             ) {
                 var date by remember {
                     mutableStateOf(LocalDate.now())

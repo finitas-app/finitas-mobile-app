@@ -98,6 +98,7 @@ private fun SpendingElementComponent(
                     itemExtras = itemExtras,
                     depth = depth,
                 )
+
                 is TotalSpendingView -> TotalSpendingBody(
                     totalSpendingView = spendingElement,
                     itemExtras = itemExtras,
@@ -214,10 +215,16 @@ fun RenderStarter(spendingElement: SpendingElement, depth: Int) {
         if (depth > 0)
             Box(
                 modifier = Modifier
-                    .padding(end = 15.dp)
+                    .let {
+                        if (depth == 1) {
+                            it.padding(end = 10.dp)
+                        } else {
+                            it.padding(end = 15.dp)
+                        }
+                    }
+                    .width((15 * depth - 10).dp)
                     .align(Alignment.CenterVertically)
                     .height(1.dp)
-                    .width((15 * depth).dp)
                     .background(Color.White.copy(0.1f * depth))
             )
         Fonts.regular.Text(

@@ -3,8 +3,10 @@ package pl.finitas.app.core.presentation.components.constructors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -44,6 +46,7 @@ fun ConstructorInput(
             textAlign = TextAlign.Justify
         ),
         modifier = modifier
+            .width(IntrinsicSize.Min)
             .background(Colors.backgroundDark, shape)
             .border(1.dp, transparentWhite, shape)
             .padding(start = 12.dp)

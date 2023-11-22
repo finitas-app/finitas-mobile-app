@@ -16,20 +16,30 @@ fun ConstructorBox(
     modifier: Modifier = Modifier,
     brush: Brush = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFF213138),
-            Color(0xFF0D1016)
+            Color(0xFF213138), Color(0xFF0D1016)
         ),
     ),
+    postModifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(7.dp),
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     Box(
         modifier = modifier
-            .background(
-                brush = brush,
-                shape = shape,
-            )
+            .constructorBoxBackground(brush, shape)
+            .then(postModifier)
     ) {
         content()
     }
 }
+
+fun Modifier.constructorBoxBackground(
+    brush: Brush = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFF213138), Color(0xFF0D1016)
+        ),
+    ),
+    shape: Shape = RoundedCornerShape(7.dp),
+) = background(
+    brush = brush,
+    shape = shape,
+)
