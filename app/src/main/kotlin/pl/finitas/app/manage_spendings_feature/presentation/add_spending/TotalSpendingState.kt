@@ -14,7 +14,7 @@ data class TotalSpendingState(
     val removeSpending = getSpendingsMutator { list, spending -> list - spending }
 
 
-    fun getSpendingsMutator(action: (List<SpendingElement>, SpendingRecordView) -> List<SpendingElement>) =
+    private fun getSpendingsMutator(action: (List<SpendingElement>, SpendingRecordView) -> List<SpendingElement>) =
         { spendingRecord: SpendingRecordView ->
             val indexOfCategory =
                 categories.indexOfFirst { it.idCategory == spendingRecord.idCategory }
@@ -24,4 +24,8 @@ data class TotalSpendingState(
                 category.copy(spendingElements = action(category.spendingElements, spendingRecord))
             copy(categories = result)
         }
+
+    companion object {
+        val emptyState = TotalSpendingState("", LocalDate.now(), listOf())
+    }
 }

@@ -3,9 +3,13 @@ package pl.finitas.app.manage_spendings_feature.domain.services
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import pl.finitas.app.manage_spendings_feature.domain.model.SpendingCategory
+import pl.finitas.app.manage_spendings_feature.domain.model.SpendingRecord
+import pl.finitas.app.manage_spendings_feature.domain.model.TotalSpending
+import pl.finitas.app.manage_spendings_feature.domain.model.relations.TotalSpendingWithRecords
 import pl.finitas.app.manage_spendings_feature.domain.repository.SpendingCategoryNotFoundException
 import pl.finitas.app.manage_spendings_feature.domain.repository.SpendingCategoryRepository
 import pl.finitas.app.manage_spendings_feature.domain.repository.TotalSpendingRepository
+import pl.finitas.app.manage_spendings_feature.presentation.add_spending.TotalSpendingState
 import java.time.LocalDate
 
 class TotalSpendingService(
@@ -52,19 +56,25 @@ class TotalSpendingService(
                 }
                 .sortedByDescending { it.first }
         }
+
+    suspend fun addTotalSpending(totalSpending: TotalSpendingState) {
+        totalSpendingRepository.upsertTotalSpendingWithRecords(
+            totalSpending.toTotalSpendingWithRecords()
+        )
+    }
 }
 
 
 // TODO: refactoring
 private fun TotalSpendingView.normalizeTotalSpendingView(categoryById: Map<Int, SpendingCategory>): TotalSpendingView {
     val recordsByCategoryId = spendingElements.associate { element ->
-        (element as pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryView).let { it.idCategory to it.spendingElements }
+        (element as SpendingCategoryView).let { it.idCategory to it.spendingElements }
     }.toMutableMap()
         /*.groupBy {
         (it as? SpendingRecordView)?.idCategory ?: -1
     }.toMutableMap()*/
     val result = mutableListOf<SpendingElement>()
-    val previousSpendingElements = mutableMapOf<Int, pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryView>()
+    val previousSpendingElements = mutableMapOf<Int, SpendingCategoryView>()
 
     outer@ while (recordsByCategoryId.isNotEmpty()) {
         val (idCategory, records) = recordsByCategoryId.entries.first()
@@ -116,8 +126,31 @@ private fun TotalSpendingView.normalizeTotalSpendingView(categoryById: Map<Int, 
 }
 
 private fun verifyPrevious(
-    previous: Map<Int, pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryView>,
+    previous: Map<Int, SpendingCategoryView>,
     categoryId: Int,
 ): MutableList<SpendingElement>? {
     return previous[categoryId]?.let { it.spendingElements as? MutableList<SpendingElement> }
 }
+
+@Throws(InvalidTotalSpendingState::class)
+fun TotalSpendingState.toTotalSpendingWithRecords() = TotalSpendingWithRecords(
+    totalSpending = TotalSpending(
+        title = title,
+        time = date.atStartOfDay(),
+    ),
+    spendingRecords = categories.flatMap { category ->
+        category.spendingElements.map { spendingRecord ->
+            if (spendingRecord !is SpendingRecordView) throw  InvalidTotalSpendingState(this)
+
+            SpendingRecord(
+                name = spendingRecord.name,
+                price = spendingRecord.totalPrice,
+                idCategory = category.idCategory,
+            )
+        }
+    }
+)
+
+
+class InvalidTotalSpendingState(totalSpendingView: TotalSpendingState) :
+    Exception("Total spending state is invalid: $totalSpendingView")

@@ -26,5 +26,5 @@ val manageSpendingsModule = module {
         SpendingCategoryService(get())
     }
     viewModel { TotalSpendingViewModel(get(), get()) }
-    viewModel { AddSpendingViewModel(get()) }
+    viewModel { AddSpendingViewModel(get(), get()) }
 }

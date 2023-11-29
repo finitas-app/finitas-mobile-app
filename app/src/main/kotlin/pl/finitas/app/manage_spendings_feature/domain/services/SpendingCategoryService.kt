@@ -5,6 +5,8 @@ import pl.finitas.app.manage_spendings_feature.domain.repository.SpendingCategor
 class SpendingCategoryService(
     private val spendingCategoryRepository: SpendingCategoryRepository,
 ) {
+
+    // TODO: Change to flow
     suspend fun getSpendingCategories(): List<SpendingCategoryView> {
         val categories = spendingCategoryRepository.getSpendingCategories()
 

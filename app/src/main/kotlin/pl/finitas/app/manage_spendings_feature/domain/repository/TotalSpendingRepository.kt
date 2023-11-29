@@ -16,7 +16,7 @@ interface TotalSpendingRepository {
             ?: throw TotalSpendingNotFoundException(idTotalSpending)
 
 
-    suspend fun upsertTotalSpending(totalSpending: TotalSpending)
+    suspend fun upsertTotalSpendingWithRecords(totalSpending: TotalSpendingWithRecords)
 
     suspend fun deleteTotalSpending(totalSpending: TotalSpending)
 }

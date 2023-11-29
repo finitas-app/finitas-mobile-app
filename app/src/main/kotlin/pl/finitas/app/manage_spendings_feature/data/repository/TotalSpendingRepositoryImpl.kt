@@ -18,8 +18,9 @@ class TotalSpendingRepositoryImpl(
         return dao.findTotalSpendingBy(idTotalSpending)
     }
 
-    override suspend fun upsertTotalSpending(totalSpending: TotalSpending) {
-        return dao.upsertTotalSpending(totalSpending)
+    override suspend fun upsertTotalSpendingWithRecords(totalSpendingWithRecords: TotalSpendingWithRecords) {
+        val (totalSpending, spendingRecords) = totalSpendingWithRecords
+        dao.upsertTotalSpendingWithRecords(totalSpending, spendingRecords)
     }
 
     override suspend fun deleteTotalSpending(totalSpending: TotalSpending) {

@@ -14,7 +14,7 @@ class LocalDateTimeConverter {
 
     @TypeConverter
     fun toLocalDateTime(timestamp: Long): LocalDateTime {
-        return Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()).toLocalDateTime()
+        return Instant.ofEpochSecond(timestamp).atZone(ZoneId.systemDefault()).toLocalDateTime()
     }
 
     private val currentZoneOffset

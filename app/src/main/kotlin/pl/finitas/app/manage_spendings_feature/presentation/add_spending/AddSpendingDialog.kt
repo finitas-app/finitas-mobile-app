@@ -78,7 +78,7 @@ private fun AddSpendingPanel(
                 imageVector = Icons.Rounded.Close,
                 onClick = addSpendingViewModel::closeDialog
             )
-            ClickableIcon(imageVector = Icons.Rounded.Check, onClick = {})
+            ClickableIcon(imageVector = Icons.Rounded.Check, onClick = addSpendingViewModel::onSave)
         }
         AddSpendingForm(addSpendingViewModel = addSpendingViewModel)
     }
