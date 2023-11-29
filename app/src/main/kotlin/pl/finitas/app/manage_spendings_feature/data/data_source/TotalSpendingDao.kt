@@ -3,6 +3,7 @@ package pl.finitas.app.manage_spendings_feature.data.data_source
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import pl.finitas.app.manage_spendings_feature.domain.model.TotalSpending
@@ -11,6 +12,7 @@ import pl.finitas.app.manage_spendings_feature.domain.model.relations.TotalSpend
 @Dao
 interface TotalSpendingDao {
 
+    @Transaction
     @Query("SELECT * FROM TotalSpending")
     fun getTotalSpendings(): Flow<List<TotalSpendingWithRecords>>
 

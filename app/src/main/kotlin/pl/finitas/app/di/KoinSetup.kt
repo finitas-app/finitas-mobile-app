@@ -26,7 +26,7 @@ val applicationModule = module {
                 FinitasDatabase::class.java,
                 FinitasDatabase.databaseName,
             )
-            .createFromAsset("setup.db")
+            .createFromAsset("sqlite.db")
             .build()
     }
 }

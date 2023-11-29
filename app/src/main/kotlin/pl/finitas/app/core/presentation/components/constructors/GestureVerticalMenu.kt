@@ -95,7 +95,6 @@ fun BoxScope.GestureVerticalMenu(
                                 }
                             }
                             isTop = dragAmount < 0
-                            println("${change.pressed} - $offsetY")
                         }
                     }
             ) {

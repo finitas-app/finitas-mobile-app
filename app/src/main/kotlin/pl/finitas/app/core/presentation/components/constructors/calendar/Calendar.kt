@@ -1,6 +1,7 @@
 package pl.finitas.app.core.presentation.components.constructors.calendar
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -38,7 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import pl.finitas.app.core.presentation.components.dialog.NestedDialog
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import java.time.DayOfWeek
@@ -107,34 +107,28 @@ fun YearMonthEditor(
         )
     }
 
-    if (isDialogOpen)
-        Dialog(onDismissRequest = closeDialog) {
-            val interactionSourceOuter = remember { MutableInteractionSource() }
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .clickable(
-                    interactionSource = interactionSourceOuter,
-                    indication = null
-                ) { closeDialog() }) {
-                val interactionSource = remember { MutableInteractionSource() }
+    NestedDialog(
+        isOpen = isDialogOpen,
+        onClose = closeDialog,
+    ) {
+        val interactionSource = remember { MutableInteractionSource() }
 
-                Box(modifier = Modifier
-                    .padding(bottom = 30.dp)
-                    .background(Colors.backgroundLight, shape = RoundedCornerShape(10.dp))
-                    .align(Alignment.BottomCenter)
-                    .clickable(
-                        interactionSource = interactionSource,
-                        indication = null
-                    ) {}
-                ) {
-                    YearMonthEditor(
-                        date = date,
-                        onSave = onDateChange,
-                        onCancel = closeDialog,
-                    )
-                }
-            }
+        Box(modifier = Modifier
+            .padding(bottom = 30.dp)
+            .background(Colors.backgroundLight, shape = RoundedCornerShape(10.dp))
+            .align(Alignment.BottomCenter)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) {}
+        ) {
+            YearMonthEditor(
+                date = date,
+                onSave = onDateChange,
+                onCancel = closeDialog,
+            )
         }
+    }
 }
 
 
@@ -165,7 +159,6 @@ fun BoxScope.YearMonthEditor(
 
     LaunchedEffect(positionOfYear) {
         val (_, offset, isScrolling) = positionOfYear
-        println(positionOfMonth.index)
         if (!isScrolling && offset != 0) {
             yearsListState.animateScrollToItem(positionOfYear.getClosestIndex, 0)
         }
@@ -273,48 +266,49 @@ fun DaySelectBoard(year: Int, month: Month, selectedDay: LocalDate, onDaySelect:
     val weeks = prepareCalendarData(firstDay)
 
     fun colorOfDayText(dayOfWeek: Int) = if (dayOfWeek >= 5) Color(0xFFFF3B30) else calendarTextColor
-
-    Row {
-        DayOfWeek.values().forEachIndexed { index, day ->
-            Box(modifier = Modifier
-                .padding(vertical = 1.dp)
-                .size(35.dp)) {
-                Fonts.regular.Text(
-                    text = "$day".take(2).firstUpper(),
-                    color = colorOfDayText(index),
-                    modifier = Modifier.align(Alignment.Center),
-                )
+    Column (Modifier.animateContentSize()){
+        Row {
+            DayOfWeek.values().forEachIndexed { index, day ->
+                Box(modifier = Modifier
+                    .padding(vertical = 1.dp)
+                    .size(35.dp)) {
+                    Fonts.regular.Text(
+                        text = "$day".take(2).firstUpper(),
+                        color = colorOfDayText(index),
+                        modifier = Modifier.align(Alignment.Center),
+                    )
+                }
             }
         }
-    }
-    Box(
-        modifier = Modifier
-            .padding(vertical = 4.dp)
-            .width(250.dp)
-            .height(1.dp)
-            .background(Color(0xFF757575))
-    )
+        Box(
+            modifier = Modifier
+                .padding(vertical = 4.dp)
+                .width(250.dp)
+                .height(1.dp)
+                .background(Color(0xFF757575))
+        )
 
-    Row {
-        for (dayOfWeek in 0..6) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                for (day in weeks.map { it[dayOfWeek] }) {
-                    val color = if (selectedDay == day) Color(0xFF4355FA) else Color.Transparent
-                    Box(
-                        modifier = Modifier
-                            .padding(vertical = 1.dp)
-                            .size(35.dp)
-                            .clip(CircleShape)
-                            .background(color)
-                            .clickable { if (day != null) onDaySelect(day) }
-                    ) {
-                        if (day != null) {
-                            Fonts.regular.Text(
-                                text = "${day.dayOfMonth}",
-                                color = colorOfDayText(dayOfWeek),
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                            )
+        Row {
+            for (dayOfWeek in 0..6) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    for (day in weeks.map { it[dayOfWeek] }) {
+                        val color = if (selectedDay == day) Color(0xFF4355FA) else Color.Transparent
+                        Box(
+                            modifier = Modifier
+                                .padding(vertical = 1.dp)
+                                .size(35.dp)
+                                .clip(CircleShape)
+                                .background(color)
+                                .clickable { if (day != null) onDaySelect(day) }
+                        ) {
+                            if (day != null) {
+                                Fonts.regular.Text(
+                                    text = "${day.dayOfMonth}",
+                                    color = colorOfDayText(dayOfWeek),
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                )
+                            }
                         }
                     }
                 }

@@ -36,7 +36,7 @@ fun RoomsTest() {
                             "First room",
                             "Last message in chat about something",
                             1,
-                            modifier = Modifier.clickable { println(it) })
+                            modifier = Modifier.clickable {  })
                     }
                 }
             }

@@ -1,12 +1,13 @@
 package pl.finitas.app.core.presentation.components.constructors
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,7 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
-import pl.finitas.app.manage_spendings_feature.domain.services.SpendingContainer
+import pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryView
 import pl.finitas.app.manage_spendings_feature.domain.services.SpendingElement
 import pl.finitas.app.manage_spendings_feature.domain.services.SpendingRecordView
 import pl.finitas.app.manage_spendings_feature.domain.services.TotalSpendingView
@@ -46,7 +47,6 @@ fun SpendingList(
     Column(
         modifier
             .border(1.dp, borderColor, RoundedCornerShape(10.dp))
-
     ) {
         SpendingListRecursive(spendingElements, itemExtras)
     }
@@ -83,40 +83,36 @@ private fun SpendingElementComponent(
     itemExtras: @Composable RowScope.(SpendingElement) -> Unit,
     depth: Int,
 ) {
-    Row(
+    Column(
         modifier = Modifier
-            .height(intrinsicSize = IntrinsicSize.Min)
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            when (spendingElement) {
-                is SpendingRecordView -> SpendingRecordBody(spendingElement, itemExtras, depth)
-                is SpendingContainer -> SpendingCategoryBody(
-                    spendingContainer = spendingElement,
-                    itemExtras = itemExtras,
-                    depth = depth,
-                )
+        when (spendingElement) {
+            is SpendingRecordView -> SpendingRecordBody(spendingElement, itemExtras, depth)
+            is SpendingCategoryView -> SpendingCategoryBody(
+                spendingCategoryView = spendingElement,
+                itemExtras = itemExtras,
+                depth = depth,
+            )
 
-                is TotalSpendingView -> TotalSpendingBody(
-                    totalSpendingView = spendingElement,
-                    itemExtras = itemExtras,
-                    depth = depth,
-                )
-            }
+            is TotalSpendingView -> TotalSpendingBody(
+                totalSpendingView = spendingElement,
+                itemExtras = itemExtras,
+                depth = depth,
+            )
         }
     }
 }
 
 @Composable
-private fun TotalSpendingBody(
+private fun ColumnScope.TotalSpendingBody(
     totalSpendingView: TotalSpendingView,
     itemExtras: @Composable RowScope.(SpendingElement) -> Unit,
     depth: Int,
 ) {
     SpendingCategoryBody(
-        SpendingContainer(
+        SpendingCategoryView(
             totalSpendingView.name,
             // TODO: remove idCategory and refactor
             0,
@@ -128,13 +124,13 @@ private fun TotalSpendingBody(
 }
 
 @Composable
-private fun SpendingCategoryBody(
-    spendingContainer: SpendingContainer,
+private fun ColumnScope.SpendingCategoryBody(
+    spendingCategoryView: SpendingCategoryView,
     itemExtras: @Composable RowScope.(SpendingElement) -> Unit,
     depth: Int,
 ) {
     var isOpenNestedCategories by remember { mutableStateOf(false) }
-    fun hasNested() = spendingContainer.spendingElements.isNotEmpty()
+    fun hasNested() = spendingCategoryView.spendingElements.isNotEmpty()
 
     Row(
         modifier = Modifier
@@ -142,7 +138,7 @@ private fun SpendingCategoryBody(
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        RenderStarter(spendingElement = spendingContainer, depth = depth)
+        RenderStarter(spendingElement = spendingCategoryView, depth = depth)
         Row {
             if (hasNested())
                 NestedToggled(
@@ -150,17 +146,22 @@ private fun SpendingCategoryBody(
                     onClick = { isOpenNestedCategories = !isOpenNestedCategories },
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
-                        .padding(end = 20.dp)
+                        .padding(end = 16.dp)
                 )
-            itemExtras(spendingContainer)
+            itemExtras(spendingCategoryView)
         }
     }
-    if (hasNested() && isOpenNestedCategories)
-        SpendingListRecursive(
-            spendingContainer.spendingElements,
-            itemExtras,
-            depth + 1
-        )
+    if (hasNested()) {
+        AnimatedVisibility(
+            visible = isOpenNestedCategories,
+        ) {
+            SpendingListRecursive(
+                spendingCategoryView.spendingElements,
+                itemExtras,
+                depth + 1
+            )
+        }
+    }
 }
 
 @Composable
@@ -210,7 +211,7 @@ private fun SpendingRecordBody(
 fun RenderStarter(spendingElement: SpendingElement, depth: Int) {
     Row(
         Modifier
-            .padding(start = 20.dp)
+            .padding(start = 16.dp)
     ) {
         if (depth > 0)
             Box(

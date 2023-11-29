@@ -1,5 +1,6 @@
 package pl.finitas.app.core.presentation.components.constructors
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,7 +38,7 @@ fun DateInput(
             rightIcon = {
                 IconButton(
                     onClick = { calendarIsOpened = !calendarIsOpened },
-                    modifier = it.size(32.dp),
+                    modifier = Modifier.size(32.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.DateRange,
@@ -49,7 +50,9 @@ fun DateInput(
             modifier = Modifier.fillMaxWidth()
         )
 
-        if (calendarIsOpened) {
+        AnimatedVisibility (
+            visible = calendarIsOpened,
+        ) {
             Calendar(
                 date = date,
                 setDate = onDateChange,
@@ -58,6 +61,5 @@ fun DateInput(
                     .width(285.dp)
             )
         }
-
     }
 }

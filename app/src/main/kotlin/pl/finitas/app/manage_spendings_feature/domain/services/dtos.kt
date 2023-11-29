@@ -9,7 +9,7 @@ sealed interface SpendingElement {
     val totalPrice: BigDecimal
 }
 
-data class SpendingContainer(
+data class SpendingCategoryView(
     override val name: String,
     val idCategory: Int,
     val spendingElements: List<SpendingElement>,

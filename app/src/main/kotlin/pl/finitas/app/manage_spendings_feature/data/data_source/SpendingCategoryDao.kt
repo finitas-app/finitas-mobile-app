@@ -10,7 +10,7 @@ import pl.finitas.app.manage_spendings_feature.domain.model.SpendingCategory
 @Dao
 interface SpendingCategoryDao {
 
-    @Query("SELECT * FROM SpendingCategory")
+    @Query("SELECT * FROM SpendingCategory ORDER BY createdAt")
     fun getSpendingCategoriesFlow(): Flow<List<SpendingCategory>>
 
     @Query("SELECT * FROM SpendingCategory")

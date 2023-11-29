@@ -31,7 +31,7 @@ class TotalSpendingService(
                         name = totalSpending.title,
                         date = totalSpending.time,
                         spendingElements = recordsByCategory.map { (idCategory, records) ->
-                            SpendingContainer(
+                            SpendingCategoryView(
                                 categories[idCategory]?.name
                                     ?: throw SpendingCategoryNotFoundException(idCategory),
                                 idCategory,
@@ -58,19 +58,19 @@ class TotalSpendingService(
 // TODO: refactoring
 private fun TotalSpendingView.normalizeTotalSpendingView(categoryById: Map<Int, SpendingCategory>): TotalSpendingView {
     val recordsByCategoryId = spendingElements.associate { element ->
-        (element as SpendingContainer).let { it.idCategory to it.spendingElements }
+        (element as pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryView).let { it.idCategory to it.spendingElements }
     }.toMutableMap()
         /*.groupBy {
         (it as? SpendingRecordView)?.idCategory ?: -1
     }.toMutableMap()*/
     val result = mutableListOf<SpendingElement>()
-    val previousSpendingElements = mutableMapOf<Int, SpendingContainer>()
+    val previousSpendingElements = mutableMapOf<Int, pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryView>()
 
     outer@ while (recordsByCategoryId.isNotEmpty()) {
         val (idCategory, records) = recordsByCategoryId.entries.first()
         var currentCategory =
             categoryById[idCategory] ?: throw SpendingCategoryNotFoundException(idCategory)
-        var currentSpendingElement = SpendingContainer(
+        var currentSpendingElement = SpendingCategoryView(
             currentCategory.name,
             idCategory,
             records,
@@ -94,7 +94,7 @@ private fun TotalSpendingView.normalizeTotalSpendingView(categoryById: Map<Int, 
                 newContainers.addAll(recordsByCategoryId[categoryId]!!)
                 recordsByCategoryId.remove(categoryId)
             }
-            currentSpendingElement = SpendingContainer(
+            currentSpendingElement = SpendingCategoryView(
                 currentCategory.name,
                 categoryId,
                 newContainers,
@@ -116,7 +116,7 @@ private fun TotalSpendingView.normalizeTotalSpendingView(categoryById: Map<Int, 
 }
 
 private fun verifyPrevious(
-    previous: Map<Int, SpendingContainer>,
+    previous: Map<Int, pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryView>,
     categoryId: Int,
 ): MutableList<SpendingElement>? {
     return previous[categoryId]?.let { it.spendingElements as? MutableList<SpendingElement> }
