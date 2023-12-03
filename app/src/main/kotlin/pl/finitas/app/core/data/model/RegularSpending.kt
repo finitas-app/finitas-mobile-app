@@ -9,5 +9,5 @@ data class RegularSpending(
     val time: Int,
     val idSpendingUnit: Int?,
     val idUser: Int?,
-    @PrimaryKey val idRegularSpending: Int? = null,
+    @PrimaryKey val idRegularSpending: Int,
 )

@@ -8,5 +8,5 @@ import java.sql.Blob
 data class Receipt(
     val photo: Blob?,
     val idTotalSpending: Int?,
-    @PrimaryKey val idReceipt: Int? = null,
+    @PrimaryKey val idReceipt: Int,
 )

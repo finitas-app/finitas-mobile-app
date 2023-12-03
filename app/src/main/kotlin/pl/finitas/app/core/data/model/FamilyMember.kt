@@ -8,5 +8,5 @@ data class FamilyMember(
     val idFamily: Int?,
     val idRole: Int?,
     val idUser: Int?,
-    @PrimaryKey val idFamilyMember: Int? = null,
+    @PrimaryKey val idFamilyMember: Int,
 )

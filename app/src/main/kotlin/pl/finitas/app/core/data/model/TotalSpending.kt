@@ -8,5 +8,5 @@ data class TotalSpending(
     val time: Int?,
     val name: String,
     val idUser: Int?,
-    @PrimaryKey val idTotalSpending: Int? = null,
+    @PrimaryKey val idTotalSpending: Int,
 )

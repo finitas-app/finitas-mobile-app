@@ -8,5 +8,5 @@ data class DelayedRequest(
     val request: String,
     val body: String,
     val idRequestMethod: Int?,
-    @PrimaryKey val idDelayedRequest: Int? = null,
+    @PrimaryKey val idDelayedRequest: Int,
 )

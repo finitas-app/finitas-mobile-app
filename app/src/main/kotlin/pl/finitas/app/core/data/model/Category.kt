@@ -9,6 +9,6 @@ data class Category(
     val name: String,
     val idParent: Int?,
     val createdAt: LocalDateTime,
-    @PrimaryKey val idCategory: Int? = null,
+    @PrimaryKey val idCategory: Int,
     val idUser: Int? = null,
 )

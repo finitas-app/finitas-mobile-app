@@ -7,5 +7,5 @@ import androidx.room.PrimaryKey
 data class Role(
     val name: String,
     val idFamily: Int?,
-    @PrimaryKey val idRole: Int? = null,
+    @PrimaryKey val idRole: Int,
 )

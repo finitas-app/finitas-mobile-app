@@ -5,5 +5,5 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Family(
-    @PrimaryKey val idFamily: Int? = null,
+    @PrimaryKey val idFamily: Int,
 )

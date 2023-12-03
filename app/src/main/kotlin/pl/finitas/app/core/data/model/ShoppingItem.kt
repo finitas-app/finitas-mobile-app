@@ -7,5 +7,5 @@ import androidx.room.PrimaryKey
 data class ShoppingItem(
     val isDone: Int,
     val idShoppingList: Int?,
-    @PrimaryKey val idSpendingUnit: Int? = null,
+    @PrimaryKey val idSpendingUnit: Int,
 )

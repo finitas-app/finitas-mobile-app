@@ -11,5 +11,5 @@ data class SpendingUnit(
     val price: BigDecimal,
     val idCategory: Int?,
     val idTotalSpending: Int?,
-    @PrimaryKey val idSpendingUnit: Int? = null,
+    @PrimaryKey val idSpendingUnit: Int,
 )

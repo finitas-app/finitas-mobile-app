@@ -9,5 +9,5 @@ data class MessageLine(
     val dateAndTime: Int,
     val idFamily: Int?,
     val idFamilyMember: Int?,
-    @PrimaryKey val idMessageLine: Int? = null,
+    @PrimaryKey val idMessageLine: Int,
 )
