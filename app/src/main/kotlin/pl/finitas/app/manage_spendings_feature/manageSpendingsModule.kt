@@ -2,7 +2,7 @@ package pl.finitas.app.manage_spendings_feature
 
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
-import pl.finitas.app.di.getDatabase
+import pl.finitas.app.core.getDatabase
 import pl.finitas.app.manage_spendings_feature.data.repository.SpendingCategoryRepositoryImpl
 import pl.finitas.app.manage_spendings_feature.data.repository.TotalSpendingRepositoryImpl
 import pl.finitas.app.manage_spendings_feature.domain.repository.SpendingCategoryRepository

@@ -28,6 +28,7 @@ val secondaryBackgroundColor = Color(0xFF0D1016)
 
 @Composable
 fun PrimaryBackground(
+    modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val radius = with(LocalDensity.current) {
@@ -37,6 +38,7 @@ fun PrimaryBackground(
         modifier = Modifier
             .fillMaxSize()
             .background(getPrimaryBackgroundColor(radius))
+            .then(modifier)
     ) {
         content()
     }
