@@ -4,13 +4,14 @@ import androidx.room.Embedded
 import androidx.room.Relation
 import pl.finitas.app.core.data.model.FinishedSpending
 import pl.finitas.app.core.data.model.SpendingRecord
+import pl.finitas.app.core.data.model.SpendingSummary
 
-data class FinishedSpendingToSpendingRecords(
+data class SpendingSummaryToSpendingRecords(
     @Embedded
-    val finishedSpending: FinishedSpending,
+    val spendingSummary: SpendingSummary,
     @Relation(
-        parentColumn = "idFinishedSpending",
-        entityColumn = "idFinishedSpending"
+        parentColumn = "idSpendingSummary",
+        entityColumn = "idSpendingSummary"
     )
     val spendingRecords: List<SpendingRecord>,
 )
