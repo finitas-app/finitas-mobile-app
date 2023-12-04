@@ -7,17 +7,17 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
-import pl.finitas.app.core.data.model.Category
+import pl.finitas.app.core.data.model.SpendingRecord
 
 @Dao
-interface CategoryDao {
+interface SpendingRecordDao {
 
     @Insert
-    suspend fun insertCategory(category: Category): Long
+    suspend fun insertSpendingRecord(spendingRecord: SpendingRecord): Long
 
     @Update
-    suspend fun updateCategory(category: Category)
+    suspend fun updateSpendingRecord(spendingRecord: SpendingRecord)
 
     @Delete
-    suspend fun deleteCategory(category: Category)
+    suspend fun deleteSpendingRecord(spendingRecord: SpendingRecord)
 }

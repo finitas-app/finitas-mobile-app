@@ -6,6 +6,6 @@ import androidx.room.PrimaryKey
 @Entity
 data class RegularSpending(
     val cron: String,
-    val idUser: String?,
+    val idSpendingSummary: String,
     @PrimaryKey val idRegularSpending: String? = null
 )

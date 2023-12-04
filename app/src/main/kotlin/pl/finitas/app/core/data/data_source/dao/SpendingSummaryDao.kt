@@ -7,17 +7,18 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import pl.finitas.app.core.data.model.SpendingSummary
 import pl.finitas.app.core.data.model.User
 
 @Dao
-interface UserDao {
+interface SpendingSummaryDao {
 
     @Insert
-    suspend fun insertUser(user: User): Long
+    suspend fun insertSpendingSummary(spendingSummary: SpendingSummary): Long
 
     @Update
-    suspend fun updateUser(user: User)
+    suspend fun updateSpendingSummary(spendingSummary: SpendingSummary)
 
     @Delete
-    suspend fun deleteUser(user: User)
+    suspend fun deleteSpendingSummary(spendingSummary: SpendingSummary)
 }

@@ -13,13 +13,6 @@ import pl.finitas.app.core.data.model.DelayedRequest
 @Dao
 interface DelayedRequestDao {
 
-    @Transaction
-    @Query("SELECT * FROM DelayedRequest")
-    fun getCategories(): Flow<List<DelayedRequest>>
-
-    @Query("SELECT * FROM DelayedRequest WHERE idDelayedRequest = :idDelayedRequest")
-    suspend fun findCategoryBy(idDelayedRequest: Int): DelayedRequest?
-
     @Insert
     suspend fun insertDelayedRequest(delayedRequest: DelayedRequest): Long
 
