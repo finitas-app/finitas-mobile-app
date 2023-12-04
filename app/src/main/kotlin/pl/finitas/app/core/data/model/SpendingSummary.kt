@@ -7,6 +7,5 @@ import androidx.room.PrimaryKey
 data class SpendingSummary(
     val createdAt: Int,
     val name: String,
-    val idUser: String?,
     @PrimaryKey val idSpendingSummary: String? = null,
 )

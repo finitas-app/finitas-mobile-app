@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 data class FinishedSpending(
     val idReceipt: String?,
     val purchaseDate: Int,
+    val idUser: String?,
     @PrimaryKey val idSpendingSummary: String? = null,
 )

@@ -7,6 +7,6 @@ import java.math.BigDecimal
 @Entity
 data class SpendingRecord(
     val idSpendingRecordData: String,
-    val idFinishedSpending: String,
+    val idSpendingSummary: String,
     @PrimaryKey val idSpendingRecord: String? = null,
 )
