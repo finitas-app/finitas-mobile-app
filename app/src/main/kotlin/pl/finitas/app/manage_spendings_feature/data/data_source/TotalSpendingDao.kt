@@ -28,7 +28,6 @@ interface TotalSpendingDao {
     @Update
     suspend fun updateTotalSpending(totalSpending: TotalSpending)
 
-
     @Upsert
     suspend fun upsertTotalSpendingRecords(spendingRecords: List<SpendingRecord>)
 
