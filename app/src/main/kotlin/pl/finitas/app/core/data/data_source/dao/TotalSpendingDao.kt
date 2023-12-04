@@ -1,4 +1,4 @@
-package pl.finitas.app.manage_spendings_feature.data.data_source
+package pl.finitas.app.core.data.data_source.dao
 
 import androidx.room.Dao
 import androidx.room.Delete

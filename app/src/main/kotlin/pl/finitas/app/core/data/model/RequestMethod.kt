@@ -6,5 +6,5 @@ import androidx.room.PrimaryKey
 @Entity
 data class RequestMethod(
     val name: String,
-    @PrimaryKey val idRequestMethod: Int,
+    @PrimaryKey val idRequestMethod: String? = null,
 )

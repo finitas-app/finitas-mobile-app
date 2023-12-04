@@ -7,8 +7,8 @@ import java.time.LocalDateTime
 @Entity
 data class Category(
     val name: String,
-    val idParent: Int?,
-    val createdAt: LocalDateTime,
-    @PrimaryKey val idCategory: Int,
-    val idUser: Int? = null,
+    val idParent: String?,
+    val createdAt: Long,
+    val idUser: String? = null,
+    @PrimaryKey val idCategory: String? = null,
 )

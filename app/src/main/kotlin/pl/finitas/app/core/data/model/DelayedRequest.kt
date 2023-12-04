@@ -7,6 +7,6 @@ import androidx.room.PrimaryKey
 data class DelayedRequest(
     val request: String,
     val body: String,
-    val idRequestMethod: Int?,
-    @PrimaryKey val idDelayedRequest: Int,
+    val idRequestMethod: String,
+    @PrimaryKey val idDelayedRequest: String? = null,
 )

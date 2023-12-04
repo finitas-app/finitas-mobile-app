@@ -2,15 +2,15 @@ package pl.finitas.app.core.data.model.relations
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import pl.finitas.app.core.data.model.Family
+import pl.finitas.app.core.data.model.Room
 import pl.finitas.app.core.data.model.Role
 
-data class FamilyToRoles(
+data class RoomToRoles(
     @Embedded
-    val family: Family,
+    val room: Room,
     @Relation(
-        parentColumn = "idFamily",
-        entityColumn = "idFamily"
+        parentColumn = "idRoom",
+        entityColumn = "idRoom"
     )
     val roles: List<Role>,
 )

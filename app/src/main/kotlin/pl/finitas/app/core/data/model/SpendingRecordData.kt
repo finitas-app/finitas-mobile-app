@@ -5,11 +5,10 @@ import androidx.room.PrimaryKey
 import java.math.BigDecimal
 
 @Entity
-data class SpendingUnit(
+data class SpendingRecordData(
     val name: String,
-    val description: String,
     val price: BigDecimal,
-    val idCategory: Int?,
-    val idTotalSpending: Int?,
-    @PrimaryKey val idSpendingUnit: Int,
+    val idCategory: String,
+    val idFinishedSpending: String?,
+    @PrimaryKey val idSpendingRecordData: String? = null,
 )

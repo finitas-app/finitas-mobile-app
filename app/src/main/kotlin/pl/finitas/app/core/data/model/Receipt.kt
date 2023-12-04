@@ -7,6 +7,5 @@ import java.sql.Blob
 @Entity
 data class Receipt(
     val photo: Blob?,
-    val idTotalSpending: Int?,
-    @PrimaryKey val idReceipt: Int,
+    @PrimaryKey val idReceipt: String? = null,
 )

@@ -4,6 +4,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class Family(
-    @PrimaryKey val idFamily: Int,
+data class Room(
+    @PrimaryKey val idRoom: String? = null,
 )

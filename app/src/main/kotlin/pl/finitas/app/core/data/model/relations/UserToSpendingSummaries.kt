@@ -2,15 +2,15 @@ package pl.finitas.app.core.data.model.relations
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import pl.finitas.app.core.data.model.FamilyMember
+import pl.finitas.app.core.data.model.SpendingSummary
 import pl.finitas.app.core.data.model.User
 
-data class UserToFamilyMembers(
+data class UserToSpendingSummaries(
     @Embedded
     val user: User,
     @Relation(
         parentColumn = "idUser",
         entityColumn = "idUser"
     )
-    val familyMembers: List<FamilyMember>,
+    val spendingSummaries: List<SpendingSummary>,
 )

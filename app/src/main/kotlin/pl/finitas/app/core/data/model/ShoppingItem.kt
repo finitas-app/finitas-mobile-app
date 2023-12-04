@@ -6,6 +6,6 @@ import androidx.room.PrimaryKey
 @Entity
 data class ShoppingItem(
     val isDone: Int,
-    val idShoppingList: Int?,
-    @PrimaryKey val idSpendingUnit: Int,
+    val idShoppingList: String,
+    @PrimaryKey val idSpendingRecordData: String? = null,
 )

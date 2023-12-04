@@ -4,9 +4,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class TotalSpending(
-    val time: Int?,
+data class SpendingSummary(
+    val createdAt: Int,
     val name: String,
-    val idUser: Int?,
-    @PrimaryKey val idTotalSpending: Int,
+    val idUser: String?,
+    @PrimaryKey val idSpendingSummary: String? = null,
 )
