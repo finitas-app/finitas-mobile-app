@@ -5,7 +5,10 @@ import androidx.room.PrimaryKey
 import java.util.UUID
 
 @Entity
-data class RequestMethod(
+data class SpendingCategory(
     val name: String,
-    @PrimaryKey val idRequestMethod: UUID? = null,
+    val idParent: UUID?,
+    val createdAt: Long,
+    val idUser: UUID? = null,
+    @PrimaryKey val idCategory: UUID,
 )

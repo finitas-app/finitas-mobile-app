@@ -2,10 +2,11 @@ package pl.finitas.app.core.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.UUID
 
 @Entity
 data class RegularSpending(
     val cron: String,
-    val idSpendingSummary: String,
-    @PrimaryKey val idRegularSpending: String? = null
+    val idSpendingSummary: UUID,
+    @PrimaryKey val idRegularSpending: UUID,
 )

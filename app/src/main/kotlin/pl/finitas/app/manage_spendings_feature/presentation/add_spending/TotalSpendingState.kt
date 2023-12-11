@@ -4,11 +4,13 @@ import pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryV
 import pl.finitas.app.manage_spendings_feature.domain.services.SpendingElement
 import pl.finitas.app.manage_spendings_feature.domain.services.SpendingRecordView
 import java.time.LocalDate
+import java.util.UUID
 
 data class TotalSpendingState(
     val title: String,
     val date: LocalDate,
     val categories: List<SpendingCategoryView>,
+    val idTotalSpending: UUID? = null,
 ) {
     val addSpending = getSpendingsMutator { list, spending -> list + spending }
     val removeSpending = getSpendingsMutator { list, spending -> list - spending }

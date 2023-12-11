@@ -1,6 +1,6 @@
 package pl.finitas.app.profile_feature.domain
 
-import pl.finitas.app.core.domain.ProfileRepository
+import pl.finitas.app.core.domain.repository.ProfileRepository
 
 class AuthService(
     private val authRepository: AuthRepository,

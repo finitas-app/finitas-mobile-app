@@ -4,9 +4,9 @@ import androidx.room.Room
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.scope.Scope
 import org.koin.dsl.module
-import pl.finitas.app.core.data.ProfileRepositoryImpl
 import pl.finitas.app.core.data.data_source.FinitasDatabase
-import pl.finitas.app.core.domain.ProfileRepository
+import pl.finitas.app.core.data.repository.ProfileRepositoryImpl
+import pl.finitas.app.core.domain.repository.ProfileRepository
 import pl.finitas.app.core.http.httpClient
 
 
@@ -19,7 +19,7 @@ val coreModule = module {
                 FinitasDatabase::class.java,
                 FinitasDatabase.databaseName,
             )
-            .createFromAsset("sqlite.db")
+            //.createFromAsset("sqlite.db")
             .build()
     }
 

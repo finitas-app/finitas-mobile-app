@@ -2,6 +2,7 @@ package pl.finitas.app.manage_spendings_feature.domain.services
 
 import java.math.BigDecimal
 import java.time.LocalDateTime
+import java.util.UUID
 
 
 sealed interface SpendingElement {
@@ -11,7 +12,7 @@ sealed interface SpendingElement {
 
 data class SpendingCategoryView(
     override val name: String,
-    val idCategory: Int,
+    val idCategory: UUID,
     val spendingElements: List<SpendingElement>,
 ) : SpendingElement {
     override val totalPrice by lazy { spendingElements.sumOf { it.totalPrice } }
@@ -20,12 +21,13 @@ data class SpendingCategoryView(
 data class SpendingRecordView(
     override val name: String,
     override val totalPrice: BigDecimal,
-    val idCategory: Int,
+    val idSpendingRecord: UUID,
+    val idCategory: UUID,
 ) : SpendingElement
 
 
 data class TotalSpendingView(
-    val idTotalSpending: Int,
+    val idTotalSpending: UUID,
     override val name: String,
     val date: LocalDateTime,
     val spendingElements: List<SpendingElement>,

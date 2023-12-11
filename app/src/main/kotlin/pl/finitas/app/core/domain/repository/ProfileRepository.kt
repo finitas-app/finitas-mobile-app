@@ -1,4 +1,4 @@
-package pl.finitas.app.core.domain
+package pl.finitas.app.core.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 

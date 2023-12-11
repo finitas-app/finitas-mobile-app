@@ -8,12 +8,12 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryService
 import pl.finitas.app.manage_spendings_feature.domain.services.SpendingRecordView
-import pl.finitas.app.manage_spendings_feature.domain.services.TotalSpendingService
+import pl.finitas.app.manage_spendings_feature.domain.services.FinishedSpendingService
 import java.time.LocalDate
 
 class AddSpendingViewModel(
     private val spendingCategoryService: SpendingCategoryService,
-    private val totalSpendingService: TotalSpendingService,
+    private val finishedSpendingService: FinishedSpendingService,
 ): ViewModel() {
 
     var isDialogOpen by mutableStateOf(false)
@@ -63,7 +63,7 @@ class AddSpendingViewModel(
 
     fun onSave() {
         viewModelScope.launch {
-            totalSpendingService.addTotalSpending(totalSpendingState)
+            finishedSpendingService.addTotalSpending(totalSpendingState)
             closeDialog()
         }
     }

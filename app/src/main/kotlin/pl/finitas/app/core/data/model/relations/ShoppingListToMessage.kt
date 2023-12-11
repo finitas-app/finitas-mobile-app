@@ -2,7 +2,7 @@ package pl.finitas.app.core.data.model.relations
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import pl.finitas.app.core.data.model.Message
+import pl.finitas.app.core.data.model.RoomMessage
 import pl.finitas.app.core.data.model.ShoppingList
 
 data class ShoppingListToMessage(
@@ -12,5 +12,5 @@ data class ShoppingListToMessage(
         parentColumn = "idShoppingList",
         entityColumn = "idShoppingList"
     )
-    val message: Message,
+    val roomMessage: RoomMessage,
 )

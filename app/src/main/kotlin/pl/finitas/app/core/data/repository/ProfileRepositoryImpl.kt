@@ -1,4 +1,4 @@
-package pl.finitas.app.core.data
+package pl.finitas.app.core.data.repository
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -8,7 +8,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import pl.finitas.app.core.domain.ProfileRepository
+import pl.finitas.app.core.domain.repository.ProfileRepository
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "profile")
 

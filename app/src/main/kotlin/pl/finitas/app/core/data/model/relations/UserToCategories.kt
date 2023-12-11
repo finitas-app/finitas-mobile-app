@@ -2,7 +2,7 @@ package pl.finitas.app.core.data.model.relations
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import pl.finitas.app.core.data.model.Category
+import pl.finitas.app.core.data.model.SpendingCategory
 import pl.finitas.app.core.data.model.User
 
 data class UserToCategories(
@@ -12,5 +12,5 @@ data class UserToCategories(
         parentColumn = "idUser",
         entityColumn = "idUser"
     )
-    val categories: List<Category>,
+    val categories: List<SpendingCategory>,
 )

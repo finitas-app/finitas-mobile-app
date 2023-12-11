@@ -1,6 +1,6 @@
 package pl.finitas.app.manage_spendings_feature.domain.services
 
-import pl.finitas.app.manage_spendings_feature.domain.repository.SpendingCategoryRepository
+import pl.finitas.app.core.domain.repository.SpendingCategoryRepository
 
 class SpendingCategoryService(
     private val spendingCategoryRepository: SpendingCategoryRepository,
@@ -20,7 +20,7 @@ class SpendingCategoryService(
             val temp = categoriesByParentId[currentCategoryId]
             if (temp != null) {
                 categoriesByParentId.remove(currentCategoryId)
-                result.addAll(currentCategoryId, temp)
+                result.addAll(index + 1, temp)
             }
             index++
         }

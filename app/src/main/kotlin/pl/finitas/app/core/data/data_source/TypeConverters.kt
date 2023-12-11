@@ -5,6 +5,10 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.UUID
+
+
+
 
 class LocalDateTimeConverter {
     @TypeConverter
@@ -27,4 +31,16 @@ class BigDecimalConverter {
 
     @TypeConverter
     fun toBigDecimal(str: String) = str.toBigDecimal()
+}
+
+class UUIDConverter {
+    @TypeConverter
+    fun fromUUID(uuid: UUID): String {
+        return uuid.toString()
+    }
+
+    @TypeConverter
+    fun uuidFromString(string: String?): UUID {
+        return UUID.fromString(string)
+    }
 }

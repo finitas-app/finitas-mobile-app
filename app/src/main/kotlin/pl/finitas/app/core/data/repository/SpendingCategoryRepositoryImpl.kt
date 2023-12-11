@@ -1,9 +1,10 @@
-package pl.finitas.app.manage_spendings_feature.data.repository
+package pl.finitas.app.core.data.repository
 
 import kotlinx.coroutines.flow.Flow
-import pl.finitas.app.manage_spendings_feature.data.data_source.SpendingCategoryDao
-import pl.finitas.app.manage_spendings_feature.domain.model.SpendingCategory
-import pl.finitas.app.manage_spendings_feature.domain.repository.SpendingCategoryRepository
+import pl.finitas.app.core.data.data_source.dao.SpendingCategoryDao
+import pl.finitas.app.core.data.model.SpendingCategory
+import pl.finitas.app.core.domain.repository.SpendingCategoryRepository
+import java.util.UUID
 
 class SpendingCategoryRepositoryImpl(
     private val dao: SpendingCategoryDao,
@@ -16,7 +17,7 @@ class SpendingCategoryRepositoryImpl(
         return dao.getSpendingCategories()
     }
 
-    override suspend fun findSpendingCategoryBy(idCategory: Int): SpendingCategory? {
+    override suspend fun findSpendingCategoryBy(idCategory: UUID): SpendingCategory? {
         return dao.findSpendingCategoryBy(idCategory)
     }
 

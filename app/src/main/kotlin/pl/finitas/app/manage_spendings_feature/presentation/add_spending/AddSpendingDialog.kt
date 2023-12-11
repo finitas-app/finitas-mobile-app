@@ -23,7 +23,6 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,6 +43,7 @@ import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryView
 import pl.finitas.app.manage_spendings_feature.domain.services.SpendingRecordView
+import java.util.UUID
 
 @Composable
 fun AddSpendingDialog(
@@ -157,7 +157,7 @@ private fun CategorySpendingList(
     modifier: Modifier = Modifier,
 ) {
     var filterSearch by remember { mutableStateOf("") }
-    var idSpendingCategory by remember { mutableIntStateOf(-1) }
+    var idSpendingCategory by remember { mutableStateOf<UUID?>(null) }
     var isOpenedAddSpendingRecord by remember { mutableStateOf(false) }
 
     ConstructorBox(
@@ -244,10 +244,10 @@ private fun CategorySpendingList(
 
             AddSpendingRecordDialog(
                 isOpen = isOpenedAddSpendingRecord,
-                idCategory = idSpendingCategory,
+                idCategory = idSpendingCategory ?: UUID.randomUUID(),
                 onSave = { addSpendingViewModel.addSpending(it) },
                 onClose = {
-                    idSpendingCategory = -1
+                    idSpendingCategory = null
                     isOpenedAddSpendingRecord = false
                 },
             )
@@ -258,7 +258,7 @@ private fun CategorySpendingList(
 @Composable
 private fun AddSpendingRecordDialog(
     isOpen: Boolean,
-    idCategory: Int,
+    idCategory: UUID,
     onSave: (SpendingRecordView) -> Unit,
     onClose: () -> Unit,
 ) {
@@ -333,6 +333,7 @@ private fun AddSpendingRecordDialog(
                                 name = spendingTitle,
                                 totalPrice = totalPrice.toBigDecimal(),
                                 idCategory = idCategory,
+                                idSpendingRecord = UUID.randomUUID(),
                             )
                         )
                         onClose()

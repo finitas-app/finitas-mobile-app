@@ -2,25 +2,25 @@ package pl.finitas.app.manage_spendings_feature
 
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
+import pl.finitas.app.core.data.repository.FinishedSpendingRepositoryImpl
+import pl.finitas.app.core.data.repository.SpendingCategoryRepositoryImpl
+import pl.finitas.app.core.domain.repository.SpendingCategoryRepository
+import pl.finitas.app.core.domain.repository.TotalSpendingRepository
 import pl.finitas.app.core.getDatabase
-import pl.finitas.app.manage_spendings_feature.data.repository.SpendingCategoryRepositoryImpl
-import pl.finitas.app.manage_spendings_feature.data.repository.TotalSpendingRepositoryImpl
-import pl.finitas.app.manage_spendings_feature.domain.repository.SpendingCategoryRepository
-import pl.finitas.app.manage_spendings_feature.domain.repository.TotalSpendingRepository
+import pl.finitas.app.manage_spendings_feature.domain.services.FinishedSpendingService
 import pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryService
-import pl.finitas.app.manage_spendings_feature.domain.services.TotalSpendingService
 import pl.finitas.app.manage_spendings_feature.presentation.add_spending.AddSpendingViewModel
 import pl.finitas.app.manage_spendings_feature.presentation.spendings.TotalSpendingViewModel
 
 val manageSpendingsModule = module {
     single<TotalSpendingRepository> {
-        TotalSpendingRepositoryImpl(getDatabase().totalSpendingDao)
+        FinishedSpendingRepositoryImpl(getDatabase().finishedSpendingDao)
     }
     single<SpendingCategoryRepository> {
         SpendingCategoryRepositoryImpl(getDatabase().spendingCategoryDao)
     }
     single {
-        TotalSpendingService(get(), get())
+        FinishedSpendingService(get(), get())
     }
     single {
         SpendingCategoryService(get())

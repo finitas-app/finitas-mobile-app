@@ -1,7 +1,8 @@
-package pl.finitas.app.manage_spendings_feature.domain.repository
+package pl.finitas.app.core.domain.repository
 
 import kotlinx.coroutines.flow.Flow
-import pl.finitas.app.manage_spendings_feature.domain.model.SpendingCategory
+import pl.finitas.app.core.data.model.SpendingCategory
+import java.util.UUID
 
 interface SpendingCategoryRepository {
 
@@ -9,10 +10,10 @@ interface SpendingCategoryRepository {
 
     suspend fun getSpendingCategories(): List<SpendingCategory>
 
-    suspend fun findSpendingCategoryBy(idCategory: Int): SpendingCategory?
+    suspend fun findSpendingCategoryBy(idCategory: UUID): SpendingCategory?
 
     @Throws(SpendingCategoryNotFoundException::class)
-    suspend fun getSpendingCategoryBy(idCategory: Int) =
+    suspend fun getSpendingCategoryBy(idCategory: UUID) =
         findSpendingCategoryBy(idCategory) ?: throw SpendingCategoryNotFoundException(idCategory)
 
     suspend fun upsertSpendingCategory(spendingCategory: SpendingCategory)
@@ -21,5 +22,5 @@ interface SpendingCategoryRepository {
 }
 
 
-class SpendingCategoryNotFoundException(idSpendingCategory: Int) :
+class SpendingCategoryNotFoundException(idSpendingCategory: UUID) :
     Exception("Spending category with id:$idSpendingCategory not found!")

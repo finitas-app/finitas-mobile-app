@@ -35,6 +35,7 @@ import pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryV
 import pl.finitas.app.manage_spendings_feature.domain.services.SpendingElement
 import pl.finitas.app.manage_spendings_feature.domain.services.SpendingRecordView
 import pl.finitas.app.manage_spendings_feature.domain.services.TotalSpendingView
+import java.util.UUID
 
 private val borderColor = Color.White.copy(alpha = .1f)
 
@@ -105,6 +106,9 @@ private fun SpendingElementComponent(
     }
 }
 
+// TODO: remove idCategory and refactor
+private val unnecessaryUUIDToRemove = UUID.randomUUID()
+
 @Composable
 private fun ColumnScope.TotalSpendingBody(
     totalSpendingView: TotalSpendingView,
@@ -115,7 +119,7 @@ private fun ColumnScope.TotalSpendingBody(
         SpendingCategoryView(
             totalSpendingView.name,
             // TODO: remove idCategory and refactor
-            0,
+            unnecessaryUUIDToRemove,
             totalSpendingView.spendingElements
         ),
         itemExtras,

@@ -3,7 +3,7 @@ package pl.finitas.app.core.data.model.relations
 import androidx.room.Embedded
 import androidx.room.Relation
 import pl.finitas.app.core.data.model.RoomMember
-import pl.finitas.app.core.data.model.Message
+import pl.finitas.app.core.data.model.RoomMessage
 
 data class RoomMemberToMessages(
     @Embedded
@@ -12,5 +12,5 @@ data class RoomMemberToMessages(
         parentColumn = "idRoomMember",
         entityColumn = "idRoomMember"
     )
-    val messages: List<Message>,
+    val roomMessages: List<RoomMessage>,
 )

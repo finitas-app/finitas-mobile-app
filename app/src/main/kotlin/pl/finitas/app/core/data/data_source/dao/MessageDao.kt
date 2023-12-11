@@ -4,17 +4,17 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Update
-import pl.finitas.app.core.data.model.Message
+import pl.finitas.app.core.data.model.RoomMessage
 
 @Dao
 interface MessageDao {
 
     @Insert
-    suspend fun insertMessage(message: Message): Long
+    suspend fun insertMessage(roomMessage: RoomMessage): Long
 
     @Update
-    suspend fun updateMessage(message: Message)
+    suspend fun updateMessage(roomMessage: RoomMessage)
 
     @Delete
-    suspend fun deleteMessage(message: Message)
+    suspend fun deleteMessage(roomMessage: RoomMessage)
 }

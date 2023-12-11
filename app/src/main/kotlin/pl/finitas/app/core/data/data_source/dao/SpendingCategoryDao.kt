@@ -1,14 +1,18 @@
-package pl.finitas.app.manage_spendings_feature.data.data_source
+package pl.finitas.app.core.data.data_source.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
-import pl.finitas.app.manage_spendings_feature.domain.model.SpendingCategory
+import pl.finitas.app.core.data.model.SpendingCategory
+import java.util.UUID
 
 @Dao
 interface SpendingCategoryDao {
+
 
     @Query("SELECT * FROM SpendingCategory ORDER BY createdAt")
     fun getSpendingCategoriesFlow(): Flow<List<SpendingCategory>>
@@ -17,7 +21,13 @@ interface SpendingCategoryDao {
     suspend fun getSpendingCategories(): List<SpendingCategory>
 
     @Query("SELECT * FROM SpendingCategory WHERE idCategory = :idCategory")
-    suspend fun findSpendingCategoryBy(idCategory: Int): SpendingCategory?
+    suspend fun findSpendingCategoryBy(idCategory: UUID): SpendingCategory?
+
+    @Insert
+    suspend fun insertSpendingCategory(spendingCategory: SpendingCategory): Long
+
+    @Update
+    suspend fun updateSpendingCategory(spendingCategory: SpendingCategory)
 
     @Upsert
     suspend fun upsertSpendingCategory(spendingCategory: SpendingCategory)
