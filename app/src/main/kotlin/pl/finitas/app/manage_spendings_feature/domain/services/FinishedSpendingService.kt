@@ -128,7 +128,7 @@ private fun TotalSpendingView.normalizeTotalSpendingView(categoryById: Map<UUID,
         recordsByCategoryId.remove(idCategory)
     }
 
-    return copy(spendingElements = spendingElements)
+    return copy(spendingElements = result)
 }
 
 private fun verifyPrevious(
