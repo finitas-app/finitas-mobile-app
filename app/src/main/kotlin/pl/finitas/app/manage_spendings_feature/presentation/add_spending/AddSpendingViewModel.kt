@@ -6,9 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryService
-import pl.finitas.app.manage_spendings_feature.domain.services.SpendingRecordView
 import pl.finitas.app.manage_spendings_feature.domain.services.FinishedSpendingService
+import pl.finitas.app.core.domain.services.SpendingCategoryService
+import pl.finitas.app.manage_spendings_feature.domain.services.SpendingRecordView
 import java.time.LocalDate
 
 class AddSpendingViewModel(
@@ -22,16 +22,15 @@ class AddSpendingViewModel(
     var totalSpendingState by mutableStateOf(TotalSpendingState.emptyState)
         private set
 
-
-    // TODO: Change to flow
     fun openDialog() {
         viewModelScope.launch {
-            totalSpendingState = spendingCategoryService.getSpendingCategories().let {
+            totalSpendingState = spendingCategoryService.getSpendingCategoriesFlat().let {
                 totalSpendingState.copy(categories = it)
             }
         }
         isDialogOpen = true
     }
+
     fun closeDialog() {
         totalSpendingState = TotalSpendingState.emptyState
         isDialogOpen = false
@@ -39,7 +38,7 @@ class AddSpendingViewModel(
 
     init {
         viewModelScope.launch {
-            totalSpendingState = spendingCategoryService.getSpendingCategories().let {
+            totalSpendingState = spendingCategoryService.getSpendingCategoriesFlat().let {
                 totalSpendingState.copy(categories = it)
             }
         }

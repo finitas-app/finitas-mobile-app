@@ -8,7 +8,7 @@ import pl.finitas.app.core.domain.repository.SpendingCategoryRepository
 import pl.finitas.app.core.domain.repository.TotalSpendingRepository
 import pl.finitas.app.core.getDatabase
 import pl.finitas.app.manage_spendings_feature.domain.services.FinishedSpendingService
-import pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryService
+import pl.finitas.app.core.domain.services.SpendingCategoryService
 import pl.finitas.app.manage_spendings_feature.presentation.add_spending.AddSpendingViewModel
 import pl.finitas.app.manage_spendings_feature.presentation.spendings.TotalSpendingViewModel
 

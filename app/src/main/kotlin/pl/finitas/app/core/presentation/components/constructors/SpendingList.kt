@@ -138,9 +138,9 @@ private fun ColumnScope.SpendingCategoryBody(
 
     Row(
         modifier = Modifier
-            .padding(top = 15.dp, bottom = 15.dp)
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         RenderStarter(spendingElement = spendingCategoryView, depth = depth)
         Row {
@@ -202,9 +202,9 @@ private fun SpendingRecordBody(
 ) {
     Row(
         modifier = Modifier
-            .padding(top = 15.dp, bottom = 15.dp)
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         RenderStarter(spendingElement = spendingRecordView, depth = depth)
         itemExtras(spendingRecordView)
@@ -215,7 +215,7 @@ private fun SpendingRecordBody(
 fun RenderStarter(spendingElement: SpendingElement, depth: Int) {
     Row(
         Modifier
-            .padding(start = 16.dp)
+            .padding(top = 15.dp, bottom = 15.dp, start = 16.dp)
     ) {
         if (depth > 0)
             Box(

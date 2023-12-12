@@ -35,12 +35,12 @@ class BigDecimalConverter {
 
 class UUIDConverter {
     @TypeConverter
-    fun fromUUID(uuid: UUID): String {
-        return uuid.toString()
+    fun fromUUID(uuid: UUID?): String? {
+        return uuid?.toString()
     }
 
     @TypeConverter
-    fun uuidFromString(string: String?): UUID {
-        return UUID.fromString(string)
+    fun uuidFromString(string: String?): UUID? {
+        return string?.let { UUID.fromString(it) }
     }
 }

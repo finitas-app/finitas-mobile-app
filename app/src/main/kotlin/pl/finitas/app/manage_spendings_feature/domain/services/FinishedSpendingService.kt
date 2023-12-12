@@ -93,7 +93,7 @@ private fun TotalSpendingView.normalizeTotalSpendingView(categoryById: Map<UUID,
         )
         previousSpendingElements[idCategory] = currentSpendingElement
         val possiblePrevious =
-            verifyPrevious(previousSpendingElements, currentCategory.idParent!!)
+            verifyPrevious(previousSpendingElements, currentCategory.idParent)
         if (possiblePrevious != null) {
             possiblePrevious += currentSpendingElement
             continue
@@ -118,7 +118,7 @@ private fun TotalSpendingView.normalizeTotalSpendingView(categoryById: Map<UUID,
             previousSpendingElements[idCategory] = currentSpendingElement
 
             val possiblePreviousInner =
-                verifyPrevious(previousSpendingElements, currentCategory.idParent!!)
+                verifyPrevious(previousSpendingElements, currentCategory.idParent)
             if (possiblePreviousInner != null) {
                 possiblePreviousInner += currentSpendingElement
                 continue@outer
@@ -133,7 +133,7 @@ private fun TotalSpendingView.normalizeTotalSpendingView(categoryById: Map<UUID,
 
 private fun verifyPrevious(
     previous: Map<UUID, SpendingCategoryView>,
-    categoryId: UUID,
+    categoryId: UUID?,
 ): MutableList<SpendingElement>? {
     return previous[categoryId]?.let { it.spendingElements as? MutableList<SpendingElement> }
 }

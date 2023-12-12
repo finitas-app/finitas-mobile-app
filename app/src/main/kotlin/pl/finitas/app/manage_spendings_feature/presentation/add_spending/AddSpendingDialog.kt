@@ -28,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -51,6 +50,11 @@ fun AddSpendingDialog(
 ) {
     CustomDialog(
         isOpened = addSpendingViewModel.isDialogOpen,
+        onDismissRequest = addSpendingViewModel::closeDialog,
+        onConfirmRequest = addSpendingViewModel::onSave,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 14.dp, vertical = 10.dp)
     ) {
         AddSpendingPanel(addSpendingViewModel)
     }
@@ -60,28 +64,8 @@ fun AddSpendingDialog(
 private fun AddSpendingPanel(
     addSpendingViewModel: AddSpendingViewModel,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 14.dp, vertical = 10.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xFF595962).copy(.19f))
-            .padding(16.dp),
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        ) {
-            ClickableIcon(
-                imageVector = Icons.Rounded.Close,
-                onClick = addSpendingViewModel::closeDialog
-            )
-            ClickableIcon(imageVector = Icons.Rounded.Check, onClick = addSpendingViewModel::onSave)
-        }
-        AddSpendingForm(addSpendingViewModel = addSpendingViewModel)
-    }
+
+    AddSpendingForm(addSpendingViewModel = addSpendingViewModel)
 }
 
 @Composable

@@ -14,7 +14,7 @@ import java.util.UUID
 interface SpendingCategoryDao {
 
 
-    @Query("SELECT * FROM SpendingCategory ORDER BY createdAt")
+    @Query("SELECT * FROM SpendingCategory")
     fun getSpendingCategoriesFlow(): Flow<List<SpendingCategory>>
 
     @Query("SELECT * FROM SpendingCategory")

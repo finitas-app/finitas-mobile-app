@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "429f5a7827ecb139986c4b92cd636b61",
+    "identityHash": "5d2cb409718a9b3e73bc517a442d976d",
     "entities": [
       {
         "tableName": "User",
@@ -44,7 +44,7 @@
       },
       {
         "tableName": "SpendingCategory",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `idParent` TEXT, `createdAt` INTEGER NOT NULL, `idUser` TEXT, `idCategory` TEXT NOT NULL, PRIMARY KEY(`idCategory`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `idParent` TEXT, `idUser` TEXT, `idCategory` TEXT NOT NULL, PRIMARY KEY(`idCategory`))",
         "fields": [
           {
             "fieldPath": "name",
@@ -57,12 +57,6 @@
             "columnName": "idParent",
             "affinity": "TEXT",
             "notNull": false
-          },
-          {
-            "fieldPath": "createdAt",
-            "columnName": "createdAt",
-            "affinity": "INTEGER",
-            "notNull": true
           },
           {
             "fieldPath": "idUser",
@@ -468,7 +462,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '429f5a7827ecb139986c4b92cd636b61')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5d2cb409718a9b3e73bc517a442d976d')"
     ]
   }
 }

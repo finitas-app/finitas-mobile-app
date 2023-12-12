@@ -2,7 +2,6 @@ package pl.finitas.app.core.presentation.components.rooms.preview
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,7 +16,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.background.SecondaryBackground
 import pl.finitas.app.core.presentation.components.background.secondaryBackgroundColor
-import pl.finitas.app.core.presentation.components.navbar.NavBar
 import pl.finitas.app.core.presentation.components.rooms.RoomCard
 
 @Composable
@@ -51,11 +49,6 @@ fun RoomsTest() {
                         endY = with(LocalDensity.current) { 90.dp.toPx() }
                     )
                 )) {
-                NavBar(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .clickable(indication = null, interactionSource = MutableInteractionSource()) { println("Person") }
-                )
             }
         }
     }

@@ -8,7 +8,6 @@ import java.util.UUID
 data class SpendingCategory(
     val name: String,
     val idParent: UUID?,
-    val createdAt: Long,
     val idUser: UUID? = null,
     @PrimaryKey val idCategory: UUID,
 )

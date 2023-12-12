@@ -37,7 +37,7 @@ fun BoxScope.TotalSpendingsPanel(
             onAddSpendingClick = onAddSpendingClick,
         )
 
-        Column(Modifier.verticalScroll(rememberScrollState())) {
+        Column(Modifier.verticalScroll(rememberScrollState()).padding(bottom = 100.dp)) {
             spendings.value.forEach { (date, spendings) ->
                 Column(
                     modifier = Modifier
