@@ -83,7 +83,7 @@ fun CategorySpendingList(
             }
 
             LayeredList<SpendingElementView>(
-                nameableCollections = categories.filter { it.name.contains(filterSearch) },
+                nameableCollection = categories.filter { it.name.contains(filterSearch) },
                 modifier = Modifier.padding(top = 20.dp)
             ) { spendingElement ->
                 when (spendingElement) {

@@ -48,7 +48,7 @@ fun SpendingCategoryPanel(
         if (categories.isNotEmpty()) {
             ConstructorBox (Modifier.padding(top = 12.dp)){
                 LayeredList<SpendingElementView>(
-                    nameableCollections = categories,
+                    nameableCollection = categories,
                     itemExtras = {
                         ClickableIcon(
                             imageVector = Icons.Rounded.AddCircle,

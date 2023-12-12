@@ -54,7 +54,7 @@ fun BoxScope.TotalSpendingsPanel(
                             .padding(start = 10.dp, bottom = 5.dp),
                     )
                     LayeredList<SpendingElementView>(
-                        nameableCollections = spendings,
+                        nameableCollection = spendings,
                         itemExtras = {
                             Row(Modifier.padding(end = 20.dp)) {
                                 Fonts.regular.Text(text = it.totalPrice.toString())

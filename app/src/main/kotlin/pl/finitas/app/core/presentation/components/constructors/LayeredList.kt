@@ -36,9 +36,13 @@ import pl.finitas.app.core.presentation.components.utils.text.Fonts
 
 private val borderColor = Color.White.copy(alpha = .1f)
 
+/**
+ * Specify the type of the generalized class in LayeredList explicitly to the origin interface,
+ * since the implementation uses an unverifiable cast.
+ */
 @Composable
 fun <T : Nameable> LayeredList(
-    nameableCollections: List<NameableCollection>,
+    nameableCollection: List<T>,
     modifier: Modifier = Modifier,
     itemExtras: @Composable RowScope.(T) -> Unit = {},
 ) {
@@ -47,7 +51,7 @@ fun <T : Nameable> LayeredList(
             .border(1.dp, borderColor, RoundedCornerShape(10.dp))
     ) {
         LayeredListRecursive(
-            nameableCollections,
+            nameableCollection,
             itemExtras,
         )
     }
@@ -79,7 +83,7 @@ private fun <T> LayeredListRecursive(
 }
 
 @Composable
-private fun <T > NameableComponent(
+private fun <T> NameableComponent(
     nameable: Nameable,
     itemExtras: @Composable RowScope.(T) -> Unit,
     depth: Int,
@@ -169,7 +173,7 @@ private fun NestedSwitch(
 }
 
 @Composable
-private fun <T>NameableBody(
+private fun <T> NameableBody(
     nameable: Nameable,
     itemExtras: @Composable RowScope.(T) -> Unit,
     depth: Int,
