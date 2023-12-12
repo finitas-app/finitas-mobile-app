@@ -25,7 +25,7 @@ interface FinishedSpendingDao {
         ss.name as 'title',
         fs.purchaseDate as 'purchaseDate',
         srd.name as 'spendingRecordName',
-        srd.price as 'price',
+        sr.price as 'price',
         srd.idCategory as 'idCategory',
         srd.idSpendingRecordData as 'idSpendingRecord'
         FROM FinishedSpending fs

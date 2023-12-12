@@ -6,6 +6,10 @@ import pl.finitas.app.core.data.model.SpendingCategory
 import pl.finitas.app.core.domain.repository.SpendingCategoryNotFoundException
 import pl.finitas.app.core.domain.repository.SpendingCategoryRepository
 import pl.finitas.app.core.domain.repository.TotalSpendingRepository
+import pl.finitas.app.core.domain.services.SpendingCategoryView
+import pl.finitas.app.core.domain.services.SpendingElementView
+import pl.finitas.app.core.domain.services.SpendingRecordView
+import pl.finitas.app.core.domain.services.TotalViewSpendingView
 import pl.finitas.app.manage_spendings_feature.domain.model.FinishedSpendingWithRecordsDto
 import pl.finitas.app.manage_spendings_feature.domain.model.SpendingRecordDto
 import pl.finitas.app.manage_spendings_feature.presentation.add_spending.TotalSpendingState
@@ -17,7 +21,7 @@ class FinishedSpendingService(
     private val spendingCategoryRepository: SpendingCategoryRepository,
 ) {
 
-    fun getTotalSpendings(): Flow<List<Pair<LocalDate, List<TotalSpendingView>>>> =
+    fun getTotalSpendings(): Flow<List<Pair<LocalDate, List<TotalViewSpendingView>>>> =
         totalSpendingRepository.getFinishedSpendings().map { totalSpendings ->
             val categories =
                 spendingCategoryRepository
@@ -35,16 +39,16 @@ class FinishedSpendingService(
                     ) = totalSpendingWithRecords
                     val recordsByCategory = spendingRecords.groupBy { it.idCategory }
 
-                    TotalSpendingView(
+                    TotalViewSpendingView(
                         idTotalSpending = idTotalSpending,
                         name = title,
                         date = time,
-                        spendingElements = recordsByCategory.map { (idCategory, records) ->
+                        elements = recordsByCategory.map { (idCategory, records) ->
                             SpendingCategoryView(
-                                categories[idCategory]?.name
+                                name = categories[idCategory]?.name
                                     ?: throw SpendingCategoryNotFoundException(idCategory),
-                                idCategory,
-                                records.map { record ->
+                                idCategory = idCategory,
+                                elements = records.map { record ->
                                     SpendingRecordView(
                                         record.name,
                                         record.price,
@@ -72,14 +76,14 @@ class FinishedSpendingService(
 
 
 // TODO: refactoring
-private fun TotalSpendingView.normalizeTotalSpendingView(categoryById: Map<UUID, SpendingCategory>): TotalSpendingView {
-    val recordsByCategoryId = spendingElements.associate { element ->
-        (element as SpendingCategoryView).let { it.idCategory to it.spendingElements }
+private fun TotalViewSpendingView.normalizeTotalSpendingView(categoryById: Map<UUID, SpendingCategory>): TotalViewSpendingView {
+    val recordsByCategoryId = elements.associate { element ->
+        (element as SpendingCategoryView).let { it.idCategory to it.elements }
     }.toMutableMap()
         /*.groupBy {
         (it as? SpendingRecordView)?.idCategory ?: -1
     }.toMutableMap()*/
-    val result = mutableListOf<SpendingElement>()
+    val result = mutableListOf<SpendingElementView>()
     val previousSpendingElements = mutableMapOf<UUID, SpendingCategoryView>()
 
     outer@ while (recordsByCategoryId.isNotEmpty()) {
@@ -88,8 +92,8 @@ private fun TotalSpendingView.normalizeTotalSpendingView(categoryById: Map<UUID,
             categoryById[idCategory] ?: throw SpendingCategoryNotFoundException(idCategory)
         var currentSpendingElement = SpendingCategoryView(
             currentCategory.name,
-            idCategory,
             records,
+            idCategory,
         )
         previousSpendingElements[idCategory] = currentSpendingElement
         val possiblePrevious =
@@ -105,15 +109,15 @@ private fun TotalSpendingView.normalizeTotalSpendingView(categoryById: Map<UUID,
                     currentCategory.idParent!!
                 )
             val categoryId = currentCategory.idCategory
-            val newContainers: MutableList<SpendingElement> = mutableListOf(currentSpendingElement)
+            val newContainers: MutableList<SpendingElementView> = mutableListOf(currentSpendingElement)
             if (currentCategory.idCategory in recordsByCategoryId) {
                 newContainers.addAll(recordsByCategoryId[categoryId]!!)
                 recordsByCategoryId.remove(categoryId)
             }
             currentSpendingElement = SpendingCategoryView(
                 currentCategory.name,
-                categoryId,
                 newContainers,
+                categoryId,
             )
             previousSpendingElements[idCategory] = currentSpendingElement
 
@@ -128,14 +132,14 @@ private fun TotalSpendingView.normalizeTotalSpendingView(categoryById: Map<UUID,
         recordsByCategoryId.remove(idCategory)
     }
 
-    return copy(spendingElements = result)
+    return copy(elements = result)
 }
 
 private fun verifyPrevious(
     previous: Map<UUID, SpendingCategoryView>,
     categoryId: UUID?,
-): MutableList<SpendingElement>? {
-    return previous[categoryId]?.let { it.spendingElements as? MutableList<SpendingElement> }
+): MutableList<SpendingElementView>? {
+    return previous[categoryId]?.let { it.elements as? MutableList<SpendingElementView> }
 }
 
 @Throws(InvalidTotalSpendingState::class)
@@ -147,7 +151,7 @@ fun TotalSpendingState.toTotalSpendingWithRecords(): FinishedSpendingWithRecords
         title = title,
         purchaseDate = date.atStartOfDay(),
         spendingRecords = categories.flatMap { category ->
-            category.spendingElements.map { spendingRecord ->
+            category.elements.map { spendingRecord ->
                 if (spendingRecord !is SpendingRecordView) throw  InvalidTotalSpendingState(this)
 
                 SpendingRecordDto(

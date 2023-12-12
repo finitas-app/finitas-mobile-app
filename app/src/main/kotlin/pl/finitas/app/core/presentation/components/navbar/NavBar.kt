@@ -74,7 +74,9 @@ fun BoxScope.NavBar(
             )
             NavBarIcon(
                 painterResource(id = R.drawable.ic_shopping_list),
-                onClick = {},
+                onClick = {
+                    navController.navigate(NavPaths.ShoppingLists.route)
+                },
             )
             NavBarIcon(
                 painterResource(id = R.drawable.ic_send_icon),

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "5d2cb409718a9b3e73bc517a442d976d",
+    "identityHash": "59e01b66f02623dad959bb6a7fc4e7d4",
     "entities": [
       {
         "tableName": "User",
@@ -82,17 +82,11 @@
       },
       {
         "tableName": "SpendingRecordData",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `price` TEXT NOT NULL, `idCategory` TEXT NOT NULL, `idSpendingRecordData` TEXT NOT NULL, PRIMARY KEY(`idSpendingRecordData`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `idCategory` TEXT NOT NULL, `idSpendingRecordData` TEXT NOT NULL, PRIMARY KEY(`idSpendingRecordData`))",
         "fields": [
           {
             "fieldPath": "name",
             "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "price",
-            "columnName": "price",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -178,11 +172,17 @@
       },
       {
         "tableName": "SpendingRecord",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idSpendingSummary` TEXT NOT NULL, `idSpendingRecordData` TEXT NOT NULL, PRIMARY KEY(`idSpendingRecordData`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idSpendingSummary` TEXT NOT NULL, `price` TEXT NOT NULL, `idSpendingRecordData` TEXT NOT NULL, PRIMARY KEY(`idSpendingRecordData`))",
         "fields": [
           {
             "fieldPath": "idSpendingSummary",
             "columnName": "idSpendingSummary",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "price",
+            "columnName": "price",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -294,11 +294,11 @@
       },
       {
         "tableName": "ShoppingItem",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`isDone` INTEGER NOT NULL, `idShoppingList` TEXT NOT NULL, `idSpendingRecordData` TEXT NOT NULL, PRIMARY KEY(`idSpendingRecordData`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`amount` INTEGER NOT NULL, `idShoppingList` TEXT NOT NULL, `idSpendingRecordData` TEXT NOT NULL, PRIMARY KEY(`idSpendingRecordData`))",
         "fields": [
           {
-            "fieldPath": "isDone",
-            "columnName": "isDone",
+            "fieldPath": "amount",
+            "columnName": "amount",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -462,7 +462,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5d2cb409718a9b3e73bc517a442d976d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '59e01b66f02623dad959bb6a7fc4e7d4')"
     ]
   }
 }

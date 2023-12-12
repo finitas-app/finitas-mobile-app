@@ -1,4 +1,4 @@
-package pl.finitas.app.manage_additional_elements.presentation
+package pl.finitas.app.manage_additional_elements_feature.presentation
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,9 +10,9 @@ import androidx.navigation.NavController
 import org.koin.androidx.compose.koinViewModel
 import pl.finitas.app.core.presentation.components.background.PrimaryBackground
 import pl.finitas.app.core.presentation.components.navbar.NavBar
-import pl.finitas.app.manage_additional_elements.presentation.components.UpdateSpendingCategoryDialog
-import pl.finitas.app.manage_additional_elements.presentation.spending_category.SpendingCategoryPanel
-import pl.finitas.app.manage_additional_elements.presentation.spending_category.SpendingCategoryViewModel
+import pl.finitas.app.manage_additional_elements_feature.presentation.components.UpdateSpendingCategoryDialog
+import pl.finitas.app.manage_additional_elements_feature.presentation.spending_category.SpendingCategoryPanel
+import pl.finitas.app.manage_additional_elements_feature.presentation.spending_category.SpendingCategoryViewModel
 
 @Composable
 fun AdditionalElementsScreen(

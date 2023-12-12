@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import pl.finitas.app.manage_spendings_feature.domain.services.FinishedSpendingService
 import pl.finitas.app.core.domain.services.SpendingCategoryService
-import pl.finitas.app.manage_spendings_feature.domain.services.SpendingRecordView
+import pl.finitas.app.core.domain.services.SpendingRecordView
 import java.time.LocalDate
 
 class AddSpendingViewModel(

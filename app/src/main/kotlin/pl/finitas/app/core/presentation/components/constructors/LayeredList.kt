@@ -30,33 +30,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import pl.finitas.app.core.domain.Nameable
+import pl.finitas.app.core.domain.NameableCollection
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
-import pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryView
-import pl.finitas.app.manage_spendings_feature.domain.services.SpendingElement
-import pl.finitas.app.manage_spendings_feature.domain.services.SpendingRecordView
-import pl.finitas.app.manage_spendings_feature.domain.services.TotalSpendingView
-import java.util.UUID
 
 private val borderColor = Color.White.copy(alpha = .1f)
 
 @Composable
-fun SpendingList(
-    spendingElements: List<SpendingElement>,
+fun <T : Nameable> LayeredList(
+    nameableCollections: List<NameableCollection>,
     modifier: Modifier = Modifier,
-    itemExtras: @Composable RowScope.(SpendingElement) -> Unit = {},
+    itemExtras: @Composable RowScope.(T) -> Unit = {},
 ) {
     Column(
         modifier
             .border(1.dp, borderColor, RoundedCornerShape(10.dp))
     ) {
-        SpendingListRecursive(spendingElements, itemExtras)
+        LayeredListRecursive(
+            nameableCollections,
+            itemExtras,
+        )
     }
 }
 
 @Composable
-private fun SpendingListRecursive(
-    spendingElements: List<SpendingElement>,
-    itemExtras: @Composable RowScope.(SpendingElement) -> Unit,
+private fun <T> LayeredListRecursive(
+    nameableCollections: List<Nameable>,
+    itemExtras: @Composable RowScope.(T) -> Unit,
     depth: Int = 0,
 ) {
 
@@ -64,7 +64,7 @@ private fun SpendingListRecursive(
         Modifier
             .fillMaxWidth()
     ) {
-        spendingElements.forEachIndexed { index, spendingElement ->
+        nameableCollections.forEachIndexed { index, nameableCollection ->
             if (depth != 0 || index != 0) {
                 Box(
                     Modifier
@@ -73,15 +73,15 @@ private fun SpendingListRecursive(
                         .background(borderColor)
                 )
             }
-            SpendingElementComponent(spendingElement, itemExtras, depth)
+            NameableComponent(nameableCollection, itemExtras, depth)
         }
     }
 }
 
 @Composable
-private fun SpendingElementComponent(
-    spendingElement: SpendingElement,
-    itemExtras: @Composable RowScope.(SpendingElement) -> Unit,
+private fun <T > NameableComponent(
+    nameable: Nameable,
+    itemExtras: @Composable RowScope.(T) -> Unit,
     depth: Int,
 ) {
     Column(
@@ -89,52 +89,26 @@ private fun SpendingElementComponent(
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        when (spendingElement) {
-            is SpendingRecordView -> SpendingRecordBody(spendingElement, itemExtras, depth)
-            is SpendingCategoryView -> SpendingCategoryBody(
-                spendingCategoryView = spendingElement,
-                itemExtras = itemExtras,
+        if (nameable is NameableCollection) {
+            NameableCollectionBody(
+                nameableCollection = nameable,
+                itemExtras,
                 depth = depth,
             )
-
-            is TotalSpendingView -> TotalSpendingBody(
-                totalSpendingView = spendingElement,
-                itemExtras = itemExtras,
-                depth = depth,
-            )
+        } else {
+            NameableBody(nameable, itemExtras, depth)
         }
     }
 }
 
-// TODO: remove idCategory and refactor
-private val unnecessaryUUIDToRemove = UUID.randomUUID()
-
 @Composable
-private fun ColumnScope.TotalSpendingBody(
-    totalSpendingView: TotalSpendingView,
-    itemExtras: @Composable RowScope.(SpendingElement) -> Unit,
-    depth: Int,
-) {
-    SpendingCategoryBody(
-        SpendingCategoryView(
-            totalSpendingView.name,
-            // TODO: remove idCategory and refactor
-            unnecessaryUUIDToRemove,
-            totalSpendingView.spendingElements
-        ),
-        itemExtras,
-        depth,
-    )
-}
-
-@Composable
-private fun ColumnScope.SpendingCategoryBody(
-    spendingCategoryView: SpendingCategoryView,
-    itemExtras: @Composable RowScope.(SpendingElement) -> Unit,
+private fun <T> ColumnScope.NameableCollectionBody(
+    nameableCollection: NameableCollection,
+    itemExtras: @Composable RowScope.(T) -> Unit,
     depth: Int,
 ) {
     var isOpenNestedCategories by remember { mutableStateOf(false) }
-    fun hasNested() = spendingCategoryView.spendingElements.isNotEmpty()
+    fun hasNested() = nameableCollection.elements.isNotEmpty()
 
     Row(
         modifier = Modifier
@@ -142,25 +116,25 @@ private fun ColumnScope.SpendingCategoryBody(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        RenderStarter(spendingElement = spendingCategoryView, depth = depth)
+        RenderStarter(nameable = nameableCollection, depth = depth)
         Row {
             if (hasNested())
-                NestedToggled(
+                NestedSwitch(
                     isOpened = isOpenNestedCategories,
                     onClick = { isOpenNestedCategories = !isOpenNestedCategories },
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .padding(end = 16.dp)
                 )
-            itemExtras(spendingCategoryView)
+            itemExtras(nameableCollection as T)
         }
     }
     if (hasNested()) {
         AnimatedVisibility(
             visible = isOpenNestedCategories,
         ) {
-            SpendingListRecursive(
-                spendingCategoryView.spendingElements,
+            LayeredListRecursive(
+                nameableCollection.elements,
                 itemExtras,
                 depth + 1
             )
@@ -169,7 +143,7 @@ private fun ColumnScope.SpendingCategoryBody(
 }
 
 @Composable
-private fun RowScope.NestedToggled(
+private fun NestedSwitch(
     isOpened: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -195,9 +169,9 @@ private fun RowScope.NestedToggled(
 }
 
 @Composable
-private fun SpendingRecordBody(
-    spendingRecordView: SpendingRecordView,
-    itemExtras: @Composable RowScope.(SpendingRecordView) -> Unit,
+private fun <T>NameableBody(
+    nameable: Nameable,
+    itemExtras: @Composable RowScope.(T) -> Unit,
     depth: Int,
 ) {
     Row(
@@ -206,13 +180,13 @@ private fun SpendingRecordBody(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        RenderStarter(spendingElement = spendingRecordView, depth = depth)
-        itemExtras(spendingRecordView)
+        RenderStarter(nameable = nameable, depth = depth)
+        itemExtras(nameable as T)
     }
 }
 
 @Composable
-fun RenderStarter(spendingElement: SpendingElement, depth: Int) {
+fun RenderStarter(nameable: Nameable, depth: Int) {
     Row(
         Modifier
             .padding(top = 15.dp, bottom = 15.dp, start = 16.dp)
@@ -233,7 +207,7 @@ fun RenderStarter(spendingElement: SpendingElement, depth: Int) {
                     .background(Color.White.copy(0.1f * depth))
             )
         Fonts.regular.Text(
-            text = spendingElement.name,
+            text = nameable.name,
             Modifier
                 .align(Alignment.CenterVertically)
         )

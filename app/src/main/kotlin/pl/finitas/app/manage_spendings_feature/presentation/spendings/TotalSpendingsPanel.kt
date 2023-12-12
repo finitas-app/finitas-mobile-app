@@ -16,9 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import pl.finitas.app.core.domain.services.SpendingElementView
 import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.core.presentation.components.constructors.GestureVerticalMenu
-import pl.finitas.app.core.presentation.components.constructors.SpendingList
+import pl.finitas.app.core.presentation.components.constructors.LayeredList
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.manage_spendings_feature.domain.util.convertToView
 
@@ -37,7 +38,10 @@ fun BoxScope.TotalSpendingsPanel(
             onAddSpendingClick = onAddSpendingClick,
         )
 
-        Column(Modifier.verticalScroll(rememberScrollState()).padding(bottom = 100.dp)) {
+        Column(
+            Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 100.dp)) {
             spendings.value.forEach { (date, spendings) ->
                 Column(
                     modifier = Modifier
@@ -49,8 +53,8 @@ fun BoxScope.TotalSpendingsPanel(
                         modifier = Modifier
                             .padding(start = 10.dp, bottom = 5.dp),
                     )
-                    SpendingList(
-                        spendingElements = spendings,
+                    LayeredList<SpendingElementView>(
+                        nameableCollections = spendings,
                         itemExtras = {
                             Row(Modifier.padding(end = 20.dp)) {
                                 Fonts.regular.Text(text = it.totalPrice.toString())
@@ -70,8 +74,7 @@ private fun TotalSpendingHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 28.dp, end = 15.dp, bottom = 5.dp)
-        ,
+            .padding(start = 28.dp, end = 15.dp, bottom = 5.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {

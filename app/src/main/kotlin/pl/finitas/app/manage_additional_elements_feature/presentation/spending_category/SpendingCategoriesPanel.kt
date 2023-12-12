@@ -1,4 +1,4 @@
-package pl.finitas.app.manage_additional_elements.presentation.spending_category
+package pl.finitas.app.manage_additional_elements_feature.presentation.spending_category
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,11 +13,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import pl.finitas.app.core.domain.services.SpendingCategoryView
+import pl.finitas.app.core.domain.services.SpendingElementView
 import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
-import pl.finitas.app.core.presentation.components.constructors.SpendingList
+import pl.finitas.app.core.presentation.components.constructors.LayeredList
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
-import pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryView
 
 @Composable
 fun SpendingCategoryPanel(
@@ -46,8 +47,8 @@ fun SpendingCategoryPanel(
         }
         if (categories.isNotEmpty()) {
             ConstructorBox (Modifier.padding(top = 12.dp)){
-                SpendingList(
-                    spendingElements = categories,
+                LayeredList<SpendingElementView>(
+                    nameableCollections = categories,
                     itemExtras = {
                         ClickableIcon(
                             imageVector = Icons.Rounded.AddCircle,

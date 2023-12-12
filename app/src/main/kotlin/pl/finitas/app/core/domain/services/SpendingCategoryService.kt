@@ -4,8 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import pl.finitas.app.core.data.model.SpendingCategory
 import pl.finitas.app.core.domain.repository.SpendingCategoryRepository
-import pl.finitas.app.manage_additional_elements.presentation.spending_category.SpendingCategoryState
-import pl.finitas.app.manage_spendings_feature.domain.services.SpendingCategoryView
+import pl.finitas.app.manage_additional_elements_feature.presentation.spending_category.SpendingCategoryState
 import java.util.UUID
 
 class SpendingCategoryService(
@@ -56,8 +55,8 @@ class SpendingCategoryService(
         return result.map {
             SpendingCategoryView(
                 it.name,
-                it.idCategory,
                 listOf(),
+                it.idCategory,
             )
         }
 
@@ -71,7 +70,7 @@ private fun getSpendingCategoriesTreeRecursive(
     SpendingCategoryView(
         name = it.name,
         idCategory = it.idCategory,
-        spendingElements = getSpendingCategoriesTreeRecursive(
+        elements = getSpendingCategoriesTreeRecursive(
             categoriesByParentId[it.idCategory] ?: listOf(),
             categoriesByParentId,
         )

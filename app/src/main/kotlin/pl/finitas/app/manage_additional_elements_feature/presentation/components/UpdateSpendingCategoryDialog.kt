@@ -1,4 +1,4 @@
-package pl.finitas.app.manage_additional_elements.presentation.components
+package pl.finitas.app.manage_additional_elements_feature.presentation.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,7 +11,7 @@ import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
 import pl.finitas.app.core.presentation.components.dialog.CustomDialog
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
-import pl.finitas.app.manage_additional_elements.presentation.spending_category.SpendingCategoryViewModel
+import pl.finitas.app.manage_additional_elements_feature.presentation.spending_category.SpendingCategoryViewModel
 
 @Composable
 fun UpdateSpendingCategoryDialog(

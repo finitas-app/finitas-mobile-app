@@ -4,7 +4,7 @@ import android.content.Context
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.KoinAppDeclaration
 import pl.finitas.app.core.coreModule
-import pl.finitas.app.manage_additional_elements.manageAdditionalElementsModule
+import pl.finitas.app.manage_additional_elements_feature.manageAdditionalElementsModule
 import pl.finitas.app.manage_spendings_feature.manageSpendingsModule
 import pl.finitas.app.profile_feature.profileModule
 

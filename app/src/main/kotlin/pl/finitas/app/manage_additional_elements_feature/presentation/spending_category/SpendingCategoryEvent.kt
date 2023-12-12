@@ -1,4 +1,4 @@
-package pl.finitas.app.manage_additional_elements.presentation.spending_category
+package pl.finitas.app.manage_additional_elements_feature.presentation.spending_category
 
 import java.util.UUID
 

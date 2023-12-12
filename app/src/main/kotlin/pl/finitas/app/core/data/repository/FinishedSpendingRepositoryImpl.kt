@@ -74,10 +74,10 @@ class FinishedSpendingRepositoryImpl(
                     spendingRecord = SpendingRecord(
                         idSpendingSummary = generatedSpendingSummary,
                         idSpendingRecordData = generatedIdSpendingRecordData,
+                        price = it.price,
                     ),
                     spendingRecordData = SpendingRecordData(
                         name = it.name,
-                        price = it.price,
                         idCategory = it.idCategory,
                         idSpendingRecordData = generatedIdSpendingRecordData,
                     )
