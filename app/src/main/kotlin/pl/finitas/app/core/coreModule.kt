@@ -11,6 +11,9 @@ import pl.finitas.app.core.http.httpClient
 
 
 val coreModule = module {
+    single<ProfileRepository> {
+        ProfileRepositoryImpl(androidApplication())
+    }
     httpClient()
     single {
         Room
@@ -21,10 +24,6 @@ val coreModule = module {
             )
             //.createFromAsset("sqlite.db")
             .build()
-    }
-
-    single<ProfileRepository> {
-        ProfileRepositoryImpl(androidApplication())
     }
 }
 
