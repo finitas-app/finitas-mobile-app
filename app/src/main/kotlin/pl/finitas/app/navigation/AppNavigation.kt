@@ -12,7 +12,7 @@ import pl.finitas.app.shopping_lists_feature.presentation.ShoppingListsScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = NavPaths.HomeScreen.route) {
+    NavHost(navController = navController, startDestination = NavPaths.ShoppingLists.route) {
         composable(
             NavPaths.AuthScreen.route,
         ) {
