@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import pl.finitas.app.manage_spendings_feature.domain.services.FinishedSpendingService
+import pl.finitas.app.manage_spendings_feature.domain.service.FinishedSpendingService
 import pl.finitas.app.core.domain.services.SpendingCategoryService
 import pl.finitas.app.core.domain.services.SpendingRecordView
 import java.time.LocalDate
@@ -19,50 +19,50 @@ class AddSpendingViewModel(
     var isDialogOpen by mutableStateOf(false)
         private set
 
-    var totalSpendingState by mutableStateOf(TotalSpendingState.emptyState)
+    var finishedSpendingState by mutableStateOf(FinishedSpendingState.emptyState)
         private set
 
     fun openDialog() {
         viewModelScope.launch {
-            totalSpendingState = spendingCategoryService.getSpendingCategoriesFlat().let {
-                totalSpendingState.copy(categories = it)
+            finishedSpendingState = spendingCategoryService.getSpendingCategoriesFlat().let {
+                finishedSpendingState.copy(categories = it)
             }
         }
         isDialogOpen = true
     }
 
     fun closeDialog() {
-        totalSpendingState = TotalSpendingState.emptyState
+        finishedSpendingState = FinishedSpendingState.emptyState
         isDialogOpen = false
     }
 
     init {
         viewModelScope.launch {
-            totalSpendingState = spendingCategoryService.getSpendingCategoriesFlat().let {
-                totalSpendingState.copy(categories = it)
+            finishedSpendingState = spendingCategoryService.getSpendingCategoriesFlat().let {
+                finishedSpendingState.copy(categories = it)
             }
         }
     }
 
     fun setTitle(title: String) {
-        totalSpendingState = totalSpendingState.copy(title = title)
+        finishedSpendingState = finishedSpendingState.copy(title = title)
     }
 
     fun setDate(date: LocalDate) {
-        totalSpendingState = totalSpendingState.copy(date = date)
+        finishedSpendingState = finishedSpendingState.copy(date = date)
     }
 
     fun addSpending(spendingRecord: SpendingRecordView) {
-        totalSpendingState = totalSpendingState.addSpending(spendingRecord)
+        finishedSpendingState = finishedSpendingState.addSpending(spendingRecord)
     }
 
     fun removeSpending(spendingRecord: SpendingRecordView) {
-        totalSpendingState = totalSpendingState.removeSpending(spendingRecord)
+        finishedSpendingState = finishedSpendingState.removeSpending(spendingRecord)
     }
 
     fun onSave() {
         viewModelScope.launch {
-            finishedSpendingService.addTotalSpending(totalSpendingState)
+            finishedSpendingService.addTotalSpending(finishedSpendingState)
             closeDialog()
         }
     }

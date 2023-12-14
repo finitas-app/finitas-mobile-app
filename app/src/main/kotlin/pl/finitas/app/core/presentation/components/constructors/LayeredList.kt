@@ -193,7 +193,7 @@ private fun <T> NameableBody(
 fun RenderStarter(nameable: Nameable, depth: Int) {
     Row(
         Modifier
-            .padding(top = 15.dp, bottom = 15.dp, start = 16.dp)
+            .padding(top = 16.dp, bottom = 16.dp, start = 16.dp)
     ) {
         if (depth > 0)
             Box(

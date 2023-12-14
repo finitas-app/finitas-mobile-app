@@ -32,7 +32,7 @@ data class SpendingRecordView(
 ) : SpendingElementView
 
 
-data class TotalViewSpendingView(
+data class FinishedSpendingView(
     override val name: String,
     override val elements: List<SpendingElementView>,
     val idTotalSpending: UUID,

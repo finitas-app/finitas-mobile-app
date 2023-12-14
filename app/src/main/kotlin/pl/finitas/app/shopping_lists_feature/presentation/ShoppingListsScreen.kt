@@ -1,33 +1,28 @@
 package pl.finitas.app.shopping_lists_feature.presentation
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import org.koin.androidx.compose.koinViewModel
 import pl.finitas.app.core.presentation.components.background.PrimaryBackground
 import pl.finitas.app.core.presentation.components.navbar.NavBar
-import pl.finitas.app.shopping_lists_feature.presentation.components.ShoppingListComponent
+import pl.finitas.app.shopping_lists_feature.presentation.read_shopping_list.ShoppingListPanel
+import pl.finitas.app.shopping_lists_feature.presentation.read_shopping_list.ShoppingListViewModel
+import pl.finitas.app.shopping_lists_feature.presentation.write_shopping_list.UpsertShoppingList
+import pl.finitas.app.shopping_lists_feature.presentation.write_shopping_list.UpsertShoppingListViewModel
 
 
 @Composable
 fun ShoppingListsScreen(
     navController: NavController,
 ) {
-    PrimaryBackground {
-        Column {
-            ShoppingListComponent(modifier = Modifier
-                .padding(top = 200.dp, start = 20.dp)
-                .size(200.dp))
-            ShoppingListComponent(modifier = Modifier
-                .padding(top = 20.dp, start = 20.dp)
-                .size(200.dp),
-                color = Color(0xFF299182)
-            )
-        }
+    val upsertShoppingListViewModel: UpsertShoppingListViewModel = koinViewModel()
+    val shoppingListViewModel: ShoppingListViewModel = koinViewModel()
+    PrimaryBackground(isDialogOpen = upsertShoppingListViewModel.isDialogOpen) {
+        ShoppingListPanel(
+            viewModel = shoppingListViewModel,
+            onUpsertShoppingListClick = { upsertShoppingListViewModel.openDialog(it) }
+        )
         NavBar(navController = navController)
     }
+    UpsertShoppingList(upsertShoppingListViewModel)
 }

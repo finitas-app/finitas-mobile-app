@@ -5,7 +5,7 @@ import org.koin.android.ext.koin.androidApplication
 import org.koin.core.scope.Scope
 import org.koin.dsl.module
 import pl.finitas.app.core.data.data_source.FinitasDatabase
-import pl.finitas.app.core.data.repository.ProfileRepositoryImpl
+import pl.finitas.app.core.data.data_source.repository.ProfileRepositoryImpl
 import pl.finitas.app.core.domain.repository.ProfileRepository
 import pl.finitas.app.core.http.httpClient
 

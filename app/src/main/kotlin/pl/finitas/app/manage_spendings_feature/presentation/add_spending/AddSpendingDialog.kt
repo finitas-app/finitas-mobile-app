@@ -14,8 +14,8 @@ import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
 import pl.finitas.app.core.presentation.components.constructors.DateInput
 import pl.finitas.app.core.presentation.components.dialog.CustomDialog
-import pl.finitas.app.core.presentation.components.spendings.CategorySpendingList
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
+import pl.finitas.app.manage_spendings_feature.presentation.add_spending.components.CategorySpendingList
 
 @Composable
 fun AddSpendingDialog(
@@ -53,7 +53,7 @@ private fun AddSpendingForm(
                 .padding(horizontal = 14.dp),
         )
         CategorySpendingList(
-            categories = addSpendingViewModel.totalSpendingState.categories,
+            categories = addSpendingViewModel.finishedSpendingState.categories,
             onDeleteElement = { addSpendingViewModel.removeSpending(it) },
             onSave = { addSpendingViewModel.addSpending(it) },
             modifier = Modifier
@@ -84,10 +84,10 @@ private fun AddSpendingFormGeneralInfo(
             Fonts.regular.Text(
                 text = "Title",
                 modifier = Modifier
-                    .padding(top = 40.dp)
+                    .padding(top = 26.dp)
             )
             ConstructorInput(
-                value = addSpendingViewModel.totalSpendingState.title,
+                value = addSpendingViewModel.finishedSpendingState.title,
                 onValueChange = addSpendingViewModel::setTitle,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -100,7 +100,7 @@ private fun AddSpendingFormGeneralInfo(
                     .padding(top = 18.dp)
             )
             DateInput(
-                date = addSpendingViewModel.totalSpendingState.date,
+                date = addSpendingViewModel.finishedSpendingState.date,
                 onDateChange = addSpendingViewModel::setDate,
                 modifier = Modifier
                     .fillMaxWidth()

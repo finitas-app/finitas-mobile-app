@@ -33,7 +33,7 @@ fun Module.httpClient() {
                         BearerTokens("", "")
                     }
                     sendWithoutRequest { request ->
-                        request.toString() in urlsWithoutAuth
+                        request.url.toString() in urlsWithoutAuth
                     }
                 }
             }

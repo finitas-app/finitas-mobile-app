@@ -6,21 +6,38 @@ import java.util.UUID
 
 sealed interface ShoppingListElement : Nameable
 
-data class ShoppingItem(
+data class ShoppingItemView(
     override val name: String,
     val amount: Int,
+    val idSpendingCategory: UUID,
+    val idShoppingItem: UUID,
 ): ShoppingListElement
+
+data class ShoppingItemCategoryView(
+    override val name: String,
+    override val elements: List<ShoppingListElement>,
+    val idSpendingCategory: UUID,
+) : ShoppingListElement, NameableCollection
 
 data class ShoppingListView(
     override val name: String,
     override val elements: List<ShoppingListElement>,
+    val color: Int,
     val idShoppingList: UUID,
-    val idUser: UUID?,
+    val idUser: UUID? = null,
 ) : ShoppingListElement, NameableCollection
 
-data class ShoppingItemCategory(
-    override val name: String,
-    override val elements: List<ShoppingListElement>,
-    val idSpendingCategory: UUID,
+data class ShoppingListDto(
+    val name: String,
+    val color: Int,
     val idShoppingList: UUID,
-) : ShoppingListElement, NameableCollection
+    val shoppingItems: List<ShoppingItemDto>,
+    val idUser: UUID? = null,
+)
+
+data class ShoppingItemDto(
+    val idSpendingRecordData: UUID,
+    val name: String,
+    val amount: Int,
+    val idSpendingCategory: UUID,
+)

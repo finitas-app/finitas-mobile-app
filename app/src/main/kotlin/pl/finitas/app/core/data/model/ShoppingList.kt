@@ -7,5 +7,7 @@ import java.util.UUID
 @Entity
 data class ShoppingList(
     val idUser: UUID?,
-    @PrimaryKey val idShoppingList: String,
+    val color: Int,
+    val name: String,
+    @PrimaryKey val idShoppingList: UUID,
 )
