@@ -12,7 +12,6 @@ import pl.finitas.app.core.domain.repository.ProfileRepository
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "profile")
 
-
 class ProfileRepositoryImpl(private val context: Context): ProfileRepository {
 
     private val authTokenKey = stringPreferencesKey("auth_token")

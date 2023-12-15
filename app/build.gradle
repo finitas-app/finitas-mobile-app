@@ -84,6 +84,7 @@ dependencies {
     // Ktor client
     implementation("io.ktor:ktor-client-core:2.3.6")
     implementation("io.ktor:ktor-client-android:2.3.6")
+    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:2.3.6")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.6")
     implementation("io.ktor:ktor-serialization-jackson:2.3.6")
     implementation("io.ktor:ktor-client-logging:2.3.6")

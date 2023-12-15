@@ -10,7 +10,10 @@ import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.http.HeadersBuilder
+import io.ktor.http.HttpMessageBuilder
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.headers
 import io.ktor.serialization.jackson.jackson
 import kotlinx.coroutines.flow.first
 import org.koin.core.module.Module
@@ -26,7 +29,7 @@ fun Module.httpClient() {
                 bearer {
                     loadTokens {
                         val authToken = profileRepository.getAuthToken().first()
-                        BearerTokens( authToken ?: "", authToken ?: "")
+                        BearerTokens(authToken ?: "", authToken ?: "")
                     }
                     refreshTokens {
                         profileRepository.clear()
@@ -35,6 +38,9 @@ fun Module.httpClient() {
                     sendWithoutRequest { request ->
                         request.url.toString() in urlsWithoutAuth
                     }
+                }
+                headers {
+                    append("Content-Type", "application/json")
                 }
             }
             install(Logging) {
@@ -50,8 +56,7 @@ fun Module.httpClient() {
                         val error = response.body<ErrorResponse>()
                         if (error.errorCode == ErrorCode.AUTH_ERROR) {
                             profileRepository.clear()
-                        }
-                        else throw FrontendApiException(
+                        } else throw FrontendApiException(
                             statusCode = httpStatusCode,
                             errorCode = error.errorCode,
                             errorMessage = error.errorMessage
