@@ -10,10 +10,7 @@ import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
-import io.ktor.http.HeadersBuilder
-import io.ktor.http.HttpMessageBuilder
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.headers
 import io.ktor.serialization.jackson.jackson
 import kotlinx.coroutines.flow.first
 import org.koin.core.module.Module
@@ -38,9 +35,6 @@ fun Module.httpClient() {
                     sendWithoutRequest { request ->
                         request.url.toString() in urlsWithoutAuth
                     }
-                }
-                headers {
-                    append("Content-Type", "application/json")
                 }
             }
             install(Logging) {
@@ -82,7 +76,26 @@ class FrontendApiException(
 enum class ErrorCode {
     GENERIC_ERROR,
     AUTH_ERROR,
+    ACTION_FORBIDDEN_ERROR,
     CONFIGURATION_ERROR,
     FILE_NOT_PROVIDED,
     INVALID_FILE_PROVIDED,
+    ID_ROOM_NOT_PROVIDED,
+    ID_USER_NOT_PROVIDED,
+    FINISHED_SPENDING_NOT_FOUND,
+    FINISHED_SPENDING_EXISTS,
+    SHOPPING_LIST_NOT_FOUND,
+    SHOPPING_LIST_EXISTS,
+    USER_NOT_FOUND,
+    STORE_REQUEST_INPUT_INVALID,
+    SIGN_UP_LOGIN_INVALID,
+    SIGN_UP_PASSWORD_WEAK,
+    SIGN_UP_USER_EXISTS,
+    ID_USER_INVALID,
+    INVALID_UUID,
+    CREATE_USER_ERROR,
+    DELETE_USER_ERROR,
+    STORE_REQUEST_INPUT_VALIDATION_FAILED,
+    STORE_REQUEST_NON_PARSABLE,
+    VISIBLE_NAME_INVALID,
 }

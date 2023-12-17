@@ -23,6 +23,17 @@ data class IdUserWithVisibleName(
 )
 
 @Serializable
+data class VisibleName(
+    val value: String
+)
+
+@Serializable
+data class IdRegularSpending(
+    @Serializable(UUIDSerializer::class)
+    val id: UUID
+)
+
+@Serializable
 data class UserDto(
     @Serializable(UUIDSerializer::class)
     val idUser: UUID,

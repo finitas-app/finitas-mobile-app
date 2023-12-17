@@ -8,6 +8,8 @@ import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import pl.finitas.app.core.domain.dto.store.DeleteFinishedSpendingRequest
 import pl.finitas.app.core.domain.dto.store.FinishedSpendingDto
 import pl.finitas.app.core.domain.dto.store.SynchronizationRequest
@@ -20,28 +22,34 @@ class FinishedSpendingStoreRepositoryImpl(private val httpClient: HttpClient) :
     override suspend fun synchronizeFinishedSpendings(request: SynchronizationRequest<FinishedSpendingDto>): SynchronizationResponse<FinishedSpendingDto> {
         return httpClient.put("${HttpUrls.finishedSpendingsStore}/synchronize") {
             setBody(request)
+            contentType(ContentType.Application.Json)
         }.body()
     }
 
     override suspend fun getAllFinishedSpendings(idUser: String): List<FinishedSpendingDto> {
-        return httpClient.get("${HttpUrls.finishedSpendingsStore}/$idUser").body()
+        return httpClient.get("${HttpUrls.finishedSpendingsStore}/$idUser"){
+            contentType(ContentType.Application.Json)
+        }.body()
     }
 
     override suspend fun createFinishedSpending(dto: FinishedSpendingDto) {
         httpClient.post(HttpUrls.finishedSpendingsStore) {
             setBody(dto)
+            contentType(ContentType.Application.Json)
         }
     }
 
     override suspend fun updateFinishedSpending(dto: FinishedSpendingDto) {
         httpClient.patch(HttpUrls.finishedSpendingsStore) {
             setBody(dto)
+            contentType(ContentType.Application.Json)
         }
     }
 
     override suspend fun deleteFinishedSpending(request: DeleteFinishedSpendingRequest) {
         httpClient.delete(HttpUrls.finishedSpendingsStore) {
             setBody(request)
+            contentType(ContentType.Application.Json)
         }
     }
 }
