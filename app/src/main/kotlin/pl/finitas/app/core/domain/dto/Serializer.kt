@@ -24,14 +24,14 @@ object UUIDSerializer : KSerializer<UUID> {
 }
 
 object BigDecimalSerializer : KSerializer<BigDecimal> {
-    override val descriptor = PrimitiveSerialDescriptor("BigDecimal", PrimitiveKind.DOUBLE)
+    override val descriptor = PrimitiveSerialDescriptor("BigDecimal", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): BigDecimal {
-        return BigDecimal.valueOf(decoder.decodeDouble())
+        return BigDecimal(decoder.decodeString())
     }
 
     override fun serialize(encoder: Encoder, value: BigDecimal) {
-        encoder.encodeDouble(value.toDouble())
+        encoder.encodeString(value.toString())
     }
 }
 
