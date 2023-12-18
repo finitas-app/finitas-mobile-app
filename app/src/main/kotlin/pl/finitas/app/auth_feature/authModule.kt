@@ -7,7 +7,7 @@ import pl.finitas.app.auth_feature.domain.AuthRepository
 import pl.finitas.app.auth_feature.domain.AuthService
 import pl.finitas.app.auth_feature.presentation.AuthViewModel
 
-val profileModule = module {
+val authModule = module {
     single<AuthRepository> {
         AuthRepositoryImpl(get())
     }

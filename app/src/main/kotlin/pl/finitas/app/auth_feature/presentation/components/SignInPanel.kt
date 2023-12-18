@@ -72,7 +72,7 @@ fun BoxScope.SignInPanel(
             )
 
             AuthButton(
-                text = "Sigh in",
+                text = "Sign in",
                 onClick = { viewModel.signIn(onSuccessfulLogin) },
                 modifier = Modifier
                     .fillMaxWidth()

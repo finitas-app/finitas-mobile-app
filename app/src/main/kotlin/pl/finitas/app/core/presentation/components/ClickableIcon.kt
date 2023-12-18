@@ -11,7 +11,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-
 @Composable
 fun ClickableIcon(
     imageVector: ImageVector,
@@ -25,7 +24,12 @@ fun ClickableIcon(
         onClick = onClick,
         modifier = modifier,
     ) {
-        Icon(imageVector = imageVector, contentDescription = contentDescription, tint = color, modifier = Modifier.size(iconSize))
+        Icon(
+            imageVector = imageVector,
+            contentDescription = contentDescription,
+            tint = color,
+            modifier = Modifier.size(iconSize),
+        )
     }
 }
 
@@ -42,6 +46,11 @@ fun ClickableIcon(
         onClick = onClick,
         modifier = modifier,
     ) {
-        Icon(painter = painter, contentDescription = contentDescription, tint = color, modifier = Modifier.size(iconSize))
+        Icon(
+            painter = painter,
+            contentDescription = contentDescription,
+            tint = color,
+            modifier = Modifier.size(iconSize)
+        )
     }
 }
