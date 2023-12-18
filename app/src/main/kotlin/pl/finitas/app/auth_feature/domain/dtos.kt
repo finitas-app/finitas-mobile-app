@@ -1,15 +1,20 @@
 package pl.finitas.app.auth_feature.domain
 
+import kotlinx.serialization.Serializable
 import pl.finitas.app.auth_feature.presentation.CredentialsState
-import java.util.UUID
+import pl.finitas.app.core.domain.dto.SerializableUUID
 
+@Serializable
 data class AuthUserRequest(val email: String, val password: String)
 
-data class AuthUserResponse(val accessToken: String, val expires: Int)
+@Serializable
+data class AuthUserResponse(val accessToken: String, val expires: Int, val idUser: SerializableUUID)
 
+@Serializable
 data class CreateUserRequest(val email: String, val password: String)
 
-data class CreateUserResponse(val userId: UUID, val nickname: String)
+@Serializable
+data class CreateUserResponse(val userId: SerializableUUID, val nickname: String)
 
 data class SignUpCommand(
     val email: String,

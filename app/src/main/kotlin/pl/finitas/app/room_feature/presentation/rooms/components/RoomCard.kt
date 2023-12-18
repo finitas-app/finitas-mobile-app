@@ -1,6 +1,8 @@
-package pl.finitas.app.core.presentation.components.rooms
+package pl.finitas.app.room_feature.presentation.rooms.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,17 +17,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
+import pl.finitas.app.room_feature.domain.RoomPreviewDto
+import java.util.UUID
 
 @Composable
-fun RoomCard(title: String, lastMessage: String, unreadMessagesNumber: Int, modifier: Modifier = Modifier) {
+fun RoomCard(roomPreviewDto: RoomPreviewDto, onClick: (UUID) -> Unit, modifier: Modifier = Modifier) {
     val icon = Icons.Rounded.AccountCircle
-
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -33,32 +38,38 @@ fun RoomCard(title: String, lastMessage: String, unreadMessagesNumber: Int, modi
             .fillMaxWidth()
             .padding(2.dp, 12.dp, 15.dp, 0.dp)
             .then(modifier)
+            .clickable(
+                indication = null,
+                interactionSource = interactionSource,
+                onClick = { onClick(roomPreviewDto.idRoom)},
+            )
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(imageVector = icon, contentDescription = "Room avatar", Modifier.size(64.dp))
             Spacer(modifier = Modifier.width(10.dp))
             Column {
-                Fonts.regular.Text(text = title)
+                Fonts.regular.Text(text = roomPreviewDto.title)
                 Fonts.regular.Text(
-                    text = "${lastMessage.take(24)}...",
+                    text = "${roomPreviewDto.lastMessage.split("\n")[0].take(24)}...",
                     color = Color.White.copy(alpha = .5f),
                 )
             }
         }
-        Box(
-            modifier = Modifier
-                .size(32.dp)
-                .background(
-                    color = Colors.backgroundLight,
-                    shape = CircleShape,
+        if (roomPreviewDto.unreadMessagesNumber != 0) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .background(
+                        color = Colors.backgroundLight,
+                        shape = CircleShape,
+                    )
+                    .align(alignment = Alignment.CenterVertically)
+            ) {
+                Fonts.regular.Text(
+                    "${roomPreviewDto.unreadMessagesNumber}",
+                    modifier = Modifier.align(Alignment.Center)
                 )
-                .align(alignment = Alignment.CenterVertically)
-        ) {
-            Fonts.regular.Text(
-                "$unreadMessagesNumber",
-                modifier = Modifier.align(Alignment.Center)
-            )
+            }
         }
-
     }
 }

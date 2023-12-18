@@ -1,6 +1,7 @@
 package pl.finitas.app.core.domain.dto
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -10,6 +11,9 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.UUID
+
+typealias SerializableUUID = @Serializable(UUIDSerializer::class) UUID
+typealias SerializableLocalDateTime = @Serializable(LocalDateTimeSerializer::class) LocalDateTime
 
 object UUIDSerializer : KSerializer<UUID> {
     override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
@@ -36,17 +40,17 @@ object BigDecimalSerializer : KSerializer<BigDecimal> {
 }
 
 object LocalDateTimeSerializer : KSerializer<LocalDateTime> {
-    override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
+    override val descriptor = PrimitiveSerialDescriptor("LocalDateTime", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): LocalDateTime {
         return Instant
-            .ofEpochSecond(decoder.decodeLong())
+            .ofEpochMilli(decoder.decodeLong())
             .atZone(ZoneId.systemDefault())
             .toLocalDateTime()
     }
 
     override fun serialize(encoder: Encoder, value: LocalDateTime) {
-        encoder.encodeLong(value.toEpochSecond(currentZoneOffset))
+        encoder.encodeLong(value.toInstant(currentZoneOffset).toEpochMilli())
     }
 
     private val currentZoneOffset

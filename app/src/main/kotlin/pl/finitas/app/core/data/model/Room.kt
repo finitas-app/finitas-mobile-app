@@ -7,4 +7,5 @@ import java.util.UUID
 @Entity
 data class Room(
     @PrimaryKey val idRoom: UUID,
+    val title: String,
 )

@@ -1,6 +1,8 @@
 package pl.finitas.app.core.http
 
-private const val frontendApiUrl = "http://192.168.1.45:8080/api"
+private const val host = "192.168.0.156"
+private const val port = 8080
+private const val frontendApiUrl = "http://$host:$port/api"
 
 object HttpUrls {
     const val signUp = "$frontendApiUrl/auth/signup"
@@ -8,4 +10,8 @@ object HttpUrls {
     const val finishedSpendingsStore = "$frontendApiUrl/store/finished-spendings"
     const val shoppingListsStore = "$frontendApiUrl/store/shopping-lists"
     const val usersStore = "$frontendApiUrl/store/users"
+    const val synchronizationWebsocket = "ws://$host:$port/api/synchronizations"
+    const val syncMessages = "$frontendApiUrl/rooms/messages/sync"
+    const val syncRooms = "$frontendApiUrl/rooms/sync"
+    const val sendMessage = "$frontendApiUrl/rooms/messages"
 }

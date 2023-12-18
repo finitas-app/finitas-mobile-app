@@ -4,21 +4,28 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import pl.finitas.app.core.data.data_source.dao.FinishedSpendingDao
+import pl.finitas.app.core.data.data_source.dao.MessageDao
 import pl.finitas.app.core.data.data_source.dao.ReceiptDao
 import pl.finitas.app.core.data.data_source.dao.RegularSpendingDao
+import pl.finitas.app.core.data.data_source.dao.RoomDao
+import pl.finitas.app.core.data.data_source.dao.RoomMemberDao
 import pl.finitas.app.core.data.data_source.dao.ShoppingItemDao
 import pl.finitas.app.core.data.data_source.dao.ShoppingListDao
 import pl.finitas.app.core.data.data_source.dao.SpendingCategoryDao
 import pl.finitas.app.core.data.data_source.dao.SpendingRecordDao
 import pl.finitas.app.core.data.data_source.dao.SpendingRecordDataDao
 import pl.finitas.app.core.data.data_source.dao.SpendingSummaryDao
+import pl.finitas.app.core.data.data_source.dao.UserDao
+import pl.finitas.app.core.data.data_source.dao.VersionsDao
 import pl.finitas.app.core.data.model.FinishedSpending
+import pl.finitas.app.core.data.model.MessagesVersion
 import pl.finitas.app.core.data.model.Receipt
 import pl.finitas.app.core.data.model.RegularSpending
 import pl.finitas.app.core.data.model.Room
 import pl.finitas.app.core.data.model.RoomMember
 import pl.finitas.app.core.data.model.RoomMessage
 import pl.finitas.app.core.data.model.RoomRole
+import pl.finitas.app.core.data.model.RoomVersion
 import pl.finitas.app.core.data.model.ShoppingItem
 import pl.finitas.app.core.data.model.ShoppingList
 import pl.finitas.app.core.data.model.SpendingCategory
@@ -43,6 +50,8 @@ import pl.finitas.app.core.data.model.User
         RoomRole::class,
         RoomMember::class,
         RoomMessage::class,
+        RoomVersion::class,
+        MessagesVersion::class,
     ],
     version = 1,
 )
@@ -62,6 +71,11 @@ abstract class FinitasDatabase : RoomDatabase() {
     abstract val spendingRecordDao: SpendingRecordDao
     abstract val spendingRecordDataDao: SpendingRecordDataDao
     abstract val spendingSummaryDao: SpendingSummaryDao
+    abstract val userDao: UserDao
+    abstract val roomDao: RoomDao
+    abstract val roomMemberDao: RoomMemberDao
+    abstract val messageDao: MessageDao
+    abstract val versionsDao: VersionsDao
 
     companion object {
         const val databaseName = "finitas_db"

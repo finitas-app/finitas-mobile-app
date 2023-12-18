@@ -6,8 +6,6 @@ import java.util.UUID
 
 @Entity
 data class User(
-    val visibleName: String,
     val username: String,
-    val password: String,
     @PrimaryKey val idUser: UUID,
 )

@@ -16,7 +16,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.background.SecondaryBackground
 import pl.finitas.app.core.presentation.components.background.secondaryBackgroundColor
-import pl.finitas.app.core.presentation.components.rooms.RoomCard
+import pl.finitas.app.room_feature.domain.RoomPreviewDto
+import pl.finitas.app.room_feature.presentation.rooms.components.RoomCard
+import java.util.UUID
 
 @Composable
 @Preview
@@ -31,24 +33,28 @@ fun RoomsTest() {
                 repeat(20) {
                     item {
                         RoomCard(
-                            "First room",
-                            "Last message in chat about something",
-                            1,
-                            modifier = Modifier.clickable {  })
+                            RoomPreviewDto(
+                                title = "First room",
+                                lastMessage = "Last message in chat about something",
+                                unreadMessagesNumber = 1,
+                                idRoom = UUID.randomUUID(),
+                            ),
+                            {},
+                            modifier = Modifier.clickable { })
                     }
                 }
             }
             Box(
                 Modifier
-                .fillMaxWidth()
-                .height(140.dp)
-                .align(Alignment.BottomCenter)
-                .background(
-                    Brush.verticalGradient(
-                        listOf(Color.Transparent, secondaryBackgroundColor),
-                        endY = with(LocalDensity.current) { 90.dp.toPx() }
-                    )
-                )) {
+                    .fillMaxWidth()
+                    .height(140.dp)
+                    .align(Alignment.BottomCenter)
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(Color.Transparent, secondaryBackgroundColor),
+                            endY = with(LocalDensity.current) { 90.dp.toPx() }
+                        )
+                    )) {
             }
         }
     }

@@ -14,5 +14,6 @@ class AuthService(
     suspend fun signIn(signInCommand: SignInCommand) {
         val authResponse = authRepository.signIn(signInCommand.toAuthUserRequest())
         profileRepository.setAuthToken(authResponse.accessToken)
+        profileRepository.setAuthorizedUserId(authResponse.idUser)
     }
 }

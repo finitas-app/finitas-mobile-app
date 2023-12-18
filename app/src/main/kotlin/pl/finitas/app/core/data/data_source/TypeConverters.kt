@@ -13,12 +13,12 @@ import java.util.UUID
 class LocalDateTimeConverter {
     @TypeConverter
     fun fromLocalDateTime(localDateTime: LocalDateTime): Long {
-        return localDateTime.toEpochSecond(currentZoneOffset)
+        return localDateTime.toInstant(currentZoneOffset).toEpochMilli()
     }
 
     @TypeConverter
     fun toLocalDateTime(timestamp: Long): LocalDateTime {
-        return Instant.ofEpochSecond(timestamp).atZone(ZoneId.systemDefault()).toLocalDateTime()
+        return Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()).toLocalDateTime()
     }
 
     private val currentZoneOffset

@@ -34,9 +34,10 @@ class AuthViewModel(
         }
     }
 
-    fun signIn() {
+    fun signIn(onSuccessfulLogin: () -> Unit) {
         viewModelScope.launch {
             authService.signIn(SignInCommand.from(credentialsState))
+            onSuccessfulLogin()
         }
     }
 

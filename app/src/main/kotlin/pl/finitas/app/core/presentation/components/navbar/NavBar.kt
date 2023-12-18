@@ -80,7 +80,9 @@ fun BoxScope.NavBar(
             )
             NavBarIcon(
                 painterResource(id = R.drawable.ic_send_icon),
-                onClick = {},
+                onClick = {
+                    navController.navigate(NavPaths.RoomsScreen.route)
+                },
             )
             Spacer(Modifier.weight(.05f))
         }

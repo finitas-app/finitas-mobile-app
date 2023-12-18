@@ -2,17 +2,22 @@ package pl.finitas.app.core.http
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.android.Android
+import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.websocket.WebSockets
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.jackson.jackson
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.Serializable
 import org.koin.core.module.Module
 import pl.finitas.app.core.domain.repository.ProfileRepository
 
@@ -21,7 +26,7 @@ private val urlsWithoutAuth = listOf<String>()
 fun Module.httpClient() {
     single {
         val profileRepository: ProfileRepository = get()
-        HttpClient(Android) {
+        HttpClient(OkHttp) {
             install(Auth) {
                 bearer {
                     loadTokens {
@@ -37,11 +42,15 @@ fun Module.httpClient() {
                     }
                 }
             }
+            install(WebSockets)
             install(Logging) {
-                level = LogLevel.ALL
+                level = LogLevel.INFO
             }
             install(ContentNegotiation) {
-                jackson()
+                json()
+            }
+            defaultRequest {
+                contentType(ContentType.Application.Json)
             }
             HttpResponseValidator {
                 validateResponse { response ->
@@ -62,6 +71,7 @@ fun Module.httpClient() {
     }
 }
 
+@Serializable
 private data class ErrorResponse(
     val errorCode: ErrorCode,
     val errorMessage: String? = null,
@@ -71,7 +81,7 @@ class FrontendApiException(
     val statusCode: HttpStatusCode,
     val errorCode: ErrorCode,
     val errorMessage: String? = null,
-) : Exception()
+) : Exception("{ statusCode: $statusCode, errorCode: $errorCode, errorMessage: $errorMessage }")
 
 enum class ErrorCode {
     GENERIC_ERROR,

@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.google.devtools.ksp'
+    id "org.jetbrains.kotlin.plugin.serialization" version "1.9.20"
 }
 
 android {
@@ -83,12 +84,12 @@ dependencies {
 
     // Ktor client
     implementation("io.ktor:ktor-client-core:2.3.6")
-    implementation("io.ktor:ktor-client-android:2.3.6")
-    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:2.3.6")
+    implementation("io.ktor:ktor-client-okhttp:2.3.6")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.6")
-    implementation("io.ktor:ktor-serialization-jackson:2.3.6")
     implementation("io.ktor:ktor-client-logging:2.3.6")
     implementation("io.ktor:ktor-client-auth:2.3.6")
+    implementation("io.ktor:ktor-client-websockets:2.3.6")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

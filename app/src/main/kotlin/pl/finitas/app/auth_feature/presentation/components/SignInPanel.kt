@@ -15,13 +15,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.auth_feature.presentation.AuthType
 import pl.finitas.app.auth_feature.presentation.AuthViewModel
+import pl.finitas.app.core.presentation.components.utils.colors.Colors
 
 @Composable
 fun BoxScope.SignInPanel(
     viewModel: AuthViewModel,
+    onSuccessfulLogin: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -72,7 +73,7 @@ fun BoxScope.SignInPanel(
 
             AuthButton(
                 text = "Sigh in",
-                onClick = viewModel::signIn,
+                onClick = { viewModel.signIn(onSuccessfulLogin) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 40.dp)

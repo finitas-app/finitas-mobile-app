@@ -7,7 +7,6 @@ import java.util.UUID
 @Entity
 data class RoomMember(
     val idRoom: UUID,
-    val idRole: UUID,
-    val idUser: UUID,
+    val idRole: UUID?,
     @PrimaryKey val idRoomMember: UUID,
 )

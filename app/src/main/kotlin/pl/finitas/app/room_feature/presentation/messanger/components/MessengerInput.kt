@@ -1,4 +1,4 @@
-package pl.finitas.app.core.presentation.components.rooms.messanger
+package pl.finitas.app.room_feature.presentation.messanger.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

@@ -24,7 +24,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.KoinAndroidContext
+import org.koin.androidx.compose.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
+import pl.finitas.app.sync_feature.SynchronizationViewModel
 import pl.finitas.app.core.presentation.components.background.PrimaryBackground
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
 import pl.finitas.app.core.presentation.components.constructors.DateInput
@@ -40,6 +42,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             KoinAndroidContext {
+                koinViewModel<SynchronizationViewModel>()
                 AppNavigation()
             }
             /*FinitasmobileappTheme {
