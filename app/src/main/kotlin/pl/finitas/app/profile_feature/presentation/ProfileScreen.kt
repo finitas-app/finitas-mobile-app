@@ -49,7 +49,7 @@ fun ProfileScreen(
                     Column {
                         val modifier = Modifier.padding(vertical = 20.dp)
 
-                         if(token.value == null) {
+                        if (token.value == null) {
                             SignInButton(navController = navController, modifier = modifier)
                         } else {
                             UsernameInput(viewModel = viewModel, modifier = modifier)
@@ -61,8 +61,11 @@ fun ProfileScreen(
                         ReminderSettings(viewModel = viewModel, modifier = modifier)
                         SeparatorLine()
                         RepeatingSpendingsSetting(viewModel = viewModel, modifier = modifier)
-                        SeparatorLine()
-                        LogoutButton(viewModel = viewModel, modifier = modifier)
+
+                        if (token.value != null) {
+                            SeparatorLine()
+                            LogoutButton(viewModel = viewModel, modifier = modifier)
+                        }
                     }
                 }
             }
