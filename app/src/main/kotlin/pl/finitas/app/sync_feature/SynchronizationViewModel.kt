@@ -31,6 +31,7 @@ class SynchronizationViewModel(
         println("Synchronization task start")
         viewModelScope.launch(Dispatchers.Default) {
             while (isActive) {
+                // TODO: replace with flow changes
                 val authToken = profileRepository.getAuthToken().first()
                 if (authToken == null) {
                     delay(2000)
