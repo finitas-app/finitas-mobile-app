@@ -27,7 +27,7 @@ class UserStoreRepositoryImpl(private val httpClient: HttpClient) : UserStoreRep
     }
 
     override suspend fun getVisibleNames(request: GetVisibleNamesRequest): List<IdUserWithVisibleName> {
-        return httpClient.get("${HttpUrls.usersStore}/nicknames") {
+        return httpClient.post("${HttpUrls.usersStore}/nicknames/sync") {
             setBody(request)
             contentType(ContentType.Application.Json)
         }.body()
