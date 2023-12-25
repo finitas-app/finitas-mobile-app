@@ -1,23 +1,12 @@
 package pl.finitas.app.manage_additional_elements_feature.domain.services
 
-import android.content.Context
-import androidx.annotation.WorkerThread
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.Worker
-import androidx.work.WorkerParameters
-import kotlinx.coroutines.runBlocking
 import pl.finitas.app.core.domain.services.SpendingCategoryView
 import pl.finitas.app.core.domain.services.SpendingRecordView
-import pl.finitas.app.manage_additional_elements_feature.domain.FinishedSpendingWithRecordsDto
-import pl.finitas.app.manage_additional_elements_feature.domain.PeriodUnit
 import pl.finitas.app.manage_additional_elements_feature.domain.RegularSpendingWithSpendingDataDto
 import pl.finitas.app.manage_additional_elements_feature.domain.SpendingRecordDto
 import pl.finitas.app.manage_additional_elements_feature.domain.repositories.RegularSpendingRepository
 import pl.finitas.app.manage_additional_elements_feature.presentation.regular_spending.RegularSpendingState
-import java.time.LocalDate
 import java.util.UUID
-import java.util.concurrent.TimeUnit
 
 class RegularSpendingService(val repository: RegularSpendingRepository) {
     private fun getSpendingRecordsFrom(

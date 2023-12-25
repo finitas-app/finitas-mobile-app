@@ -26,13 +26,14 @@ import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
-import pl.finitas.app.sync_feature.SynchronizationViewModel
 import pl.finitas.app.core.presentation.components.background.PrimaryBackground
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
 import pl.finitas.app.core.presentation.components.constructors.DateInput
 import pl.finitas.app.core.presentation.components.constructors.GestureVerticalMenu
 import pl.finitas.app.core.presentation.components.constructors.constructorBoxBackground
+import pl.finitas.app.manage_additional_elements_feature.presentation.regular_spending.RegularSpendingActualizationViewModel
 import pl.finitas.app.navigation.AppNavigation
+import pl.finitas.app.sync_feature.SynchronizationViewModel
 import java.time.LocalDate
 
 @OptIn(KoinExperimentalAPI::class)
@@ -43,6 +44,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             KoinAndroidContext {
                 koinViewModel<SynchronizationViewModel>()
+                koinViewModel<RegularSpendingActualizationViewModel>()
                 AppNavigation()
             }
             /*FinitasmobileappTheme {
