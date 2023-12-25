@@ -3,9 +3,11 @@ package pl.finitas.app.room_feature.domain.service
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import pl.finitas.app.core.data.model.Room
+import pl.finitas.app.room_feature.domain.AddRoomDto
 import pl.finitas.app.room_feature.domain.RoomPreviewDto
 import pl.finitas.app.room_feature.domain.repository.MessageRepository
 import pl.finitas.app.room_feature.domain.repository.RoomRepository
+import pl.finitas.app.room_feature.presentation.rooms.AddRoomState
 import java.util.UUID
 
 class RoomService(
@@ -38,4 +40,10 @@ class RoomService(
     suspend fun getRoomById(idRoom: UUID): Room? {
         return roomRepository.getRoomById(idRoom)
     }
+
+    suspend fun addRoom(addRoomState: AddRoomState) {
+        roomRepository.addRoomRepository(addRoomState.toDto())
+    }
 }
+
+private fun AddRoomState.toDto() = AddRoomDto(title)

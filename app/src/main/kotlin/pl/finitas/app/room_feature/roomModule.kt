@@ -14,7 +14,7 @@ import pl.finitas.app.room_feature.presentation.rooms.RoomViewModel
 
 val roomModule = module {
     single<MessageRepository> { MessageRepositoryImpl(getDatabase().messageDao) }
-    single<RoomRepository> { RoomRepositoryImpl(getDatabase().roomDao) }
+    single<RoomRepository> { RoomRepositoryImpl(getDatabase().roomDao, get()) }
     single { RoomService(get(), get()) }
     single { MessageService(get(), get(), get(), get()) }
     viewModel { RoomViewModel(get()) }

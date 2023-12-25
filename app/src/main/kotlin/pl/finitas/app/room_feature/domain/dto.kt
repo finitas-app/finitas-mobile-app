@@ -1,5 +1,6 @@
 package pl.finitas.app.room_feature.domain
 
+import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -35,4 +36,9 @@ data class RoomPreviewDto(
     val title: String,
     val lastMessage: String,
     val unreadMessagesNumber: Int,
+)
+
+@Serializable
+data class AddRoomDto(
+    val roomName: String,
 )
