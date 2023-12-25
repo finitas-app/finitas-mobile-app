@@ -34,6 +34,9 @@ interface MessageDao {
 
     @Query("SELECT * FROM RoomMessage WHERE isPending = 1")
     suspend fun getPendingMessages(): List<RoomMessage>
+
+    @Query("UPDATE RoomMessage SET isRead = 1 WHERE idMessage in (:idsMessage)")
+    suspend fun setReadMessages(idsMessage: List<UUID>)
 }
 
 data class UnreadMessageCountByRoom(

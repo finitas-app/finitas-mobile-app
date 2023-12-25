@@ -1,10 +1,16 @@
 package pl.finitas.app.sync_feature.domain.repository
 
+import pl.finitas.app.core.data.model.User
 import java.util.UUID
 
-interface UsersRepository {
+interface UserRepository {
     suspend fun getUsernamesByIds(ids: List<UUID>): List<UsernameDto>
-    suspend fun readMessage(idsMessage: List<UUID>)
+
+    suspend fun addUserIfNotPresent(idUser: UUID)
+
+    suspend fun getUserIds(): List<UUID>
+
+    suspend fun saveUsers(users: List<User>)
 }
 
 data class UsernameDto(

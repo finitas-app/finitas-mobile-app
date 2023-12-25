@@ -3,12 +3,17 @@ package pl.finitas.app.sync_feature.domain
 import pl.finitas.app.core.data.model.MessagesVersion
 import pl.finitas.app.core.data.model.RoomMessage
 import pl.finitas.app.core.data.model.RoomVersion
+import pl.finitas.app.core.data.model.User
+import pl.finitas.app.core.domain.dto.store.GetVisibleNamesRequest
+import pl.finitas.app.core.domain.dto.store.UserIdValue
 import pl.finitas.app.core.domain.repository.MessageSenderRepository
 import pl.finitas.app.core.domain.repository.SendMessageRequest
 import pl.finitas.app.core.domain.repository.SingleMessageDto
+import pl.finitas.app.core.domain.repository.UserStoreRepository
 import pl.finitas.app.sync_feature.data.data_source.NewMessagesResponse
 import pl.finitas.app.sync_feature.domain.repository.MessageSyncRepository
 import pl.finitas.app.sync_feature.domain.repository.RoomSyncRepository
+import pl.finitas.app.sync_feature.domain.repository.UserRepository
 import pl.finitas.app.sync_feature.domain.repository.VersionsRepository
 import java.util.UUID
 
@@ -17,9 +22,12 @@ class SynchronizationService(
     private val versionsRepository: VersionsRepository,
     private val roomSyncRepository: RoomSyncRepository,
     private val messageSenderRepository: MessageSenderRepository,
+    private val userStoreRepository: UserStoreRepository,
+    private val userRepository: UserRepository,
 ) {
     suspend fun fullSync(authorizedUserId: UUID) {
         fullSyncRooms()
+        fullSyncNames()
         fullSyncMessages(authorizedUserId)
     }
 
@@ -49,6 +57,16 @@ class SynchronizationService(
             )
             versionsRepository.setMessagesVersion(MessagesVersion(idRoom, sortedMessagesByVersion.last().version))
         }
+    }
+
+    private suspend fun fullSyncNames() {
+        userRepository.getUserIds()
+            .let { idsUser ->
+                userStoreRepository.getVisibleNames(GetVisibleNamesRequest(idsUser.map { UserIdValue(it) }))
+            }
+            .let { users ->
+                userRepository.saveUsers(users.map { User(idUser = it.idUser, username = it.visibleName) })
+            }
     }
 
     private suspend fun fullSyncMessages(authorizedUserId: UUID) {

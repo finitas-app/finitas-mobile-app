@@ -1,15 +1,14 @@
 package pl.finitas.app.profile_feature.presentation
 
-import pl.finitas.app.profile_feature.presentation.components.LogoutButton
-import pl.finitas.app.profile_feature.presentation.components.ReminderSettings
-import pl.finitas.app.profile_feature.presentation.components.UsernameInput
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -20,23 +19,28 @@ import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.navbar.NavBar
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.profile_feature.presentation.components.CurrencyInput
+import pl.finitas.app.profile_feature.presentation.components.LogoutButton
+import pl.finitas.app.profile_feature.presentation.components.ReminderSettings
 import pl.finitas.app.profile_feature.presentation.components.RepeatingSpendingsSetting
 import pl.finitas.app.profile_feature.presentation.components.SeparatorLine
 import pl.finitas.app.profile_feature.presentation.components.SignInButton
+import pl.finitas.app.profile_feature.presentation.components.UsernameInput
 
 @Composable
 fun ProfileScreen(
     navController: NavController,
 ) {
     val viewModel: ProfileViewModel = koinViewModel()
-    val token = viewModel.getToken().collectAsState(initial = null)
+    val isAuthorized by viewModel.isAuthorize.collectAsState(initial = false)
 
     PrimaryBackground {
-        Box(
+        Column(
             modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 40.dp)
+                .padding(top = 50.dp, bottom = 100.dp)
                 .align(Alignment.Center)
                 .fillMaxSize()
-                .padding(vertical = 50.dp, horizontal = 40.dp)
         ) {
             Column {
                 Fonts.heading1.Text(text = "Profile")
@@ -49,10 +53,10 @@ fun ProfileScreen(
                     Column {
                         val modifier = Modifier.padding(vertical = 20.dp)
 
-                        if (token.value == null) {
-                            SignInButton(navController = navController, modifier = modifier)
-                        } else {
+                        if (isAuthorized) {
                             UsernameInput(viewModel = viewModel, modifier = modifier)
+                        } else {
+                            SignInButton(navController = navController, modifier = modifier)
                         }
 
                         SeparatorLine()
@@ -62,7 +66,7 @@ fun ProfileScreen(
                         SeparatorLine()
                         RepeatingSpendingsSetting(viewModel = viewModel, modifier = modifier)
 
-                        if (token.value != null) {
+                        if (isAuthorized) {
                             SeparatorLine()
                             LogoutButton(viewModel = viewModel, modifier = modifier)
                         }

@@ -5,13 +5,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import pl.finitas.app.profile_feature.domain.services.ProfileService
 
 class ProfileViewModel(
     private val profileService: ProfileService,
 ) : ViewModel() {
+
+    val isAuthorize = profileService.getToken().map { it != null }
 
     var profileSettingsState by mutableStateOf(ProfileSettingsState.empty)
         private set
@@ -90,10 +92,6 @@ class ProfileViewModel(
                     )
                 )
             )
-    }
-
-    fun getToken(): Flow<String?> {
-        return profileService.getToken()
     }
 
     fun logout() {

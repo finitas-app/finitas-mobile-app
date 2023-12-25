@@ -12,7 +12,7 @@ val authModule = module {
         AuthRepositoryImpl(get())
     }
     single {
-        AuthService(get(), get())
+        AuthService(get(), get(), get())
     }
     viewModel { AuthViewModel(get()) }
 }

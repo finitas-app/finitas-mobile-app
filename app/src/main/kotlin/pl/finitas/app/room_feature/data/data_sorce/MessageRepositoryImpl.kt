@@ -25,4 +25,8 @@ class MessageRepositoryImpl(
     override suspend fun saveMessage(roomMessage: RoomMessage) {
         messageDao.upsertMessages(listOf(roomMessage))
     }
+
+    override suspend fun readMessage(idsMessage: List<UUID>) {
+        messageDao.setReadMessages(idsMessage)
+    }
 }
