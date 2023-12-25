@@ -1,9 +1,11 @@
 package pl.finitas.app.core.presentation.components.constructors
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -23,8 +25,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
@@ -33,13 +35,20 @@ private val transparentWhite = Color.White.copy(alpha = 0.3f)
 private val placeholderColor = Color.White.copy(alpha = 0.2f)
 private val borderColor = Color.White.copy(alpha = 0.1f)
 
+// todo: make input higher
+// todo: make cursor white
+// todo: allow horizontal alignment for input field
+
 @Composable
 fun ConstructorInput(
     value: String,
     modifier: Modifier = Modifier,
     placeholder: String = "",
     onValueChange: (String) -> Unit = {},
+    postModifier: Modifier = Modifier,
+    borderStroke: BorderStroke? = BorderStroke(1.dp, borderColor),
     enabled: Boolean = true,
+    keyboardOptions: KeyboardOptions? = null,
     rightIcon: (@Composable RowScope.() -> Unit)? = null,
 ) {
     val shape = RoundedCornerShape(8.dp)
@@ -58,13 +67,20 @@ fun ConstructorInput(
             .then(modifier)
             .width(IntrinsicSize.Min)
             .background(Colors.backgroundDark, shape)
-            .border(1.dp, borderColor, shape)
+            .let {
+                if (borderStroke != null) {
+                    it.border(borderStroke, shape)
+                } else {
+                    it
+                }
+            }
             .padding(start = 12.dp)
-            .wrapContentSize(Alignment.CenterStart),
+            .wrapContentSize(Alignment.CenterStart)
+            .then(postModifier),
         singleLine = true,
         enabled = enabled,
-        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+        keyboardOptions = keyboardOptions ?: KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
     ) {
         if (rightIcon != null) {
             Row(
@@ -81,10 +97,10 @@ fun ConstructorInput(
                 rightIcon()
             }
         } else {
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = 12.dp)
+                    .padding(end = 12.dp),
             ) {
                 it()
             }
@@ -92,8 +108,19 @@ fun ConstructorInput(
     }
 }
 
-@Preview
 @Composable
-fun ConstructorInputPreview() {
-
+fun ConstructorInput(
+    value: UInt,
+    onValueChange: (UInt) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    ConstructorInput(
+        value = value.toString(),
+        onValueChange = { onValueChange(it.toUIntOrNull() ?: 0.toUInt()) },
+        keyboardOptions = KeyboardOptions.Default.copy(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Done
+        ),
+        modifier = modifier,
+    )
 }

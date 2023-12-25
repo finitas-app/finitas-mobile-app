@@ -54,8 +54,8 @@ private fun AddSpendingForm(
         )
         CategorySpendingList(
             categories = addSpendingViewModel.finishedSpendingState.categories,
-            onDeleteElement = { addSpendingViewModel.removeSpending(it) },
-            onSave = { addSpendingViewModel.addSpending(it) },
+            onDeleteElement = addSpendingViewModel::removeSpending,
+            onSave = addSpendingViewModel::addSpending,
             modifier = Modifier
                 .padding(top = 20.dp)
                 .fillMaxWidth()

@@ -65,11 +65,3 @@ fun SecondaryBackground(
         content()
     }
 }
-
-@Preview(name = "123", device = "id:pixel_6")
-@Composable
-fun test() {
-    PrimaryBackground {
-        Text(text = "112323")
-    }
-}

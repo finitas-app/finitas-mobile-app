@@ -10,7 +10,6 @@ import pl.finitas.app.shopping_lists_feature.presentation.read_shopping_list.Sho
 import pl.finitas.app.shopping_lists_feature.presentation.write_shopping_list.UpsertShoppingList
 import pl.finitas.app.shopping_lists_feature.presentation.write_shopping_list.UpsertShoppingListViewModel
 
-
 @Composable
 fun ShoppingListsScreen(
     navController: NavController,

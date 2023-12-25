@@ -1,0 +1,550 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "bc81b4bd1286c3eca6d251464a27947d",
+    "entities": [
+      {
+        "tableName": "User",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`username` TEXT NOT NULL, `idUser` TEXT NOT NULL, PRIMARY KEY(`idUser`))",
+        "fields": [
+          {
+            "fieldPath": "username",
+            "columnName": "username",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idUser",
+            "columnName": "idUser",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idUser"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SpendingCategory",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `idParent` TEXT, `idUser` TEXT, `idCategory` TEXT NOT NULL, PRIMARY KEY(`idCategory`))",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idParent",
+            "columnName": "idParent",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idUser",
+            "columnName": "idUser",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idCategory",
+            "columnName": "idCategory",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idCategory"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SpendingRecordData",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `idCategory` TEXT NOT NULL, `idSpendingRecordData` TEXT NOT NULL, PRIMARY KEY(`idSpendingRecordData`))",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idCategory",
+            "columnName": "idCategory",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idSpendingRecordData",
+            "columnName": "idSpendingRecordData",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idSpendingRecordData"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SpendingSummary",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `idSpendingSummary` TEXT NOT NULL, PRIMARY KEY(`idSpendingSummary`))",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idSpendingSummary",
+            "columnName": "idSpendingSummary",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idSpendingSummary"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "RegularSpending",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`actualizationPeriod` INTEGER NOT NULL, `periodUnit` INTEGER NOT NULL, `lastActualizationDate` INTEGER NOT NULL, `idSpendingSummary` TEXT NOT NULL, PRIMARY KEY(`idSpendingSummary`))",
+        "fields": [
+          {
+            "fieldPath": "actualizationPeriod",
+            "columnName": "actualizationPeriod",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "periodUnit",
+            "columnName": "periodUnit",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastActualizationDate",
+            "columnName": "lastActualizationDate",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idSpendingSummary",
+            "columnName": "idSpendingSummary",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idSpendingSummary"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SpendingRecord",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idSpendingSummary` TEXT NOT NULL, `price` TEXT NOT NULL, `idSpendingRecordData` TEXT NOT NULL, PRIMARY KEY(`idSpendingRecordData`))",
+        "fields": [
+          {
+            "fieldPath": "idSpendingSummary",
+            "columnName": "idSpendingSummary",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "price",
+            "columnName": "price",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idSpendingRecordData",
+            "columnName": "idSpendingRecordData",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idSpendingRecordData"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Receipt",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`photo` BLOB NOT NULL, `idReceipt` TEXT NOT NULL, PRIMARY KEY(`idReceipt`))",
+        "fields": [
+          {
+            "fieldPath": "photo",
+            "columnName": "photo",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idReceipt",
+            "columnName": "idReceipt",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idReceipt"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "FinishedSpending",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idReceipt` TEXT, `purchaseDate` INTEGER NOT NULL, `idUser` TEXT, `idSpendingSummary` TEXT NOT NULL, PRIMARY KEY(`idSpendingSummary`))",
+        "fields": [
+          {
+            "fieldPath": "idReceipt",
+            "columnName": "idReceipt",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "purchaseDate",
+            "columnName": "purchaseDate",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idUser",
+            "columnName": "idUser",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idSpendingSummary",
+            "columnName": "idSpendingSummary",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idSpendingSummary"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ShoppingList",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idUser` TEXT, `color` INTEGER NOT NULL, `name` TEXT NOT NULL, `idShoppingList` TEXT NOT NULL, PRIMARY KEY(`idShoppingList`))",
+        "fields": [
+          {
+            "fieldPath": "idUser",
+            "columnName": "idUser",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "color",
+            "columnName": "color",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idShoppingList",
+            "columnName": "idShoppingList",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idShoppingList"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ShoppingItem",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`amount` INTEGER NOT NULL, `idShoppingList` TEXT NOT NULL, `idSpendingRecordData` TEXT NOT NULL, PRIMARY KEY(`idSpendingRecordData`))",
+        "fields": [
+          {
+            "fieldPath": "amount",
+            "columnName": "amount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idShoppingList",
+            "columnName": "idShoppingList",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idSpendingRecordData",
+            "columnName": "idSpendingRecordData",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idSpendingRecordData"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Room",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idRoom` TEXT NOT NULL, `title` TEXT NOT NULL, PRIMARY KEY(`idRoom`))",
+        "fields": [
+          {
+            "fieldPath": "idRoom",
+            "columnName": "idRoom",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idRoom"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "RoomRole",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `idRoom` TEXT NOT NULL, `idRole` TEXT NOT NULL, PRIMARY KEY(`idRole`))",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idRoom",
+            "columnName": "idRoom",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idRole",
+            "columnName": "idRole",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idRole"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "RoomMember",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idRoom` TEXT NOT NULL, `idRole` TEXT, `idRoomMember` TEXT NOT NULL, PRIMARY KEY(`idRoomMember`))",
+        "fields": [
+          {
+            "fieldPath": "idRoom",
+            "columnName": "idRoom",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idRole",
+            "columnName": "idRole",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "idRoomMember",
+            "columnName": "idRoomMember",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idRoomMember"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "RoomMessage",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idMessage` TEXT NOT NULL, `idUser` TEXT NOT NULL, `idRoom` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `isPending` INTEGER NOT NULL, `isRead` INTEGER NOT NULL, `version` INTEGER NOT NULL, `idShoppingList` TEXT, `content` TEXT, PRIMARY KEY(`idMessage`))",
+        "fields": [
+          {
+            "fieldPath": "idMessage",
+            "columnName": "idMessage",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idUser",
+            "columnName": "idUser",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idRoom",
+            "columnName": "idRoom",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isPending",
+            "columnName": "isPending",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isRead",
+            "columnName": "isRead",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "version",
+            "columnName": "version",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idShoppingList",
+            "columnName": "idShoppingList",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "content",
+            "columnName": "content",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idMessage"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "RoomVersion",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idRoom` TEXT NOT NULL, `version` INTEGER NOT NULL, PRIMARY KEY(`idRoom`))",
+        "fields": [
+          {
+            "fieldPath": "idRoom",
+            "columnName": "idRoom",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "version",
+            "columnName": "version",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idRoom"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "MessagesVersion",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idRoom` TEXT NOT NULL, `version` INTEGER NOT NULL, PRIMARY KEY(`idRoom`))",
+        "fields": [
+          {
+            "fieldPath": "idRoom",
+            "columnName": "idRoom",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "version",
+            "columnName": "version",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idRoom"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bc81b4bd1286c3eca6d251464a27947d')"
+    ]
+  }
+}
