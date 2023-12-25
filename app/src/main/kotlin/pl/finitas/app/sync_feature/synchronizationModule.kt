@@ -1,6 +1,7 @@
 package pl.finitas.app.sync_feature
 
 import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import pl.finitas.app.core.getDatabase
 import pl.finitas.app.sync_feature.data.data_source.MessageSyncRepositoryImpl
@@ -15,6 +16,6 @@ val synchronizationModule = module {
     single<VersionsRepository> { VersionRepositoryImpl(getDatabase().versionsDao) }
     single<MessageSyncRepository> { MessageSyncRepositoryImpl(getDatabase().messageDao, get()) }
     single<RoomSyncRepository> { RoomSyncRepositoryImpl(getDatabase().roomDao, get()) }
-    single { SynchronizationService(get(), get(), get(), get()) }
+    singleOf(::SynchronizationService)
     viewModel { SynchronizationViewModel(get(), get(), get()) }
 }

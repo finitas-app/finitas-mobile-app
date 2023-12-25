@@ -12,19 +12,19 @@ import pl.finitas.app.room_feature.domain.ChatMessage
 import pl.finitas.app.room_feature.domain.IncomingTextMessage
 import pl.finitas.app.room_feature.domain.OutgoingTextMessage
 import pl.finitas.app.room_feature.domain.repository.MessageRepository
-import pl.finitas.app.sync_feature.domain.repository.UsersRepository
+import pl.finitas.app.sync_feature.domain.repository.UserRepository
 import java.time.LocalDateTime
 import java.util.UUID
 
 class MessageService(
     private val messageRepository: MessageRepository,
-    private val usersRepository: UsersRepository,
+    private val userRepository: UserRepository,
     private val profileRepository: ProfileRepository,
     private val messageSenderRepository: MessageSenderRepository,
 ) {
     fun getMessagesByIdRoom(idRoom: UUID): Flow<List<ChatMessage>> = messageRepository.getMessagesByIdRoom(idRoom).map { messages ->
         val currentUserId = profileRepository.getAuthorizedUserId().first() ?: UUID.randomUUID()// todo: throw UserNotAuthorized()
-        val userNames = usersRepository.getUsernamesByIds(
+        val userNames = userRepository.getUsernamesByIds(
             messages
                 .map { it.idUser }
                 .distinct()
@@ -64,7 +64,7 @@ class MessageService(
     }
 
     suspend fun readMessage(idsMessage: List<UUID>) {
-        usersRepository.readMessage(idsMessage)
+        messageRepository.readMessage(idsMessage)
     }
 
     suspend fun sendMessage(idRoom: UUID, message: String) {

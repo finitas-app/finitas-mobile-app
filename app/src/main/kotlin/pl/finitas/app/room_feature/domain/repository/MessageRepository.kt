@@ -14,5 +14,6 @@ interface MessageRepository {
     fun getMessagesByIdRoom(idRoom: UUID): Flow<List<RoomMessage>>
 
     suspend fun saveMessage(roomMessage: RoomMessage)
+    suspend fun readMessage(idsMessage: List<UUID>)
 }
 

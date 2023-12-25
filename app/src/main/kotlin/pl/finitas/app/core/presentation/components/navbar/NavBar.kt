@@ -58,6 +58,7 @@ fun BoxScope.NavBar(
             NavBarIcon(
                 imageVector = Icons.Rounded.Person,
                 onClick = {
+                    navController.navigate(NavPaths.ProfileScreen.route)
                 },
             )
             NavBarIcon(
