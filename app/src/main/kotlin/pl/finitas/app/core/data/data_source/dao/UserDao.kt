@@ -4,7 +4,9 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
+import androidx.room.Upsert
 import pl.finitas.app.core.data.model.User
 import pl.finitas.app.sync_feature.domain.repository.UsernameDto
 import java.util.UUID
@@ -24,6 +26,15 @@ interface UserDao {
     @Delete
     suspend fun deleteUser(user: User)
 
-    @Query("UPDATE RoomMessage SET isRead = 1 WHERE idMessage in (:idsMessage)")
-    suspend fun setReadMessages(idsMessage: List<UUID>)
+    @Query("SELECT * FROM User WHERE idUser = :idUser")
+    suspend fun getUserById(idUser: UUID): User?
+
+    @Transaction
+    suspend fun addUserIfNotPresent(idUser: UUID) {
+        getUserById(idUser) ?: insertUser(User(username = "", idUser = idUser))
+    }
+    @Query("SELECT * FROM User")
+    suspend fun getAllUsers(): List<User>
+    @Upsert
+    suspend fun saveUsers(users: List<User>)
 }

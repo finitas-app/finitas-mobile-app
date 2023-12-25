@@ -16,8 +16,8 @@ import pl.finitas.app.core.domain.repository.ProfileRepository
 import pl.finitas.app.core.domain.repository.ShoppingListStoreRepository
 import pl.finitas.app.core.domain.repository.UserStoreRepository
 import pl.finitas.app.core.http.httpClient
-import pl.finitas.app.sync_feature.data.data_source.UsersRepositoryImpl
-import pl.finitas.app.sync_feature.domain.repository.UsersRepository
+import pl.finitas.app.sync_feature.data.data_source.UserRepositoryImpl
+import pl.finitas.app.sync_feature.domain.repository.UserRepository
 
 
 val coreModule = module {
@@ -42,9 +42,10 @@ val coreModule = module {
                 FinitasDatabase.databaseName,
             )
             //.createFromAsset("sqlite.db")
+            .fallbackToDestructiveMigration()
             .build()
     }
-    single<UsersRepository> { UsersRepositoryImpl(getDatabase().userDao) }
+    single<UserRepository> { UserRepositoryImpl(getDatabase().userDao) }
     single<MessageSenderRepository> { MessageSenderRepositoryImpl(get()) }
 }
 

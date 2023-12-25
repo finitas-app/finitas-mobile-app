@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import pl.finitas.app.auth_feature.presentation.AuthScreen
 import pl.finitas.app.manage_additional_elements_feature.presentation.AdditionalElementsScreen
 import pl.finitas.app.manage_spendings_feature.presentation.HomeScreen
+import pl.finitas.app.profile_feature.presentation.ProfileScreen
 import pl.finitas.app.room_feature.presentation.messanger.MessengerScreen
 import pl.finitas.app.room_feature.presentation.rooms.RoomsScreen
 import pl.finitas.app.shopping_lists_feature.presentation.ShoppingListsScreen
@@ -20,6 +21,11 @@ fun AppNavigation() {
         navController = navController,
         startDestination = NavPaths.AdditionalElementsScreen.route
     ) {
+        composable(
+            NavPaths.ProfileScreen.route
+        ) {
+            ProfileScreen(navController)
+        }
         composable(
             NavPaths.AuthScreen.route,
         ) {

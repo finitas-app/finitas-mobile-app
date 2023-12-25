@@ -142,6 +142,7 @@ private fun AddSpendingRecordDialog(
     onSave: (SpendingRecordView) -> Unit,
     onClose: () -> Unit,
 ) {
+// TODO: rewrite to ConstructorBoxDialog()
     NestedDialog(isOpen = isOpen, onClose = onClose) {
         val interactionSource = remember { MutableInteractionSource() }
 

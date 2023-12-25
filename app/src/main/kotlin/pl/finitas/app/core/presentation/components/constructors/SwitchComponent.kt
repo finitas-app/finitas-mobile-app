@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
 
+// todo: add inner shadow
+
 @Composable
 fun SwitchComponent(
     isActive: Boolean,
