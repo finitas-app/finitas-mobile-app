@@ -91,7 +91,7 @@ private fun FormGeneralInfo(
 
             ActualizationPeriodInput(viewModel = viewModel)
 
-            InputError(message = viewModel.error)
+            InputError(viewModel.errors)
         }
     }
 }

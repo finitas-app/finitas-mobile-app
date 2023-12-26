@@ -29,11 +29,16 @@ data class RegularSpendingWithSpendingDataDto(
     val spendingRecords: List<SpendingRecordDto>,
 ) : Nameable {
     init {
-        if(name.isBlank()) throw InputValidationException("Name cannot be blank.")
-        if(actualizationPeriod < 1)
-            throw InputValidationException("Actualization period should be a positive number.")
-        if(spendingRecords.isEmpty())
-            throw InputValidationException("Regular spending should have at least 1 product.")
+        listOfNotNull(
+            if (name.isBlank()) "Name cannot be blank." else null,
+            if (actualizationPeriod < 1) "Actualization period should be a positive number."
+            else null,
+            if (spendingRecords.isEmpty()) "Regular spending should have at least 1 product."
+            else null,
+        )
+            .let {
+                if (it.isNotEmpty()) throw InputValidationException(it)
+            }
     }
 }
 

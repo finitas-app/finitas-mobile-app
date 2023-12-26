@@ -26,7 +26,7 @@ class RegularSpendingsViewModel(
     var isDialogOpen by mutableStateOf(false)
         private set
 
-    var error: String? by mutableStateOf(null)
+    var errors: List<String>? by mutableStateOf(null)
 
     var constructorAction by mutableStateOf(ConstructorAction.EDIT)
 
@@ -69,9 +69,10 @@ class RegularSpendingsViewModel(
         viewModelScope.launch {
             try {
                 regularSpendingService.upsertRegularSpendingWithRecords(regularSpendingState)
+                errors = null
                 closeDialog()
             } catch (inputError: InputValidationException) {
-                error = inputError.message
+                errors = inputError.errors
             }
         }
     }
