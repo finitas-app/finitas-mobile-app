@@ -89,8 +89,6 @@ class FinishedSpendingRepositoryImpl(
     override suspend fun deleteFinishedSpending(totalSpending: FinishedSpending) {
         TODO("Not yet implemented")
     }
-
-
 }
 
 private data class TempFinishedSpending(

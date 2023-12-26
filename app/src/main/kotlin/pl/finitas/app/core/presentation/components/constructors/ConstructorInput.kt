@@ -25,8 +25,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
@@ -37,7 +37,6 @@ private val borderColor = Color.White.copy(alpha = 0.1f)
 
 // todo: make input higher
 // todo: make cursor white
-// todo: add different keyboard types
 // todo: allow horizontal alignment for input field
 
 @Composable
@@ -109,8 +108,19 @@ fun ConstructorInput(
     }
 }
 
-@Preview
 @Composable
-fun ConstructorInputPreview() {
-
+fun ConstructorInput(
+    value: UInt,
+    onValueChange: (UInt) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    ConstructorInput(
+        value = value.toString(),
+        onValueChange = { onValueChange(it.toUIntOrNull() ?: 0.toUInt()) },
+        keyboardOptions = KeyboardOptions.Default.copy(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Done
+        ),
+        modifier = modifier,
+    )
 }
