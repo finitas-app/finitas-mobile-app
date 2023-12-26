@@ -13,11 +13,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
 import pl.finitas.app.core.presentation.components.constructors.Dropdown
+import pl.finitas.app.core.presentation.components.constructors.InputError
 import pl.finitas.app.core.presentation.components.dialog.CustomDialog
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.manage_additional_elements_feature.domain.PeriodUnit
@@ -91,22 +91,8 @@ private fun FormGeneralInfo(
 
             ActualizationPeriodInput(viewModel = viewModel)
 
-            ErrorState(message = viewModel.error)
+            InputError(message = viewModel.error)
         }
-    }
-}
-
-@Composable
-private fun ErrorState(
-    message: String?,
-    modifier: Modifier = Modifier
-) {
-    if(message != null) {
-        Fonts.regularMini.Text(
-            text = "* $message",
-            modifier = modifier.padding(top = 26.dp),
-            color = Color.Red
-        )
     }
 }
 
