@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import pl.finitas.app.core.domain.exceptions.InputValidationException
 import pl.finitas.app.core.domain.services.SpendingCategoryService
 import pl.finitas.app.core.domain.services.SpendingRecordView
 import pl.finitas.app.manage_additional_elements_feature.domain.PeriodUnit
@@ -24,6 +25,8 @@ class RegularSpendingsViewModel(
 
     var isDialogOpen by mutableStateOf(false)
         private set
+
+    var error: String? by mutableStateOf(null)
 
     var constructorAction by mutableStateOf(ConstructorAction.EDIT)
 
@@ -62,9 +65,14 @@ class RegularSpendingsViewModel(
         regularSpendingState = regularSpendingState.copy(title = value)
     }
 
-    fun upsertState() {
+    fun onEditorSave() {
         viewModelScope.launch {
-            regularSpendingService.upsertRegularSpendingWithRecords(regularSpendingState)
+            try {
+                regularSpendingService.upsertRegularSpendingWithRecords(regularSpendingState)
+                closeDialog()
+            } catch (inputError: InputValidationException) {
+                error = inputError.message
+            }
         }
     }
 

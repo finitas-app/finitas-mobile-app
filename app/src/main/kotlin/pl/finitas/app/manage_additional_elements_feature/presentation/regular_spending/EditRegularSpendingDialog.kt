@@ -9,13 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
@@ -31,12 +29,7 @@ fun EditRegularSpendingDialog(
     CustomDialog(
         isOpened = viewModel.isDialogOpen,
         onDismissRequest = viewModel::closeDialog,
-        onConfirmRequest = {
-            // todo: add validation of upserted state
-            // todo: min 1 spending record
-            viewModel.upsertState()
-            viewModel.closeDialog()
-        },
+        onConfirmRequest = viewModel::onEditorSave,
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 14.dp, vertical = 10.dp)
@@ -97,7 +90,23 @@ private fun FormGeneralInfo(
             )
 
             ActualizationPeriodInput(viewModel = viewModel)
+
+            ErrorState(message = viewModel.error)
         }
+    }
+}
+
+@Composable
+private fun ErrorState(
+    message: String?,
+    modifier: Modifier = Modifier
+) {
+    if(message != null) {
+        Fonts.regularMini.Text(
+            text = "* $message",
+            modifier = modifier.padding(top = 26.dp),
+            color = Color.Red
+        )
     }
 }
 
