@@ -41,14 +41,14 @@ import pl.finitas.app.room_feature.domain.RoomWithAdditionalInfoView
 import pl.finitas.app.room_feature.presentation.room_settings.RoomSettingsViewModel
 import pl.finitas.app.room_feature.presentation.room_settings.roles.DeleteRoleDialog
 import pl.finitas.app.room_feature.presentation.room_settings.roles.UpsertRoleDialog
-import java.util.UUID
+import pl.finitas.app.room_feature.presentation.room_settings.user_settings.UserSettingsDialog
 
 @Composable
 fun RoomSettingsPanel(
     navController: NavController,
     viewModel: RoomSettingsViewModel,
 ) {
-    var roleToDelete by remember { mutableStateOf<UUID?>(null) }
+    var roleToDelete by remember { mutableStateOf<RoomRoleView?>(null) }
 
     val room by viewModel.room.collectAsState(RoomWithAdditionalInfoView.empty)
     Column {
@@ -68,13 +68,13 @@ fun RoomSettingsPanel(
             roles = room.roomRoles,
             onAddRole = { viewModel.openRoleDialog() },
             onElementClick = { viewModel.openRoleDialog(it.toState()) },
-            onDeleteRole = { roleToDelete = it.idRole },
+            onDeleteRole = { roleToDelete = it },
             modifier = Modifier
                 .padding(top = 24.dp, start = 20.dp, end = 20.dp),
         )
         RoomMembers(
             roomMembers = room.roomMembers,
-            onUserClick = {},
+            onUserClick = { viewModel.selectUser(it.idUser) },
             modifier = Modifier
                 .padding(top = 24.dp, start = 20.dp, end = 20.dp)
         )
@@ -82,16 +82,22 @@ fun RoomSettingsPanel(
 
     UpsertRoleDialog(viewModel)
     DeleteRoleDialog(
+        roleTitle = roleToDelete?.name ?: "",
         isOpen = roleToDelete != null,
         onConfirm = {
             viewModel.deleteRole(
-                idRole = roleToDelete!!,
-                onConfirm = { roleToDelete = null },
+                idRole = roleToDelete?.idRole!!,
+                onSuccess = { roleToDelete = null },
             )
         },
         onClose = {
             roleToDelete = null
         }
+    )
+    UserSettingsDialog(
+        roomMember = room.roomMembers.find { it.idUser == viewModel.selectedUser },
+        roles = room.roomRoles,
+        viewModel = viewModel,
     )
 }
 

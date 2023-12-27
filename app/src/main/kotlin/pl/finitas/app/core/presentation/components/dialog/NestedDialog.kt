@@ -13,18 +13,18 @@ import androidx.compose.ui.window.Dialog
 @Composable
 fun NestedDialog(
     isOpen: Boolean,
-    onClose: () -> Unit,
+    onDismiss: () -> Unit,
     content: @Composable BoxScope.() -> Unit,
 ) {
     if (isOpen) {
-        Dialog(onDismissRequest = onClose) {
+        Dialog(onDismissRequest = onDismiss) {
             val interactionSourceOuter = remember { MutableInteractionSource() }
             Box(modifier = Modifier
                 .fillMaxSize()
                 .clickable(
                     interactionSource = interactionSourceOuter,
                     indication = null
-                ) { onClose() }) {
+                ) { onDismiss() }) {
 
                 content()
             }

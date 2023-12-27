@@ -12,4 +12,6 @@ object Colors {
     val activationColor @Composable get() = Color(0xFF4355FA)
 
     val messageInputColor @Composable get() = Color(0x33D9D9D9)
+
+    val removeColor @Composable get() = Color(0xFFF25C5C)
 }

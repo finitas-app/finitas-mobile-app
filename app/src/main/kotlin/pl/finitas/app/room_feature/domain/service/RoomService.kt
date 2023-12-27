@@ -7,7 +7,9 @@ import pl.finitas.app.room_feature.domain.AddRoomDto
 import pl.finitas.app.room_feature.domain.RoomPreviewDto
 import pl.finitas.app.room_feature.domain.RoomWithAdditionalInfoView
 import pl.finitas.app.room_feature.domain.repository.AddRoleRequest
+import pl.finitas.app.room_feature.domain.repository.AssignRoleToUserRequest
 import pl.finitas.app.room_feature.domain.repository.DeleteRoleRequest
+import pl.finitas.app.room_feature.domain.repository.DeleteUserRequest
 import pl.finitas.app.room_feature.domain.repository.MessageRepository
 import pl.finitas.app.room_feature.domain.repository.RoomRepository
 import pl.finitas.app.room_feature.domain.repository.UpdateRoleRequest
@@ -77,6 +79,25 @@ class RoomService(
     suspend fun deleteRole(idRoom: UUID, idRole: UUID) {
         roomRepository.deleteRole(
             DeleteRoleRequest(idRoom, idRole)
+        )
+    }
+
+    suspend fun deleteUserFromRoom(idRoom: UUID, idUser: UUID) {
+        roomRepository.deleteUserFromRoom(
+            DeleteUserRequest(
+                idRoom = idRoom,
+                idUser = idUser,
+            )
+        )
+    }
+
+    suspend fun assignRoleToUser(idRoom: UUID, idUser: UUID, idRole: UUID?) {
+        roomRepository.assignRoleToUser(
+            AssignRoleToUserRequest(
+                idRoom = idRoom,
+                idRole = idRole,
+                idUser = idUser
+            )
         )
     }
 }

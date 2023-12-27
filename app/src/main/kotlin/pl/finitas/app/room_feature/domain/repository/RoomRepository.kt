@@ -23,6 +23,10 @@ interface RoomRepository {
     suspend fun updateRole(roomRole: UpdateRoleRequest)
 
     suspend fun deleteRole(roomRole: DeleteRoleRequest)
+
+    suspend fun deleteUserFromRoom(deleteUserRequest: DeleteUserRequest)
+
+    suspend fun assignRoleToUser(assignRoleToUserRequest: AssignRoleToUserRequest)
 }
 
 @Serializable
@@ -44,4 +48,17 @@ data class AddRoleRequest(
     val idRoom: SerializableUUID,
     val name: String,
     val authorities: Set<Authority>,
+)
+
+@Serializable
+data class DeleteUserRequest(
+    val idRoom: SerializableUUID,
+    val idUser: SerializableUUID,
+)
+
+@Serializable
+data class AssignRoleToUserRequest(
+    val idRoom: SerializableUUID,
+    val idRole: SerializableUUID?,
+    val idUser: SerializableUUID,
 )

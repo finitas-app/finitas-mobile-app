@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
@@ -28,10 +29,13 @@ fun ConstructorBoxDialog(
     onSave: () -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
+    onDismiss: () -> Unit = onClose,
     alignment: Alignment = Alignment.BottomCenter,
+    closeIcon: ImageVector = Icons.Rounded.Close,
+    isActiveNavBar: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    NestedDialog(isOpen = isOpen, onClose = onClose) {
+    NestedDialog(isOpen = isOpen, onDismiss = onDismiss) {
         val interactionSource = remember { MutableInteractionSource() }
 
         ConstructorBox(
@@ -49,18 +53,19 @@ fun ConstructorBoxDialog(
                 Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 20.dp)) {
                     content()
                 }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    ClickableIcon(
-                        imageVector = Icons.Rounded.Close, onClick = onClose
-                    )
-                    ClickableIcon(imageVector = Icons.Rounded.Check, onClick = onSave)
-                }
-            }
+                if (isActiveNavBar) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        ClickableIcon(
+                            imageVector = closeIcon, onClick = onClose
+                        )
+                        ClickableIcon(imageVector = Icons.Rounded.Check, onClick = onSave)
+                    }
+                }            }
         }
     }
 }

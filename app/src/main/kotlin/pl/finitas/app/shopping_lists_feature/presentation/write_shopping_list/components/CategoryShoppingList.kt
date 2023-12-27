@@ -142,7 +142,7 @@ private fun AddSpendingRecordDialog(
     onSave: (ShoppingItemView) -> Unit,
     onClose: () -> Unit,
 ) {
-    NestedDialog(isOpen = isOpen, onClose = onClose) {
+    NestedDialog(isOpen = isOpen, onDismiss = onClose) {
         val interactionSource = remember { MutableInteractionSource() }
 
         ConstructorBox(

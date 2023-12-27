@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.room_feature.domain.RoomWithAdditionalInfoView
@@ -28,19 +29,25 @@ class RoomSettingsViewModel(
     var upsertRoleState by mutableStateOf(UpsertRoleState.empty)
         private set
 
+    var selectedUser by mutableStateOf<UUID?>(null)
+        private set
+
     val room: Flow<RoomWithAdditionalInfoView>
 
     var isRoomRoleDialogOpen by mutableStateOf(false)
         private set
 
-    var isUserDialogOpen by mutableStateOf(false)
-        private set
 
     init {
         val idRoom = savedStateHandle.get<String>("idRoom")?.let(UUID::fromString) ?: throw IdRoomNotProvidedException()
         this.idRoom = idRoom
 
-        room = roomService.getRoomWithAdditionalInfo(idRoom)
+        room = roomService.getRoomWithAdditionalInfo(idRoom).onEach { room ->
+            if (upsertRoleState.idRole != null && room.roomRoles.find { it.idRole == upsertRoleState.idRole } == null)
+                closeRoleDialog()
+            if (selectedUser != null && room.roomMembers.find { it.idUser == selectedUser } == null)
+                closeUserDialog()
+        }
     }
 
     fun openRoleDialog(roomRole: UpsertRoleState = UpsertRoleState.empty) {
@@ -53,12 +60,8 @@ class RoomSettingsViewModel(
         isRoomRoleDialogOpen = false
     }
 
-    fun openUserDialog() {
-        isUserDialogOpen = true
-    }
-
     fun closeUserDialog() {
-        isUserDialogOpen = false
+        selectedUser = null
     }
 
     fun upsertRole() {
@@ -68,10 +71,10 @@ class RoomSettingsViewModel(
         }
     }
 
-    fun deleteRole(idRole: UUID, onConfirm: () -> Unit) {
+    fun deleteRole(idRole: UUID, onSuccess: () -> Unit) {
         viewModelScope.launch {
             roomService.deleteRole(idRoom, idRole)
-            onConfirm()
+            onSuccess()
         }
     }
 
@@ -85,5 +88,30 @@ class RoomSettingsViewModel(
 
     fun removeAuthority(authority: Authority) {
         upsertRoleState = upsertRoleState.copy(authorities = upsertRoleState.authorities - authority)
+    }
+
+    fun selectUser(idUser: UUID) {
+        selectedUser = idUser
+    }
+
+    fun removeSelectedUserFromRoom() {
+        viewModelScope.launch {
+            if (selectedUser != null) roomService.deleteUserFromRoom(
+                idRoom = idRoom,
+                idUser = selectedUser!!
+            )
+            closeUserDialog()
+        }
+    }
+
+    fun assignRoleToSelectedUser(idRole: UUID?, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            if (selectedUser != null) roomService.assignRoleToUser(
+                idRoom = idRoom,
+                idUser = selectedUser!!,
+                idRole = idRole
+            )
+            onSuccess()
+        }
     }
 }

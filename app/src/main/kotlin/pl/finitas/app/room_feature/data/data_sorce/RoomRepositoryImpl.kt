@@ -18,7 +18,9 @@ import pl.finitas.app.room_feature.domain.RoomMemberView
 import pl.finitas.app.room_feature.domain.RoomRoleView
 import pl.finitas.app.room_feature.domain.RoomWithAdditionalInfoView
 import pl.finitas.app.room_feature.domain.repository.AddRoleRequest
+import pl.finitas.app.room_feature.domain.repository.AssignRoleToUserRequest
 import pl.finitas.app.room_feature.domain.repository.DeleteRoleRequest
+import pl.finitas.app.room_feature.domain.repository.DeleteUserRequest
 import pl.finitas.app.room_feature.domain.repository.RoomRepository
 import pl.finitas.app.room_feature.domain.repository.UpdateRoleRequest
 import pl.finitas.app.sync_feature.domain.RoomDto
@@ -83,9 +85,20 @@ class RoomRepositoryImpl(
     }
 
     override suspend fun deleteRole(roomRole: DeleteRoleRequest) {
-
         httpClient.delete("$frontendApiUrl/rooms/roles") {
             setBody(roomRole)
+        }
+    }
+
+    override suspend fun deleteUserFromRoom(deleteUserRequest: DeleteUserRequest) {
+        httpClient.delete("$frontendApiUrl/rooms/users") {
+            setBody(deleteUserRequest)
+        }
+    }
+
+    override suspend fun assignRoleToUser(assignRoleToUserRequest: AssignRoleToUserRequest) {
+        httpClient.put("$frontendApiUrl/rooms/users/roles") {
+            setBody(assignRoleToUserRequest)
         }
     }
 }
