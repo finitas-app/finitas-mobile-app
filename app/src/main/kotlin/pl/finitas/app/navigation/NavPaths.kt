@@ -7,5 +7,6 @@ enum class NavPaths(val route: String) {
     AdditionalElementsScreen("additional_elements_screen"),
     ShoppingLists("shopping_lists"),
     RoomsScreen("rooms_screen"),
+    RoomsSettingsScreen("rooms_settings_screen"),
     MessengerScreen("messenger_screen"),
 }

@@ -11,6 +11,7 @@ import pl.finitas.app.manage_additional_elements_feature.presentation.Additional
 import pl.finitas.app.manage_spendings_feature.presentation.HomeScreen
 import pl.finitas.app.profile_feature.presentation.ProfileScreen
 import pl.finitas.app.room_feature.presentation.messanger.MessengerScreen
+import pl.finitas.app.room_feature.presentation.room_settings.RoomSettingsScreen
 import pl.finitas.app.room_feature.presentation.rooms.RoomsScreen
 import pl.finitas.app.shopping_lists_feature.presentation.ShoppingListsScreen
 
@@ -19,7 +20,7 @@ fun AppNavigation() {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = NavPaths.AdditionalElementsScreen.route
+        startDestination = NavPaths.RoomsScreen.route
     ) {
         composable(
             NavPaths.ProfileScreen.route
@@ -61,6 +62,17 @@ fun AppNavigation() {
             )
         ) {
             MessengerScreen(navController)
+        }
+        composable(
+            route = NavPaths.RoomsSettingsScreen.route + "?idRoom={idRoom}",
+            arguments = listOf(
+                navArgument(name = "idRoom") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ) {
+            RoomSettingsScreen(navController)
         }
     }
 }

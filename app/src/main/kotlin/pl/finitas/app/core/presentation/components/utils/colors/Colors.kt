@@ -10,4 +10,6 @@ object Colors {
     val mirrorSpendingList @Composable get() = Color(0xFF213138)
 
     val activationColor @Composable get() = Color(0xFF4355FA)
+
+    val messageInputColor @Composable get() = Color(0x33D9D9D9)
 }

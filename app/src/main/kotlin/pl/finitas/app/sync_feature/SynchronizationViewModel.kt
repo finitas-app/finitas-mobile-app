@@ -20,6 +20,7 @@ import pl.finitas.app.core.http.HttpUrls
 import pl.finitas.app.room_feature.domain.service.UnauthorizedUserException
 import pl.finitas.app.sync_feature.domain.SynchronizationService
 import java.net.ConnectException
+import java.util.UUID
 
 class SynchronizationViewModel(
     private val profileRepository: ProfileRepository,
@@ -51,15 +52,7 @@ class SynchronizationViewModel(
                             val userNotification: UserNotification = Json.decodeFromString(
                                 message.readText()
                             )
-                            if (
-                                userNotification.event == UserNotificationEvent.SYNC_MESSAGE &&
-                                userNotification.jsonData != null
-                            ) {
-                                synchronizationService.syncMessages(
-                                    authorizedUserId,
-                                    Json.decodeFromString(userNotification.jsonData),
-                                )
-                            }
+                            proceedEvent(userNotification, authorizedUserId)
                         }
                     }
                 } catch (_: ConnectException) {
@@ -68,6 +61,23 @@ class SynchronizationViewModel(
                     delay(1000)
                     e.printStackTrace()
                 }
+            }
+        }
+    }
+
+    private suspend fun proceedEvent(
+        userNotification: UserNotification,
+        authorizedUserId: UUID,
+    ) = with(userNotification) {
+        when {
+            event == UserNotificationEvent.SYNC_MESSAGE && jsonData != null -> {
+                synchronizationService.syncMessages(
+                    authorizedUserId,
+                    Json.decodeFromString(jsonData),
+                )
+            }
+            event == UserNotificationEvent.SYNC_ROOM && jsonData == null -> {
+                synchronizationService.fullSyncRooms(authorizedUserId)
             }
         }
     }

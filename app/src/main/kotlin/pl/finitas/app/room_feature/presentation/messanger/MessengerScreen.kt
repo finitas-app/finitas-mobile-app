@@ -1,5 +1,6 @@
 package pl.finitas.app.room_feature.presentation.messanger
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,7 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.rounded.ArrowBackIos
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,6 +39,7 @@ fun MessengerScreen(navController: NavHostController) {
             MessengerHeader(
                 roomTitle = viewModel.roomTitle,
                 onBackClick = { navController.navigate(NavPaths.RoomsScreen.route) },
+                onSettingsClick = { navController.navigate(NavPaths.RoomsSettingsScreen.route + "?idRoom=${viewModel.idRoom}") }
             )
             LazyColumn(
                 reverseLayout = true,
@@ -72,20 +75,31 @@ fun MessengerScreen(navController: NavHostController) {
 private fun MessengerHeader(
     roomTitle: String,
     onBackClick: () -> Unit,
+    onSettingsClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
             modifier = Modifier,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             ClickableIcon(
-                imageVector = Icons.Rounded.KeyboardArrowLeft,
+                imageVector = Icons.Rounded.ArrowBackIos,
                 onClick = onBackClick,
             )
             Fonts.heading1.Text(text = roomTitle)
+        }
+        Row(
+            modifier = Modifier,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ClickableIcon(
+                imageVector = Icons.Rounded.Settings,
+                onClick = onSettingsClick,
+            )
         }
     }
 }

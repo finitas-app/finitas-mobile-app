@@ -1,6 +1,7 @@
 package pl.finitas.app.core.data.data_source
 
 import androidx.room.TypeConverter
+import pl.finitas.app.core.data.model.Authority
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDateTime
@@ -39,5 +40,18 @@ class UUIDConverter {
     @TypeConverter
     fun uuidFromString(string: String?): UUID? {
         return string?.let { UUID.fromString(it) }
+    }
+}
+
+class AuthoritiesConverter {
+    @TypeConverter
+    fun fromEnumSet(enumSet: Set<Authority>): String {
+        return enumSet.joinToString(separator = ",", transform = { it.ordinal.toString() })
+    }
+
+    @TypeConverter
+    fun fromString(string: String): Set<Authority> {
+        if (string.isEmpty()) return setOf()
+        return string.split(",").map { Authority.entries[it.toInt()] }.toSet()
     }
 }

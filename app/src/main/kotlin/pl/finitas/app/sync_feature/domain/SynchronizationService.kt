@@ -26,9 +26,29 @@ class SynchronizationService(
     private val userRepository: UserRepository,
 ) {
     suspend fun fullSync(authorizedUserId: UUID) {
-        fullSyncRooms()
+        fullSyncRooms(authorizedUserId)
         fullSyncNames()
         fullSyncMessages(authorizedUserId)
+    }
+
+    // TODO: split for room parts and sync only room that is needed
+    suspend fun fullSyncRooms(authorizedUserId: UUID) {
+        val roomVersions = versionsRepository.getRoomVersions()
+        val messagesVersion = versionsRepository.getMessagesVersions().map { it.idRoom }
+        val (remoteRooms, unavailableRooms) = roomSyncRepository.getRoomsFromVersionRemote(roomVersions)
+        roomSyncRepository.deleteRooms(unavailableRooms)
+        roomSyncRepository.upsertRooms(remoteRooms)
+
+        versionsRepository.setRoomVersions(remoteRooms.map { RoomVersion(it.idRoom, it.version) })
+        val newMessageVersions = remoteRooms.filter { it.idRoom !in messagesVersion }.map {
+            MessagesVersion(it.idRoom, -1)
+        }
+        if (newMessageVersions.isNotEmpty()) {
+            // TODO: After part split left it only for create_event or join_event
+            versionsRepository.setMessagesVersions(newMessageVersions)
+            fullSyncMessages(authorizedUserId, newMessageVersions)
+            fullSyncNames()
+        }
     }
 
     suspend fun syncMessages(authorizedUserId: UUID, newMessages: List<NewMessagesResponse>) {
@@ -69,9 +89,13 @@ class SynchronizationService(
             }
     }
 
-    private suspend fun fullSyncMessages(authorizedUserId: UUID) {
-        val messageVersions = versionsRepository.getMessagesVersions()
+    private suspend fun fullSyncMessages(
+        authorizedUserId: UUID,
+        messageVersionsFilter: List<MessagesVersion>? = null,
+    ) {
+        val messageVersions = messageVersionsFilter ?: versionsRepository.getMessagesVersions()
         val response = messageSyncRepository.getMessagesFromVersionRemote(messageVersions)
+        roomSyncRepository.deleteRooms(response.unavailableRooms)
         val pendingMessages = messageSyncRepository.getPendingMessages()
         try {
             messageSenderRepository.sendMessages(
@@ -110,20 +134,6 @@ class SynchronizationService(
                     idRoom = entry.key,
                     version = entry.value.maxOf { it.version },
                 )
-            }
-        )
-    }
-
-    private suspend fun fullSyncRooms() {
-        val roomVersions = versionsRepository.getRoomVersions()
-        val messagesVersion = versionsRepository.getMessagesVersions().map { it.idRoom }
-        val remoteRooms = roomSyncRepository.getRoomsFromVersionRemote(roomVersions)
-        roomSyncRepository.upsertRooms(remoteRooms)
-
-        versionsRepository.setRoomVersions(remoteRooms.map { RoomVersion(it.idRoom, it.version) })
-        versionsRepository.setMessagesVersions(
-            remoteRooms.filter { it.idRoom !in messagesVersion }.map {
-                MessagesVersion(it.idRoom, -1)
             }
         )
     }

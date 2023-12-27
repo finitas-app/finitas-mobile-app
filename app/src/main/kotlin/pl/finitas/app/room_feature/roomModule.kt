@@ -10,6 +10,7 @@ import pl.finitas.app.room_feature.domain.repository.RoomRepository
 import pl.finitas.app.room_feature.domain.service.MessageService
 import pl.finitas.app.room_feature.domain.service.RoomService
 import pl.finitas.app.room_feature.presentation.messanger.MessengerViewModel
+import pl.finitas.app.room_feature.presentation.room_settings.RoomSettingsViewModel
 import pl.finitas.app.room_feature.presentation.rooms.RoomViewModel
 
 val roomModule = module {
@@ -19,4 +20,5 @@ val roomModule = module {
     single { MessageService(get(), get(), get(), get()) }
     viewModel { RoomViewModel(get()) }
     viewModel { MessengerViewModel(get(),get(),get()) }
+    viewModel { RoomSettingsViewModel(get(), get()) }
 }

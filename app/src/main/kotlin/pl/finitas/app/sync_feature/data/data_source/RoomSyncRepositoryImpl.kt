@@ -10,6 +10,8 @@ import pl.finitas.app.core.data.model.RoomVersion
 import pl.finitas.app.core.http.HttpUrls
 import pl.finitas.app.sync_feature.domain.RoomDto
 import pl.finitas.app.sync_feature.domain.repository.RoomSyncRepository
+import pl.finitas.app.sync_feature.domain.repository.SyncRoomsResponse
+import java.util.UUID
 
 class RoomSyncRepositoryImpl(
     private val roomDao: RoomDao,
@@ -20,10 +22,14 @@ class RoomSyncRepositoryImpl(
         roomDao.upsertRoomsWithMembersAndRoles(rooms)
     }
 
-    override suspend fun getRoomsFromVersionRemote(versions: List<RoomVersion>): List<RoomDto> {
+    override suspend fun getRoomsFromVersionRemote(versions: List<RoomVersion>): SyncRoomsResponse {
         return httpClient.post(HttpUrls.syncRooms) {
             setBody(SyncRoomsFromVersionsRequest(versions))
         }.body()
+    }
+
+    override suspend fun deleteRooms(idsRoom: List<UUID>) {
+        roomDao.deleteRooms(idsRoom)
     }
 }
 

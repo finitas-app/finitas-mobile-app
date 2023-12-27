@@ -28,46 +28,47 @@ class MessengerViewModel(
     var messages: Flow<List<ChatMessage>> = emptyFlow()
         private set
 
-    private var _idRoom by mutableStateOf<UUID?>(null)
+    var idRoom by mutableStateOf<UUID?>(null)
+        private set
 
     init {
-        savedStateHandle.get<String>("idRoom")?.let { idRoomRaw ->
-            val idRoom = UUID.fromString(idRoomRaw)
-            _idRoom = idRoom
+        val idRoom = savedStateHandle
+            .get<String>("idRoom")
+            ?.let { UUID.fromString(it)} ?: throw IdRoomNotProvidedException()
+
+        this.idRoom = idRoom
 
 
-            viewModelScope.launch {
-                // TODO: DELETE nullable
-                roomTitle = roomService.getRoomById(idRoom!!)?.title ?: "Something"
-            }
-            messages = messageService.getMessagesByIdRoom(idRoom!!).map { messages ->
-                val result = messages.mapIndexed { index, message ->
-                    if (message !is IncomingTextMessage || index == messages.lastIndex) {
-                        return@mapIndexed message
-                    }
-
-                    val nextMessage =
-                        messages[index + 1] as? IncomingTextMessage ?: return@mapIndexed message
-
-                    if ((nextMessage.sender ?: message.sender) == message.sender) {
-                        return@mapIndexed message.copy(sender = null)
-                    }
-
-                    message
+        viewModelScope.launch {
+            roomTitle = roomService.getRoomById(idRoom).title
+        }
+        messages = messageService.getMessagesByIdRoom(idRoom).map { messages ->
+            val result = messages.mapIndexed { index, message ->
+                if (message !is IncomingTextMessage || index == messages.lastIndex) {
+                    return@mapIndexed message
                 }
-                messageService.readMessage(
-                    messages
-                        .filter { (it as? IncomingTextMessage)?.isRead == false }
-                        .map { it.idMessage }
-                )
-                result
+
+                val nextMessage =
+                    messages[index + 1] as? IncomingTextMessage ?: return@mapIndexed message
+
+                if ((nextMessage.sender ?: message.sender) == message.sender) {
+                    return@mapIndexed message.copy(sender = null)
+                }
+
+                message
             }
-        } ?: throw IdRoomNotProvidedException()
+            messageService.readMessage(
+                messages
+                    .filter { (it as? IncomingTextMessage)?.isRead == false }
+                    .map { it.idMessage }
+            )
+            result
+        }
     }
 
     fun sendTextMessage(message: String) {
         viewModelScope.launch {
-            messageService.sendMessage(_idRoom ?: throw IdRoomNotProvidedException(), message)
+            messageService.sendMessage(idRoom ?: throw IdRoomNotProvidedException(), message)
         }
     }
 }

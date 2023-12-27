@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pl.finitas.app.core.presentation.components.ClickableIcon
+import pl.finitas.app.core.presentation.components.utils.colors.Colors
 
 @Composable
 fun MessengerInput(
@@ -31,7 +32,7 @@ fun MessengerInput(
     onPinObject: () -> Unit = {},
 ) {
     var value by remember { mutableStateOf("") }
-    val inputColor = Color(0x33D9D9D9)
+    val inputColor = Colors.messageInputColor
 
 
 

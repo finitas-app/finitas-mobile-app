@@ -8,4 +8,5 @@ import java.util.UUID
 data class Room(
     @PrimaryKey val idRoom: UUID,
     val title: String,
+    val invitationLinkUUID: UUID,
 )
