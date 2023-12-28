@@ -26,7 +26,7 @@ fun HomeScreen(
 
     PrimaryBackground(
         isDialogOpen = addSpendingViewModel.isDialogOpen
-                || chartDisplayViewModel.isChartConstructorDialogOpen
+                || chartConstructorViewModel.isChartConstructorDialogOpen
     ) {
         ChartPanel(
             chartDisplayViewModel = chartDisplayViewModel,
@@ -39,5 +39,5 @@ fun HomeScreen(
         NavBar(navController = navController, backgroundColor = Colors.backgroundDark)
     }
     AddSpendingDialog(addSpendingViewModel)
-    ChartConstructor(chartConstructorViewModel)
+    ChartConstructor(constructorViewModel = chartConstructorViewModel)
 }

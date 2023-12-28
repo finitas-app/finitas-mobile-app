@@ -35,6 +35,9 @@ fun ChartPanel(
                 onClick = chartConstructorViewModel::openCreateConstructor,
             )
         }
-        ChartSlider(charts = charts, viewModel = chartConstructorViewModel)
+        ChartSlider(
+            charts = charts,
+            constructorViewModel = chartConstructorViewModel,
+        )
     }
 }

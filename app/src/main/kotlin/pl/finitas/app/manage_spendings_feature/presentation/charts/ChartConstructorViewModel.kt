@@ -85,7 +85,6 @@ class ChartConstructorViewModel(
         }
     }
 
-    // todo: configure to turn on the correct diagram after edit saved
     fun onEditButtonClicked(chart: ChartWithCategoriesDto) {
         viewModelScope.launch {
             isChartConstructorDialogOpen = true
@@ -100,6 +99,16 @@ class ChartConstructorViewModel(
                 categories = service.getSpendingCategories()
             )
         }
+    }
+
+    fun onEndDateCheckboxClicked() {
+        if (chartState.endDate != null) setEndDate(null)
+        else setEndDate(LocalDate.now())
+    }
+
+    fun onStartDateCheckboxClicked() {
+        if (chartState.startDate != null) setStartDate(null)
+        else setStartDate(LocalDate.now())
     }
 
     private fun getAllSpendingCategoryChildrenIds(spendingCategoryView: SpendingCategoryView): MutableSet<UUID> {

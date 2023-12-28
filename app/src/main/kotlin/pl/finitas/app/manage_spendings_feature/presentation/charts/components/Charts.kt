@@ -25,10 +25,6 @@ import com.github.tehras.charts.bar.renderer.bar.SimpleBarDrawer
 import com.github.tehras.charts.bar.renderer.label.SimpleValueDrawer
 import com.github.tehras.charts.bar.renderer.xaxis.SimpleXAxisDrawer
 import com.github.tehras.charts.bar.renderer.yaxis.SimpleYAxisDrawer
-import com.github.tehras.charts.line.LineChart
-import com.github.tehras.charts.line.LineChartData
-import com.github.tehras.charts.line.renderer.line.SolidLineDrawer
-import com.github.tehras.charts.line.renderer.point.FilledCircularPointDrawer
 import com.github.tehras.charts.piechart.PieChart
 import com.github.tehras.charts.piechart.PieChartData
 import com.github.tehras.charts.piechart.animation.simpleChartAnimation
@@ -37,30 +33,6 @@ import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.manage_spendings_feature.data.data_source.CategoryDto
 import pl.finitas.app.manage_spendings_feature.data.data_source.ChartWithCategoriesDto
 import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartType
-
-private val boldness = 300.dp
-private val size = 300.dp
-private val colors = listOf(
-    Color(0XFF2C7B99).copy(.5f),
-    Color(0XFF635B7D).copy(.5f),
-    Color(0XFFF85784).copy(.5f),
-    Color(0xFFFBA776).copy(.5f),
-    Color(0xFFFFF06C).copy(.5f),
-    Color(0xFFDB6F45).copy(.5f),
-    Color(0xFF8AEB7E).copy(.5f),
-    Color(0xFF21EE65).copy(.5f),
-    Color(0xFF61E4AA).copy(.5f),
-    Color(0xFF829FF8).copy(.5f),
-    Color(0xFF2E47CF).copy(.5f),
-    Color(0xFF6247FA).copy(.5f),
-    Color(0xFF42B2DD).copy(.5f),
-    Color(0xFFBBADE9).copy(.5f),
-    Color(0xFFC24568).copy(.5f),
-    Color(0xFFA06B4C).copy(.5f),
-    Color(0xFFA79D48).copy(.5f),
-    Color(0xFF30552B).copy(.5f),
-    Color(0xFF16215C).copy(.5f),
-)
 
 @Composable
 fun ChartElement(chart: ChartWithCategoriesDto) {
@@ -73,21 +45,22 @@ fun ChartElement(chart: ChartWithCategoriesDto) {
 @Composable
 private fun PieChartConstructor(chart: ChartWithCategoriesDto) {
     Column(
-        modifier = Modifier.height(size),
-        verticalArrangement = Arrangement.SpaceBetween
+        modifier = Modifier.height(CHART_HEIGHT),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         PieChart(
             pieChartData = PieChartData(
                 slices = chart.categories.mapIndexed { index, category ->
                     PieChartData.Slice(
                         value = category.spendings.sumOf { it.price }.toFloat(),
-                        color = colors[index]
+                        color = CHART_COLORS[index]
                     )
                 }
             ),
             modifier = Modifier
-                .width(boldness)
-                .height(size - 100.dp),
+                .width(CHART_WIDTH)
+                .height(CHART_HEIGHT - 100.dp),
             animation = simpleChartAnimation(),
             sliceDrawer = SimpleSliceDrawer(),
         )
@@ -105,7 +78,7 @@ private fun PieChartLabels(
 ) {
     Row(
         modifier = modifier
-            .width(300.dp)
+            .width(CHART_WIDTH - 100.dp)
             .horizontalScroll(rememberScrollState())
     ) {
         (chart.categories.chunked(3)).forEachIndexed { index, pair ->
@@ -130,7 +103,7 @@ private fun PieChartLabel(category: CategoryDto, index: Int) {
         Icon(
             imageVector = Icons.Rounded.Circle,
             contentDescription = "",
-            tint = colors[index],
+            tint = CHART_COLORS[index],
             modifier = Modifier.size(20.dp),
         )
         Spacer(modifier = Modifier.padding(4.dp))
@@ -145,13 +118,13 @@ private fun BarChartConstructor(chart: ChartWithCategoriesDto) {
             bars = chart.categories.mapIndexed { index, category ->
                 BarChartData.Bar(
                     value = category.spendings.sumOf { it.price }.toFloat(),
-                    color = colors[index],
+                    color = CHART_COLORS[index],
                     label = category.categoryName
                 )
             }),
         modifier = Modifier
-            .width(boldness)
-            .height(size),
+            .width(CHART_WIDTH)
+            .height(CHART_HEIGHT),
         animation = simpleChartAnimation(),
         barDrawer = SimpleBarDrawer(),
         xAxisDrawer = SimpleXAxisDrawer(axisLineColor = Color.White),
@@ -159,33 +132,3 @@ private fun BarChartConstructor(chart: ChartWithCategoriesDto) {
         labelDrawer = SimpleValueDrawer(labelTextColor = Color.White)
     )
 }
-
-@Composable
-private fun LineChartConstructor(chart: ChartWithCategoriesDto) {
-    LineChart(
-        linesChartData = stubLineChartData.values.map {
-            LineChartData(
-                it.points.map { point ->
-                    LineChartData.Point(
-                        value = point.value,
-                        label = point.label
-                    )
-                },
-                lineDrawer = SolidLineDrawer(),
-            )
-        },
-        modifier = Modifier
-            .width(boldness)
-            .height(size),
-        animation = simpleChartAnimation(),
-        pointDrawer = FilledCircularPointDrawer(),
-        horizontalOffset = 5f,
-        labels = chart.categories
-            .flatMap {
-                it.spendings.map { sp -> sp.purchaseDate }
-            }
-            .toSet()
-            .map { date -> "${date.dayOfMonth}.${date.month}" }
-    )
-}
-

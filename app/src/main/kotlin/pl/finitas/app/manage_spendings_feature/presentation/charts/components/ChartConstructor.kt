@@ -15,10 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckBox
 import androidx.compose.material.icons.rounded.CheckBoxOutlineBlank
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -37,11 +33,11 @@ import java.time.LocalDate
 // todo: configure blur for dialog
 
 @Composable
-fun ChartConstructor(viewModel: ChartConstructorViewModel) {
+fun ChartConstructor(constructorViewModel: ChartConstructorViewModel) {
     CustomDialog(
-        isOpened = viewModel.isChartConstructorDialogOpen,
-        onDismissRequest = viewModel::closeConstructor,
-        onConfirmRequest = viewModel::upsertChart,
+        isOpened = constructorViewModel.isChartConstructorDialogOpen,
+        onDismissRequest = constructorViewModel::closeConstructor,
+        onConfirmRequest = constructorViewModel::upsertChart,
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 14.dp, vertical = 10.dp)
@@ -49,9 +45,9 @@ fun ChartConstructor(viewModel: ChartConstructorViewModel) {
         Column(
             Modifier.verticalScroll(rememberScrollState())
         ) {
-            GeneralInfo(viewModel = viewModel, modifier = Modifier.fillMaxWidth())
+            GeneralInfo(viewModel = constructorViewModel, modifier = Modifier.fillMaxWidth())
             CategoriesList(
-                viewModel = viewModel,
+                viewModel = constructorViewModel,
                 modifier = Modifier
                     .padding(top = 20.dp)
                     .fillMaxWidth()
@@ -100,8 +96,9 @@ private fun DiagramTypeInput(viewModel: ChartConstructorViewModel) {
 
 @Composable
 private fun StartDateInput(viewModel: ChartConstructorViewModel) {
-    var startDateEnabled by remember { mutableStateOf(true) }
-
+    val imageVector = if (viewModel.chartState.startDate != null)
+        Icons.Rounded.CheckBoxOutlineBlank
+    else Icons.Rounded.CheckBox
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -113,17 +110,11 @@ private fun StartDateInput(viewModel: ChartConstructorViewModel) {
             Fonts.regularMini.Text(text = "without start date")
 
             ClickableIcon(
-                imageVector =
-                if (startDateEnabled) Icons.Rounded.CheckBoxOutlineBlank
-                else Icons.Rounded.CheckBox,
-                onClick = {
-                    startDateEnabled = !startDateEnabled
-                    if (!startDateEnabled) viewModel.setStartDate(null)
-                    else viewModel.setStartDate(LocalDate.now())
-                })
+                imageVector = imageVector,
+                onClick = viewModel::onStartDateCheckboxClicked
+            )
         }
     }
-
 
     DateInput(
         date = viewModel.chartState.startDate ?: LocalDate.now(),
@@ -131,13 +122,17 @@ private fun StartDateInput(viewModel: ChartConstructorViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 4.dp),
-        enabled = startDateEnabled
+        enabled = viewModel.chartState.startDate != null
     )
 }
 
 @Composable
 private fun EndDateInput(viewModel: ChartConstructorViewModel) {
-    var endDateEnabled by remember { mutableStateOf(true) }
+    val imageVector = if (viewModel.chartState.endDate == null) {
+        Icons.Rounded.CheckBox
+    } else {
+        Icons.Rounded.CheckBoxOutlineBlank
+    }
 
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -152,14 +147,9 @@ private fun EndDateInput(viewModel: ChartConstructorViewModel) {
             Fonts.regularMini.Text(text = "without end date")
 
             ClickableIcon(
-                imageVector =
-                if (endDateEnabled) Icons.Rounded.CheckBoxOutlineBlank
-                else Icons.Rounded.CheckBox,
-                onClick = {
-                    endDateEnabled = !endDateEnabled
-                    if (!endDateEnabled) viewModel.setEndDate(null)
-                    else viewModel.setEndDate(LocalDate.now())
-                })
+                imageVector = imageVector,
+                onClick = viewModel::onEndDateCheckboxClicked
+            )
         }
     }
 
@@ -169,7 +159,7 @@ private fun EndDateInput(viewModel: ChartConstructorViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 4.dp),
-        enabled = endDateEnabled
+        enabled = viewModel.chartState.endDate != null
     )
 }
 
