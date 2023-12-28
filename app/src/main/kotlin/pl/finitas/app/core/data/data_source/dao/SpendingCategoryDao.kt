@@ -13,7 +13,6 @@ import java.util.UUID
 @Dao
 interface SpendingCategoryDao {
 
-
     @Query("SELECT * FROM SpendingCategory")
     fun getSpendingCategoriesFlow(): Flow<List<SpendingCategory>>
 

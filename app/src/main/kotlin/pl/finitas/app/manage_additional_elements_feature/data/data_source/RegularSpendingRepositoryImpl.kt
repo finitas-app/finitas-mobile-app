@@ -17,7 +17,6 @@ import pl.finitas.app.manage_additional_elements_feature.domain.PeriodUnit
 import pl.finitas.app.manage_additional_elements_feature.domain.RegularSpendingWithSpendingDataDto
 import pl.finitas.app.manage_additional_elements_feature.domain.SpendingRecordDto
 import pl.finitas.app.manage_additional_elements_feature.domain.repositories.RegularSpendingRepository
-import java.util.UUID
 
 class RegularSpendingRepositoryImpl(
     private val regularSpendingDao: RegularSpendingDao,
@@ -70,7 +69,7 @@ class RegularSpendingRepositoryImpl(
                 )
             ),
             totalSpending.spendingRecords.map {
-                val generatedIdSpendingRecordData = it.idSpendingRecord ?: UUID.randomUUID()
+                val generatedIdSpendingRecordData = it.idSpendingRecord
                 SpendingRecordDataToSpendingRecord(
                     spendingRecord = SpendingRecord(
                         idSpendingSummary = generatedSpendingSummary,

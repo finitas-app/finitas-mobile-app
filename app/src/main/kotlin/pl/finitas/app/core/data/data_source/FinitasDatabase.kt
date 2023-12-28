@@ -3,6 +3,7 @@ package pl.finitas.app.core.data.data_source
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import pl.finitas.app.core.data.data_source.dao.ChartDao
 import pl.finitas.app.core.data.data_source.dao.FinishedSpendingDao
 import pl.finitas.app.core.data.data_source.dao.MessageDao
 import pl.finitas.app.core.data.data_source.dao.ReceiptDao
@@ -17,6 +18,8 @@ import pl.finitas.app.core.data.data_source.dao.SpendingRecordDataDao
 import pl.finitas.app.core.data.data_source.dao.SpendingSummaryDao
 import pl.finitas.app.core.data.data_source.dao.UserDao
 import pl.finitas.app.core.data.data_source.dao.VersionsDao
+import pl.finitas.app.core.data.model.Chart
+import pl.finitas.app.core.data.model.ChartToCategoryRef
 import pl.finitas.app.core.data.model.FinishedSpending
 import pl.finitas.app.core.data.model.MessagesVersion
 import pl.finitas.app.core.data.model.Receipt
@@ -38,6 +41,8 @@ import pl.finitas.app.core.data.model.User
     entities = [
         User::class,
         SpendingCategory::class,
+        Chart::class,
+        ChartToCategoryRef::class,
         SpendingRecordData::class,
         SpendingSummary::class,
         RegularSpending::class,
@@ -76,6 +81,7 @@ abstract class FinitasDatabase : RoomDatabase() {
     abstract val roomMemberDao: RoomMemberDao
     abstract val messageDao: MessageDao
     abstract val versionsDao: VersionsDao
+    abstract val chartDao: ChartDao
 
     companion object {
         const val databaseName = "finitas_db"

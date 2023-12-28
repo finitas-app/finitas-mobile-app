@@ -29,21 +29,26 @@ fun DateInput(
     date: LocalDate,
     onDateChange: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     var calendarIsOpened by remember { mutableStateOf(false) }
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.width(IntrinsicSize.Min)) {
         ConstructorInput(
-            value = "$date",
-            enabled = false,
+            value = if(enabled) "$date" else "",
+            enabled = enabled,
             rightIcon = {
                 IconButton(
-                    onClick = { calendarIsOpened = !calendarIsOpened },
+                    onClick = { if(enabled) calendarIsOpened = !calendarIsOpened },
                     modifier = Modifier.size(32.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.DateRange,
                         contentDescription = "",
-                        tint = if (calendarIsOpened) Colors.activationColor else Color.White
+                        tint = if(!enabled) {
+                            Color.Gray
+                        } else {
+                            if (calendarIsOpened) Colors.activationColor else Color.White
+                        }
                     )
                 }
             },
@@ -51,7 +56,7 @@ fun DateInput(
         )
 
         AnimatedVisibility (
-            visible = calendarIsOpened,
+            visible = calendarIsOpened && enabled,
         ) {
             Calendar(
                 date = date,

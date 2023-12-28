@@ -19,7 +19,7 @@ fun AppNavigation() {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = NavPaths.AdditionalElementsScreen.route
+        startDestination = NavPaths.HomeScreen.route
     ) {
         composable(
             NavPaths.ProfileScreen.route

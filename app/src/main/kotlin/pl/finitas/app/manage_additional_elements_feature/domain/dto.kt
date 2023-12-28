@@ -3,7 +3,6 @@ package pl.finitas.app.manage_additional_elements_feature.domain
 import pl.finitas.app.core.domain.Nameable
 import pl.finitas.app.core.domain.exceptions.InputValidationException
 import java.math.BigDecimal
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
