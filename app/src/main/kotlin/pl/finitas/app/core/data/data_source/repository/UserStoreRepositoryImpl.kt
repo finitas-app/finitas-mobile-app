@@ -10,7 +10,7 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import pl.finitas.app.core.domain.dto.store.GetVisibleNamesRequest
-import pl.finitas.app.core.domain.dto.store.IdRegularSpending
+import pl.finitas.app.core.domain.dto.store.IdSpendingSummary
 import pl.finitas.app.core.domain.dto.store.IdUserWithVisibleName
 import pl.finitas.app.core.domain.dto.store.RegularSpendingDto
 import pl.finitas.app.core.domain.dto.store.VisibleName
@@ -49,9 +49,9 @@ class UserStoreRepositoryImpl(private val httpClient: HttpClient) : UserStoreRep
         }
     }
 
-    override suspend fun deleteRegularSpending(idRegularSpending: IdRegularSpending) {
+    override suspend fun deleteRegularSpending(idSpendingSummary: IdSpendingSummary) {
         httpClient.delete("${HttpUrls.usersStore}/regular-spendings") {
-            setBody(idRegularSpending)
+            setBody(idSpendingSummary)
             contentType(ContentType.Application.Json)
         }
     }
