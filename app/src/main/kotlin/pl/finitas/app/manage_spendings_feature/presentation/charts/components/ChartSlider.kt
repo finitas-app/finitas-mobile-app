@@ -3,10 +3,10 @@ package pl.finitas.app.manage_spendings_feature.presentation.charts.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.manage_spendings_feature.data.data_source.ChartWithCategoriesDto
 import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartConstructorViewModel
-import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartDisplayViewModel
 
 @Composable
 fun ChartSlider(
@@ -35,15 +34,10 @@ fun ChartSlider(
     val listState = rememberLazyListState(0)
     val positionOfList by remember { derivedStateOf { ItemPositions(listState) } }
 
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val outerPadding = (screenWidth - CHART_WIDTH) / 3
-    val innerPadding = outerPadding * 2
 
     LaunchedEffect(positionOfList) {
         val (index, offset, isScrolling) = positionOfList
 
-        println("*********")
-        println("offset $offset")
         if (!isScrolling && offset != 0) {
             listState.animateScrollToItem(index, 0)
         }
@@ -51,20 +45,27 @@ fun ChartSlider(
 
     Box(
         modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(innerPadding),
-            contentPadding = PaddingValues(outerPadding),
-            state = listState
+            state = listState,
         ) {
             this.items(charts.size) { index ->
-                Column(verticalArrangement = Arrangement.SpaceBetween) {
-                    ChartElement(chart = charts[index])
+                Column(
+                    verticalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    ChartElement(
+                        chart = charts[index],
+                        modifier = Modifier
+                            .width(LocalConfiguration.current.screenWidthDp.dp)
+                            .weight(.8f)
+                            .padding(horizontal = 20.dp)
+                    )
                     EditDeleteIcons(
                         chart = charts[index],
                         viewModel = constructorViewModel,
-                        modifier = Modifier.align(alignment = Alignment.End)
+                        modifier = Modifier
+                            .align(alignment = Alignment.End)
                     )
                 }
             }
@@ -76,7 +77,7 @@ fun ChartSlider(
 private fun EditDeleteIcons(
     chart: ChartWithCategoriesDto,
     viewModel: ChartConstructorViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier.padding(top = 30.dp),
@@ -102,6 +103,7 @@ private data class ItemPositions(
     val offset: Int,
     val isScrolling: Boolean,
 ) {
+
     constructor(listState: LazyListState) : this(
         listState.firstVisibleItemIndex,
         listState.firstVisibleItemScrollOffset,

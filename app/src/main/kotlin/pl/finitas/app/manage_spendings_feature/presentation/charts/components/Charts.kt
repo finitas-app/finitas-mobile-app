@@ -6,10 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Circle
@@ -35,17 +33,29 @@ import pl.finitas.app.manage_spendings_feature.data.data_source.ChartWithCategor
 import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartType
 
 @Composable
-fun ChartElement(chart: ChartWithCategoriesDto) {
+fun ChartElement(
+    chart: ChartWithCategoriesDto,
+    modifier: Modifier,
+) {
     when (chart.chartType) {
-        ChartType.PIE -> PieChartConstructor(chart = chart)
-        ChartType.BAR -> BarChartConstructor(chart = chart)
+        ChartType.PIE -> PieChartConstructor(
+            chart = chart,
+            modifier = modifier,
+        )
+        ChartType.BAR -> BarChartConstructor(
+            chart = chart,
+            modifier = modifier,
+        )
     }
 }
 
 @Composable
-private fun PieChartConstructor(chart: ChartWithCategoriesDto) {
+private fun PieChartConstructor(
+    chart: ChartWithCategoriesDto,
+    modifier: Modifier,
+) {
     Column(
-        modifier = Modifier.height(CHART_HEIGHT),
+        modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -59,14 +69,14 @@ private fun PieChartConstructor(chart: ChartWithCategoriesDto) {
                 }
             ),
             modifier = Modifier
-                .width(CHART_WIDTH)
-                .height(CHART_HEIGHT - 100.dp),
+                .weight(.9f),
             animation = simpleChartAnimation(),
             sliceDrawer = SimpleSliceDrawer(),
         )
         PieChartLabels(
             chart = chart,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
         )
     }
 }
@@ -74,14 +84,13 @@ private fun PieChartConstructor(chart: ChartWithCategoriesDto) {
 @Composable
 private fun PieChartLabels(
     chart: ChartWithCategoriesDto,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier
-            .width(CHART_WIDTH - 100.dp)
             .horizontalScroll(rememberScrollState())
     ) {
-        (chart.categories.chunked(3)).forEachIndexed { index, pair ->
+        chart.categories.chunked(2).forEachIndexed { index, pair ->
             Column(verticalArrangement = Arrangement.SpaceBetween) {
                 pair.forEachIndexed { innerIndex, it ->
                     PieChartLabel(category = it, index = index * 3 + innerIndex)
@@ -112,7 +121,10 @@ private fun PieChartLabel(category: CategoryDto, index: Int) {
 }
 
 @Composable
-private fun BarChartConstructor(chart: ChartWithCategoriesDto) {
+private fun BarChartConstructor(
+    chart: ChartWithCategoriesDto,
+    modifier: Modifier = Modifier,
+) {
     BarChart(
         barChartData = BarChartData(
             bars = chart.categories.mapIndexed { index, category ->
@@ -122,9 +134,7 @@ private fun BarChartConstructor(chart: ChartWithCategoriesDto) {
                     label = category.categoryName
                 )
             }),
-        modifier = Modifier
-            .width(CHART_WIDTH)
-            .height(CHART_HEIGHT),
+        modifier = modifier,
         animation = simpleChartAnimation(),
         barDrawer = SimpleBarDrawer(),
         xAxisDrawer = SimpleXAxisDrawer(axisLineColor = Color.White),
