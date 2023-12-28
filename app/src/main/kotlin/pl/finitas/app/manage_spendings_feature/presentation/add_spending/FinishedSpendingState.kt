@@ -1,5 +1,6 @@
 package pl.finitas.app.manage_spendings_feature.presentation.add_spending
 
+import pl.finitas.app.core.domain.services.FinishedSpendingView
 import pl.finitas.app.core.domain.services.SpendingCategoryView
 import pl.finitas.app.core.domain.services.SpendingElementView
 import pl.finitas.app.core.domain.services.SpendingRecordView
@@ -10,8 +11,30 @@ data class FinishedSpendingState(
     val title: String,
     val date: LocalDate,
     val categories: List<SpendingCategoryView>,
-    val idTotalSpending: UUID? = null,
+    val idFinishedSpending: UUID? = null,
 ) {
+    constructor(categories: List<SpendingCategoryView>) : this("", LocalDate.now(), categories)
+    constructor(
+        categories: List<SpendingCategoryView>,
+        finishedSpendingView: FinishedSpendingView,
+    ) : this(
+        title = finishedSpendingView.name,
+        date = finishedSpendingView.date.toLocalDate(),
+        categories = finishedSpendingView.elements.flatten().let { finishedSpendingCategories ->
+            val associatedById = finishedSpendingCategories.groupBy { it.idCategory }
+
+            categories.map { category ->
+                category.copy(
+                    elements = associatedById[category.idCategory]
+                        ?.flatMap { it.elements }
+                        ?.filterIsInstance<SpendingRecordView>()
+                        ?: listOf()
+                )
+            }
+        },
+        idFinishedSpending = finishedSpendingView.idFinishedSpending,
+    )
+
     val addSpending = getSpendingsMutator { list, spending -> list + spending }
     val removeSpending = getSpendingsMutator { list, spending -> list - spending }
 
@@ -31,3 +54,14 @@ data class FinishedSpendingState(
         val emptyState = FinishedSpendingState("", LocalDate.now(), listOf())
     }
 }
+
+private fun List<SpendingElementView>.flatten(): List<SpendingCategoryView> {
+    return flatMap {
+        if (it is SpendingCategoryView) {
+            listOf(it) + it.elements.flatten()
+        } else {
+            listOf()
+        }
+    }
+}
+

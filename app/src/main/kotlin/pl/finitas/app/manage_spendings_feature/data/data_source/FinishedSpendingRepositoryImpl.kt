@@ -86,8 +86,8 @@ class FinishedSpendingRepositoryImpl(
         )
     }
 
-    override suspend fun deleteFinishedSpending(totalSpending: FinishedSpending) {
-        TODO("Not yet implemented")
+    override suspend fun deleteFinishedSpending(idFinishedSpending: UUID) {
+        finishedSpendingDao.deleteWithRecords(idFinishedSpending)
     }
 }
 

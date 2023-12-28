@@ -24,11 +24,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
+import pl.finitas.app.core.presentation.components.utils.trimOnOverflow
 import pl.finitas.app.room_feature.domain.RoomPreviewDto
 import java.util.UUID
 
 @Composable
-fun RoomCard(roomPreviewDto: RoomPreviewDto, onClick: (UUID) -> Unit, modifier: Modifier = Modifier) {
+fun RoomCard(
+    roomPreviewDto: RoomPreviewDto,
+    onClick: (UUID) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val icon = Icons.Rounded.AccountCircle
     val interactionSource = remember { MutableInteractionSource() }
     Row(
@@ -41,7 +46,7 @@ fun RoomCard(roomPreviewDto: RoomPreviewDto, onClick: (UUID) -> Unit, modifier: 
             .clickable(
                 indication = null,
                 interactionSource = interactionSource,
-                onClick = { onClick(roomPreviewDto.idRoom)},
+                onClick = { onClick(roomPreviewDto.idRoom) },
             )
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -50,7 +55,15 @@ fun RoomCard(roomPreviewDto: RoomPreviewDto, onClick: (UUID) -> Unit, modifier: 
             Column {
                 Fonts.regular.Text(text = roomPreviewDto.title)
                 Fonts.regular.Text(
-                    text = "${roomPreviewDto.lastMessage.split("\n")[0].take(24)}...",
+                    text =
+                    if (roomPreviewDto.lastMessage.contains("\n")) {
+                        roomPreviewDto
+                            .lastMessage
+                            .split("\n")
+                            .let { "${it[0]}..." }
+                    } else {
+                        roomPreviewDto.lastMessage.trimOnOverflow()
+                    },
                     color = Color.White.copy(alpha = .5f),
                 )
             }

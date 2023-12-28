@@ -12,14 +12,14 @@ import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartConstruc
 import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartDisplayViewModel
 import pl.finitas.app.manage_spendings_feature.presentation.charts.components.ChartConstructor
 import pl.finitas.app.manage_spendings_feature.presentation.charts.components.ChartPanel
-import pl.finitas.app.manage_spendings_feature.presentation.spendings.TotalSpendingViewModel
-import pl.finitas.app.manage_spendings_feature.presentation.spendings.TotalSpendingsPanel
+import pl.finitas.app.manage_spendings_feature.presentation.spendings.FinishedSpendingViewModel
+import pl.finitas.app.manage_spendings_feature.presentation.spendings.FinishedSpendingsPanel
 
 @Composable
 fun HomeScreen(
     navController: NavController,
 ) {
-    val totalSpendingViewModel: TotalSpendingViewModel = koinViewModel()
+    val finishedSpendingViewModel: FinishedSpendingViewModel = koinViewModel()
     val addSpendingViewModel: AddSpendingViewModel = koinViewModel()
     val chartDisplayViewModel: ChartDisplayViewModel = koinViewModel()
     val chartConstructorViewModel: ChartConstructorViewModel = koinViewModel()
@@ -32,8 +32,8 @@ fun HomeScreen(
             chartDisplayViewModel = chartDisplayViewModel,
             chartConstructorViewModel = chartConstructorViewModel
         )
-        TotalSpendingsPanel(
-            viewModel = totalSpendingViewModel,
+        FinishedSpendingsPanel(
+            viewModel = finishedSpendingViewModel,
             onAddSpendingClick = addSpendingViewModel::openDialog,
         )
         NavBar(navController = navController, backgroundColor = Colors.backgroundDark)

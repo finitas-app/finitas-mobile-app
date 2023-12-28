@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
 import pl.finitas.app.core.presentation.components.constructors.DateInput
+import pl.finitas.app.core.presentation.components.constructors.DeleteIcon
 import pl.finitas.app.core.presentation.components.dialog.CustomDialog
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.manage_spendings_feature.presentation.add_spending.components.CategorySpendingList
@@ -29,16 +31,8 @@ fun AddSpendingDialog(
             .fillMaxSize()
             .padding(horizontal = 14.dp, vertical = 10.dp)
     ) {
-        AddSpendingPanel(addSpendingViewModel)
+        AddSpendingForm(addSpendingViewModel)
     }
-}
-
-@Composable
-private fun AddSpendingPanel(
-    addSpendingViewModel: AddSpendingViewModel,
-) {
-
-    AddSpendingForm(addSpendingViewModel = addSpendingViewModel)
 }
 
 @Composable
@@ -106,6 +100,19 @@ private fun AddSpendingFormGeneralInfo(
                     .fillMaxWidth()
                     .padding(top = 4.dp)
             )
+            if (addSpendingViewModel.finishedSpendingState.idFinishedSpending != null) {
+                DeleteIcon(
+                    label = "Delete spending",
+                    onDeleteClick = {
+                        addSpendingViewModel.deleteFinishedSpending(
+                            addSpendingViewModel.finishedSpendingState.idFinishedSpending!!
+                        )
+                    },
+                    modifier = Modifier
+                        .padding(top = 26.dp, end = 30.dp)
+                        .align(Alignment.Start),
+                )
+            }
         }
     }
 }

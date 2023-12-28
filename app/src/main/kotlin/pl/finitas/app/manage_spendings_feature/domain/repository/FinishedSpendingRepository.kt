@@ -1,7 +1,6 @@
 package pl.finitas.app.manage_spendings_feature.domain.repository
 
 import kotlinx.coroutines.flow.Flow
-import pl.finitas.app.core.data.model.FinishedSpending
 import pl.finitas.app.manage_spendings_feature.domain.model.FinishedSpendingWithRecordsDto
 import java.util.UUID
 
@@ -19,7 +18,7 @@ interface TotalSpendingRepository {
 
     suspend fun upsertFinishedSpendingWithRecords(totalSpending: FinishedSpendingWithRecordsDto)
 
-    suspend fun deleteFinishedSpending(totalSpending: FinishedSpending)
+    suspend fun deleteFinishedSpending(idFinishedSpending: UUID)
 }
 
 

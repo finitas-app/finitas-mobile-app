@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.domain.Nameable
 import pl.finitas.app.core.domain.NameableCollection
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
+import pl.finitas.app.core.presentation.components.utils.trimOnOverflow
 
 private val borderColor = Color.White.copy(alpha = .1f)
 
@@ -44,6 +46,7 @@ private val borderColor = Color.White.copy(alpha = .1f)
 fun <T : Nameable> LayeredList(
     nameableCollection: List<T>,
     modifier: Modifier = Modifier,
+    onNameClick: (T) -> Unit = {},
     itemExtras: @Composable RowScope.(T) -> Unit = {},
 ) {
     Column(
@@ -52,14 +55,16 @@ fun <T : Nameable> LayeredList(
     ) {
         LayeredListRecursive(
             nameableCollection,
+            onNameClick,
             itemExtras,
         )
     }
 }
 
 @Composable
-private fun <T> LayeredListRecursive(
-    nameableCollections: List<Nameable>,
+private fun <T: Nameable> LayeredListRecursive(
+    nameableCollections: List<T>,
+    onNameClick: (T) -> Unit = {},
     itemExtras: @Composable RowScope.(T) -> Unit,
     depth: Int = 0,
 ) {
@@ -77,14 +82,20 @@ private fun <T> LayeredListRecursive(
                         .background(borderColor)
                 )
             }
-            NameableComponent(nameableCollection, itemExtras, depth)
+            NameableComponent(
+                nameableCollection,
+                onNameClick,
+                itemExtras,
+                depth,
+            )
         }
     }
 }
 
 @Composable
-private fun <T> NameableComponent(
-    nameable: Nameable,
+private fun <T: Nameable> NameableComponent(
+    nameable: T,
+    onNameClick: (T) -> Unit = {},
     itemExtras: @Composable RowScope.(T) -> Unit,
     depth: Int,
 ) {
@@ -93,21 +104,23 @@ private fun <T> NameableComponent(
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (nameable is NameableCollection) {
+        if (nameable is NameableCollection<*>) {
             NameableCollectionBody(
-                nameableCollection = nameable,
+                nameableCollection = nameable as NameableCollection<T>,
+                onNameClick,
                 itemExtras,
                 depth = depth,
             )
         } else {
-            NameableBody(nameable, itemExtras, depth)
+            NameableBody(nameable, onNameClick, itemExtras, depth)
         }
     }
 }
 
 @Composable
-private fun <T> ColumnScope.NameableCollectionBody(
-    nameableCollection: NameableCollection,
+private fun <T: Nameable> ColumnScope.NameableCollectionBody(
+    nameableCollection: NameableCollection<T>,
+    onNameClick: (T) -> Unit,
     itemExtras: @Composable RowScope.(T) -> Unit,
     depth: Int,
 ) {
@@ -120,7 +133,7 @@ private fun <T> ColumnScope.NameableCollectionBody(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        RenderStarter(nameable = nameableCollection, depth = depth)
+        RenderStarter(nameable = nameableCollection as T, onNameClick = onNameClick, depth = depth)
         Row {
             if (hasNested())
                 NestedSwitch(
@@ -139,6 +152,7 @@ private fun <T> ColumnScope.NameableCollectionBody(
         ) {
             LayeredListRecursive(
                 nameableCollection.elements,
+                onNameClick,
                 itemExtras,
                 depth + 1
             )
@@ -173,8 +187,9 @@ private fun NestedSwitch(
 }
 
 @Composable
-private fun <T> NameableBody(
-    nameable: Nameable,
+private fun <T: Nameable> NameableBody(
+    nameable: T,
+    onNameClick: (T) -> Unit = {},
     itemExtras: @Composable RowScope.(T) -> Unit,
     depth: Int,
 ) {
@@ -184,13 +199,21 @@ private fun <T> NameableBody(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        RenderStarter(nameable = nameable, depth = depth)
-        itemExtras(nameable as T)
+        RenderStarter(
+            nameable = nameable,
+            onNameClick = onNameClick,
+            depth = depth,
+        )
+        itemExtras(nameable)
     }
 }
 
 @Composable
-fun RenderStarter(nameable: Nameable, depth: Int) {
+fun <T: Nameable>RenderStarter(
+    nameable: T,
+    onNameClick: (T) -> Unit,
+    depth: Int,
+) {
     Row(
         Modifier
             .padding(top = 16.dp, bottom = 16.dp, start = 16.dp)
@@ -210,13 +233,16 @@ fun RenderStarter(nameable: Nameable, depth: Int) {
                     .height(1.dp)
                     .background(Color.White.copy(0.1f * depth))
             )
+        val interactionSource = remember { MutableInteractionSource() }
         Fonts.regular.Text(
-            text =
-            if (nameable.name.length > 20)
-                "${nameable.name.substring(0, 20)}..."
-            else nameable.name,
+            text = nameable.name.trimOnOverflow(),
             Modifier
                 .align(Alignment.CenterVertically)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = { onNameClick(nameable) },
+                )
         )
     }
 }

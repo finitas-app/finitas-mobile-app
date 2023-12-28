@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.RemoveCircleOutline
 import androidx.compose.material.icons.rounded.RemoveRedEye
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -25,8 +24,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.R
 import pl.finitas.app.core.presentation.components.ClickableIcon
+import pl.finitas.app.core.presentation.components.constructors.DeleteIcon
 import pl.finitas.app.core.presentation.components.dialog.ConstructorBoxDialog
-import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.room_feature.domain.RoomMemberView
 import pl.finitas.app.room_feature.domain.RoomRoleView
@@ -69,17 +68,11 @@ fun UserSettingsDialog(
                 iconSize = 20.dp
             )
         }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        DeleteIcon(
+            label = "Remove from the room",
+            onDeleteClick = { viewModel.removeSelectedUserFromRoom() },
             modifier = Modifier.padding(vertical = 26.dp)
-        ) {
-            ClickableIcon(
-                imageVector = Icons.Rounded.RemoveCircleOutline,
-                onClick = { viewModel.removeSelectedUserFromRoom() },
-                color = Colors.removeColor,
-            )
-            Fonts.regular.Text(text = "Remove from the room", color = Colors.removeColor)
-        }
+        )
     }
     ConstructorBoxDialog(
         isOpen = viewModel.selectedUser != null && isRoleSelectorOpen,

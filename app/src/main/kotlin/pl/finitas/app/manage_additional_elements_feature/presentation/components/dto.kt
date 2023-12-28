@@ -13,7 +13,7 @@ data class SpendingCategoryView(
     override val name: String,
     override val elements: List<SpendingElementView>,
     val idCategory: UUID,
-) : SpendingElementView, NameableCollection {
+) : SpendingElementView, NameableCollection<SpendingElementView> {
     override val totalPrice: BigDecimal by lazy { elements.sumOf { it.totalPrice } }
 }
 

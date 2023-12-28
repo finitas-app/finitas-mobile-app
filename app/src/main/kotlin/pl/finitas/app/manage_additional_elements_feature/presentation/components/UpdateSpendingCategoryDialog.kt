@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
+import pl.finitas.app.core.presentation.components.constructors.DeleteIcon
 import pl.finitas.app.core.presentation.components.dialog.CustomDialog
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.manage_additional_elements_feature.presentation.spending_category.SpendingCategoryViewModel
@@ -60,6 +61,18 @@ private fun UpdateSpendingCategoryPanel(
                     .fillMaxWidth()
                     .padding(top = 4.dp)
             )
+
+            if (viewModel.spendingCategoryState.idCategory != null) {
+                DeleteIcon(
+                    label = "Delete spending",
+                    onDeleteClick = {
+                        // TODO: Delete category
+                    },
+                    modifier = Modifier
+                        .padding(top = 26.dp, end = 30.dp)
+                        .align(Alignment.Start),
+                )
+            }
         }
     }
 }

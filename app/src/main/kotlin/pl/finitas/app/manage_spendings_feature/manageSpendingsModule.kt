@@ -15,7 +15,7 @@ import pl.finitas.app.manage_spendings_feature.domain.service.FinishedSpendingSe
 import pl.finitas.app.manage_spendings_feature.presentation.add_spending.AddSpendingViewModel
 import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartConstructorViewModel
 import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartDisplayViewModel
-import pl.finitas.app.manage_spendings_feature.presentation.spendings.TotalSpendingViewModel
+import pl.finitas.app.manage_spendings_feature.presentation.spendings.FinishedSpendingViewModel
 
 val manageSpendingsModule = module {
     single<TotalSpendingRepository> {
@@ -36,7 +36,7 @@ val manageSpendingsModule = module {
     single {
         ChartService(get(), get())
     }
-    viewModel { TotalSpendingViewModel(get(), get()) }
+    viewModel { FinishedSpendingViewModel(get()) }
     viewModel { AddSpendingViewModel(get(), get()) }
     viewModel { ChartDisplayViewModel(get()) }
     viewModel { ChartConstructorViewModel(get()) }

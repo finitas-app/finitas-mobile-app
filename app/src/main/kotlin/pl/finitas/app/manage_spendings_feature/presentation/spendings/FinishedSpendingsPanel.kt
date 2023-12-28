@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import pl.finitas.app.core.domain.services.FinishedSpendingView
 import pl.finitas.app.core.domain.services.SpendingElementView
 import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.core.presentation.components.constructors.GestureVerticalMenu
@@ -24,9 +25,9 @@ import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.manage_spendings_feature.domain.util.convertToView
 
 @Composable
-fun BoxScope.TotalSpendingsPanel(
-    viewModel: TotalSpendingViewModel,
-    onAddSpendingClick: () -> Unit,
+fun BoxScope.FinishedSpendingsPanel(
+    viewModel: FinishedSpendingViewModel,
+    onAddSpendingClick: (FinishedSpendingView?) -> Unit,
 ) {
     GestureVerticalMenu(
         topLimit = 0f,
@@ -35,7 +36,7 @@ fun BoxScope.TotalSpendingsPanel(
         val spendings = viewModel.totalSpendings.collectAsState(listOf())
 
         TotalSpendingHeader(
-            onAddSpendingClick = onAddSpendingClick,
+            onAddSpendingClick = { onAddSpendingClick(null) },
         )
 
         Column(
@@ -58,6 +59,11 @@ fun BoxScope.TotalSpendingsPanel(
                         itemExtras = {
                             Row(Modifier.padding(end = 20.dp)) {
                                 Fonts.regular.Text(text = it.totalPrice.toString())
+                            }
+                        },
+                        onNameClick = { spendingElement ->
+                            if (spendingElement is FinishedSpendingView) {
+                                onAddSpendingClick(spendingElement)
                             }
                         }
                     )

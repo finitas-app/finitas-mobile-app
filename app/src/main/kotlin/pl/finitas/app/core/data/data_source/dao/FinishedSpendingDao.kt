@@ -1,6 +1,7 @@
 package pl.finitas.app.core.data.data_source.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
@@ -58,6 +59,30 @@ interface FinishedSpendingDao {
         upsertSpendingRecordsData(spendingRecords.map { it.spendingRecordData })
         upsertSpendingRecords(spendingRecords.map { it.spendingRecord })
     }
+
+    @Transaction
+    suspend fun deleteWithRecords(idFinishedSpending: UUID) {
+        deleteSpendingRecordsData(
+            getSpendingRecordsDataBy(idSpendingSummary = idFinishedSpending)
+        )
+        deleteById(idFinishedSpending)
+    }
+
+    @Query("""
+        SELECT srd.* 
+        FROM SpendingRecordData srd
+        JOIN SpendingRecord sr ON srd.idSpendingRecordData = sr.idSpendingRecordData
+        WHERE sr.idSpendingSummary = :idSpendingSummary
+    """)
+    suspend fun getSpendingRecordsDataBy(idSpendingSummary: UUID): List<SpendingRecordData>
+
+    @Delete
+    suspend fun deleteSpendingRecordsData(spendingRecords: List<SpendingRecordData>)
+
+    @Query("""
+        DELETE FROM SpendingSummary WHERE idSpendingSummary = :idFinishedSpending 
+    """)
+    suspend fun deleteById(idFinishedSpending: UUID)
 }
 
 data class FinishedSpendingWithRecordFlat(

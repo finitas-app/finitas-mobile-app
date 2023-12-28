@@ -20,9 +20,8 @@ data class SpendingCategoryView(
     override val name: String,
     override val elements: List<SpendingElementView>,
     val idCategory: UUID,
-) : SpendingElementView, NameableCollection {
-//    override val totalPrice: BigDecimal by lazy { elements.sumOf { it.totalPrice } }
-    override val totalPrice: BigDecimal = BigDecimal.ONE
+) : SpendingElementView, NameableCollection<SpendingElementView> {
+    override val totalPrice: BigDecimal by lazy { elements.sumOf { it.totalPrice } }
 }
 
 data class SpendingRecordView(
@@ -36,8 +35,8 @@ data class SpendingRecordView(
 data class FinishedSpendingView(
     override val name: String,
     override val elements: List<SpendingElementView>,
-    val idTotalSpending: UUID,
+    val idFinishedSpending: UUID,
     val date: LocalDateTime,
-) : SpendingElementView, NameableCollection {
+) : SpendingElementView, NameableCollection<SpendingElementView> {
     override val totalPrice by lazy { elements.sumOf { it.totalPrice } }
 }

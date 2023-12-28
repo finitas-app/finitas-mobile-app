@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -20,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.manage_spendings_feature.data.data_source.ChartWithCategoriesDto
@@ -57,7 +55,7 @@ fun ChartSlider(
                     ChartElement(
                         chart = charts[index],
                         modifier = Modifier
-                            .width(LocalConfiguration.current.screenWidthDp.dp)
+                            .fillParentMaxWidth()
                             .weight(.8f)
                             .padding(horizontal = 20.dp)
                     )

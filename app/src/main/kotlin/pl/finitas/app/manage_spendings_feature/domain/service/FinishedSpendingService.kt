@@ -40,7 +40,7 @@ class FinishedSpendingService(
                     val recordsByCategory = spendingRecords.groupBy { it.idCategory }
 
                     FinishedSpendingView(
-                        idTotalSpending = idTotalSpending,
+                        idFinishedSpending = idTotalSpending,
                         name = title,
                         date = time,
                         elements = recordsByCategory.map { (idCategory, records) ->
@@ -72,6 +72,10 @@ class FinishedSpendingService(
             totalSpending.toTotalSpendingWithRecords()
         )
     }
+
+    suspend fun deleteFinishedSpending(idFinishedSpending: UUID) {
+        totalSpendingRepository.deleteFinishedSpending(idFinishedSpending)
+    }
 }
 
 
@@ -100,6 +104,7 @@ private fun FinishedSpendingView.normalizeTotalSpendingView(categoryById: Map<UU
             verifyPrevious(previousSpendingElements, currentCategory.idParent)
         if (possiblePrevious != null) {
             possiblePrevious += currentSpendingElement
+            recordsByCategoryId.remove(idCategory)
             continue
         }
 
@@ -144,7 +149,7 @@ private fun verifyPrevious(
 
 @Throws(InvalidFinishedSpendingState::class)
 fun FinishedSpendingState.toTotalSpendingWithRecords(): FinishedSpendingWithRecordsDto {
-    val generatedUUID = idTotalSpending ?: UUID.randomUUID()
+    val generatedUUID = idFinishedSpending ?: UUID.randomUUID()
 
     return FinishedSpendingWithRecordsDto(
         idSpendingSummary = generatedUUID,

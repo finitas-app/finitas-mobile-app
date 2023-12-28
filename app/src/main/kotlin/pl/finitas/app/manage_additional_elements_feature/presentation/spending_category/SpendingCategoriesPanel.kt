@@ -47,7 +47,14 @@ fun SpendingCategoryPanel(
                             modifier = Modifier.padding(end = 20.dp),
                         )
                     },
-                    modifier = Modifier.padding(24.dp)
+                    onNameClick = { spendingElementView ->  
+                        if (spendingElementView is SpendingCategoryView) {
+                            viewModel.openUpsertCategoryDialog(
+                                SpendingCategoryEvent.UpdateSpendingCategoryEvent(spendingElementView.idCategory)
+                            )
+                        }
+                    },
+                    modifier = Modifier.padding(24.dp),
                 )
             }
         }

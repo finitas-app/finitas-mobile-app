@@ -17,7 +17,7 @@ data class ShoppingItemCategoryView(
     override val name: String,
     override val elements: List<ShoppingListElement>,
     val idSpendingCategory: UUID,
-) : ShoppingListElement, NameableCollection
+) : ShoppingListElement, NameableCollection<ShoppingListElement>
 
 data class ShoppingListView(
     override val name: String,
@@ -25,7 +25,7 @@ data class ShoppingListView(
     val color: Int,
     val idShoppingList: UUID,
     val idUser: UUID? = null,
-) : ShoppingListElement, NameableCollection
+) : ShoppingListElement, NameableCollection<ShoppingListElement>
 
 data class ShoppingListDto(
     val name: String,

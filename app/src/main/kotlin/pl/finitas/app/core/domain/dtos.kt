@@ -4,6 +4,6 @@ interface Nameable {
     val name: String
 }
 
-interface NameableCollection: Nameable {
-    val elements: List<Nameable>
+interface NameableCollection<T: Nameable>: Nameable {
+    val elements: List<T>
 }

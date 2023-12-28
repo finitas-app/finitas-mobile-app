@@ -6,10 +6,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import pl.finitas.app.manage_spendings_feature.domain.service.FinishedSpendingService
+import pl.finitas.app.core.domain.services.FinishedSpendingView
 import pl.finitas.app.core.domain.services.SpendingCategoryService
 import pl.finitas.app.core.domain.services.SpendingRecordView
+import pl.finitas.app.manage_spendings_feature.domain.service.FinishedSpendingService
 import java.time.LocalDate
+import java.util.UUID
 
 class AddSpendingViewModel(
     private val spendingCategoryService: SpendingCategoryService,
@@ -22,13 +24,17 @@ class AddSpendingViewModel(
     var finishedSpendingState by mutableStateOf(FinishedSpendingState.emptyState)
         private set
 
-    fun openDialog() {
+    fun openDialog(finishedSpendingView: FinishedSpendingView?) {
         viewModelScope.launch {
-            finishedSpendingState = spendingCategoryService.getSpendingCategoriesFlat().let {
-                finishedSpendingState.copy(categories = it)
+            val categories = spendingCategoryService.getSpendingCategoriesFlat()
+            finishedSpendingState =
+            if (finishedSpendingView == null) {
+                FinishedSpendingState(categories = categories)
+            } else {
+                FinishedSpendingState(categories = categories, finishedSpendingView)
             }
+            isDialogOpen = true
         }
-        isDialogOpen = true
     }
 
     fun closeDialog() {
@@ -63,6 +69,13 @@ class AddSpendingViewModel(
     fun onSave() {
         viewModelScope.launch {
             finishedSpendingService.addTotalSpending(finishedSpendingState)
+            closeDialog()
+        }
+    }
+
+    fun deleteFinishedSpending(idFinishedSpending: UUID) {
+        viewModelScope.launch {
+            finishedSpendingService.deleteFinishedSpending(idFinishedSpending)
             closeDialog()
         }
     }
