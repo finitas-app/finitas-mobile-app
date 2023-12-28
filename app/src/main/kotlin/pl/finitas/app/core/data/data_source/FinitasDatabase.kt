@@ -64,6 +64,7 @@ import pl.finitas.app.core.data.model.User
     LocalDateTimeConverter::class,
     BigDecimalConverter::class,
     UUIDConverter::class,
+    AuthoritiesConverter::class,
 )
 abstract class FinitasDatabase : RoomDatabase() {
 

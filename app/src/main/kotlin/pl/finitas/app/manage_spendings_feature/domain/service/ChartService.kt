@@ -15,8 +15,6 @@ class ChartService(
 ) {
     fun getChartsWithCategoriesFlow() = chartRepository.getChartsWithCategoriesFlow()
 
-    suspend fun getAllCharts() = chartRepository.getAllCharts()
-
     suspend fun getSpendingCategories(): List<SpendingCategoryView> {
         val (originCategories, nestedCategories) = spendingCategoryRepository.getSpendingCategories()
             .partition { it.idParent == null }

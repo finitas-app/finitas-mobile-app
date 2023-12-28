@@ -45,6 +45,7 @@ data class SyncMessagesFromVersionRequest(
 @Serializable
 data class SyncMessagesFromVersionResponse(
     val messages: List<NewMessagesResponse>,
+    val unavailableRooms: List<SerializableUUID>,
 )
 
 @Serializable

@@ -8,6 +8,5 @@ import pl.finitas.app.manage_spendings_feature.data.data_source.ChartWithCategor
 interface ChartRepository {
     fun getChartsWithCategoriesFlow(): Flow<List<ChartWithCategoriesDto>>
     suspend fun upsertChart(chart: ChartDtoWithCategoryIds)
-    suspend fun getAllCharts(): List<Chart>
     suspend fun deleteChartWithCategoryRefs(chart: ChartWithCategoriesDto)
 }

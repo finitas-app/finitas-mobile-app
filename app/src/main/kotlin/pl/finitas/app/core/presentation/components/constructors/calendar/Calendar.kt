@@ -109,7 +109,7 @@ fun YearMonthEditor(
 
     NestedDialog(
         isOpen = isDialogOpen,
-        onClose = closeDialog,
+        onDismiss = closeDialog,
     ) {
         val interactionSource = remember { MutableInteractionSource() }
 

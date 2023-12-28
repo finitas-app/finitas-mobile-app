@@ -1,6 +1,7 @@
 package pl.finitas.app.sync_feature.domain
 
 import kotlinx.serialization.Serializable
+import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.domain.dto.SerializableUUID
 
 @Serializable
@@ -25,10 +26,3 @@ data class RoomMemberDto(
     val idUser: SerializableUUID,
     val roomRole: RoomRoleDto? = null,
 )
-
-enum class Authority {
-    READ_USERS_DATA,
-    MODIFY_USERS_DATA,
-    MODIFY_ROOM,
-    MODIFY
-}

@@ -40,9 +40,6 @@ interface ChartDao {
     )
     fun getChartsWithCategoriesFlatFlow(): Flow<List<ChartWithCategoryFlat>>
 
-    @Query("SELECT * FROM Chart")
-    suspend fun getAllCharts(): List<Chart>
-
     @Query("DELETE FROM ChartToCategoryRef WHERE idChart = :idChart")
     suspend fun deleteCategoryRefsByChart(idChart: UUID)
 
@@ -60,12 +57,6 @@ interface ChartDao {
         deleteCategoryRefsByChart(relation.chart.idChart)
         upsertChart(relation.chart)
         upsertRefs(relation.categoryRefs)
-    }
-
-    @Transaction
-    suspend fun deleteChartWithCategoryRefs(relation: ChartToCategoryRefs) {
-        deleteCategoryRefsByChart(relation.chart.idChart)
-        deleteChart(relation.chart)
     }
 }
 

@@ -67,22 +67,13 @@ class ChartRepositoryImpl(val dao: ChartDao) : ChartRepository {
                 )
             }
 
-    override suspend fun getAllCharts() = dao.getAllCharts()
     override suspend fun deleteChartWithCategoryRefs(chart: ChartWithCategoriesDto) {
-        dao.deleteChartWithCategoryRefs(
-            ChartToCategoryRefs(
-                chart = Chart(
-                    idChart = chart.idChart,
-                    startDate = chart.startDate?.atStartOfDay(),
-                    endDate = chart.endDate?.atStartOfDay(),
-                    chartType = chart.chartType.ordinal
-                ),
-                categoryRefs = chart.categories.map {
-                    ChartToCategoryRef(
-                        idChart = chart.idChart,
-                        idCategory = it.idCategory
-                    )
-                }
+        dao.deleteChart(
+            Chart(
+                idChart = chart.idChart,
+                startDate = chart.startDate?.atStartOfDay(),
+                endDate = chart.endDate?.atStartOfDay(),
+                chartType = chart.chartType.ordinal
             )
         )
     }
