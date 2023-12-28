@@ -47,8 +47,9 @@ class SynchronizationService(
             // TODO: After part split left it only for create_event or join_event
             versionsRepository.setMessagesVersions(newMessageVersions)
             fullSyncMessages(authorizedUserId, newMessageVersions)
-            fullSyncNames()
         }
+        // TODO: Left it only for new user added
+        fullSyncNames()
     }
 
     suspend fun syncMessages(authorizedUserId: UUID, newMessages: List<NewMessagesResponse>) {

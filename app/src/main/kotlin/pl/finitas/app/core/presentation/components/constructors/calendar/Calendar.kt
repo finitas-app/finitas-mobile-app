@@ -145,7 +145,6 @@ fun BoxScope.YearMonthEditor(
     val monthsListState = rememberLazyListState(months.size * 10000 + date.month.ordinal - 1)
     val yearsListState = rememberLazyListState(years.size * 10000 + years.indexOf(date.year) - 1)
 
-
     val positionOfMonth by remember { derivedStateOf { ItemPositions(monthsListState) } }
     val positionOfYear by remember { derivedStateOf { ItemPositions(yearsListState) } }
 
@@ -184,7 +183,7 @@ fun BoxScope.YearMonthEditor(
                     val color by animateColorAsState(
                         targetValue = if (positionOfMonth.isSelected(index)) Color.White else Color.Gray,
                         label = "month_selector_color",
-                    );
+                    )
 
                     Fonts.heading1.Text(text = month, color = color)
                 }
@@ -199,7 +198,7 @@ fun BoxScope.YearMonthEditor(
                     val color by animateColorAsState(
                         targetValue = if (positionOfYear.isSelected(index)) Color.White else Color.Gray,
                         label = "month_selector_color",
-                    );
+                    )
 
                     Fonts.heading1.Text(text = "$year", color = color)
                 }

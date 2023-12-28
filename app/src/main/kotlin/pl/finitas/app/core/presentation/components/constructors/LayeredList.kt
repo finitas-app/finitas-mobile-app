@@ -211,7 +211,10 @@ fun RenderStarter(nameable: Nameable, depth: Int) {
                     .background(Color.White.copy(0.1f * depth))
             )
         Fonts.regular.Text(
-            text = nameable.name,
+            text =
+            if (nameable.name.length > 20)
+                "${nameable.name.substring(0, 20)}..."
+            else nameable.name,
             Modifier
                 .align(Alignment.CenterVertically)
         )

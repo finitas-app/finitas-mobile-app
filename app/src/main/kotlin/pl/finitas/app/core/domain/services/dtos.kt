@@ -21,7 +21,8 @@ data class SpendingCategoryView(
     override val elements: List<SpendingElementView>,
     val idCategory: UUID,
 ) : SpendingElementView, NameableCollection {
-    override val totalPrice: BigDecimal by lazy { elements.sumOf { it.totalPrice } }
+//    override val totalPrice: BigDecimal by lazy { elements.sumOf { it.totalPrice } }
+    override val totalPrice: BigDecimal = BigDecimal.ONE
 }
 
 data class SpendingRecordView(
