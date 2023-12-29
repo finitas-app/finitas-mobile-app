@@ -28,8 +28,8 @@ import pl.finitas.app.core.presentation.components.utils.colors.Colors
 @Composable
 fun MessengerInput(
     onSendMessage: (String) -> Unit,
+    onPinObject: () -> Unit,
     modifier: Modifier = Modifier,
-    onPinObject: () -> Unit = {},
 ) {
     var value by remember { mutableStateOf("") }
     val inputColor = Colors.messageInputColor

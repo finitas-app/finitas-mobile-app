@@ -28,5 +28,4 @@ enum class Authority {
     READ_USERS_DATA,
     MODIFY_USERS_DATA,
     MODIFY_ROOM,
-    MODIFY
 }

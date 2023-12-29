@@ -21,13 +21,13 @@ import java.time.format.DateTimeFormatter
 private val patternOfMessageTime = DateTimeFormatter.ofPattern("HH:mm")
 
 @Composable
-fun IncomingMessage(incomingTextMessage: IncomingTextMessage, modifier: Modifier = Modifier) {
+fun IncomingTextMessageComponent(incomingTextMessage: IncomingTextMessage, modifier: Modifier = Modifier) {
     val (
-        message,
         time,
         idMessage,
         isRead,
         sender,
+        message,
     ) = incomingTextMessage
     Box(modifier = Modifier.fillMaxWidth()) {
         Box(

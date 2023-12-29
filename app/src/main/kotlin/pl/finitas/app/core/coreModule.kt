@@ -21,19 +21,6 @@ import pl.finitas.app.sync_feature.domain.repository.UserRepository
 
 
 val coreModule = module {
-    single<ProfileRepository> {
-        ProfileRepositoryImpl(androidApplication())
-    }
-    single<FinishedSpendingStoreRepository> {
-        FinishedSpendingStoreRepositoryImpl(get())
-    }
-    single<ShoppingListStoreRepository> {
-        ShoppingListStoreRepositoryImpl(get())
-    }
-    single<UserStoreRepository> {
-        UserStoreRepositoryImpl(get())
-    }
-    httpClient()
     single {
         Room
             .databaseBuilder(
@@ -45,6 +32,21 @@ val coreModule = module {
             .fallbackToDestructiveMigration()
             .build()
     }
+    single<ProfileRepository> {
+        ProfileRepositoryImpl(
+            androidApplication(),
+        )
+    }
+    single<FinishedSpendingStoreRepository> {
+        FinishedSpendingStoreRepositoryImpl(get())
+    }
+    single<ShoppingListStoreRepository> {
+        ShoppingListStoreRepositoryImpl(get())
+    }
+    single<UserStoreRepository> {
+        UserStoreRepositoryImpl(get())
+    }
+    httpClient()
     single<UserRepository> { UserRepositoryImpl(getDatabase().userDao) }
     single<MessageSenderRepository> { MessageSenderRepositoryImpl(get()) }
 }

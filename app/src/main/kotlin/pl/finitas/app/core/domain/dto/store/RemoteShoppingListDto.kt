@@ -13,7 +13,7 @@ data class DeleteShoppingListRequest(
 )
 
 @Serializable
-class ShoppingListDto(
+class RemoteShoppingListDto(
     @Serializable(UUIDSerializer::class)
     val idShoppingList: UUID,
     val shoppingItems: List<ShoppingItemDto>,

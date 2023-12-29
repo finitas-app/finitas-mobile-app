@@ -22,12 +22,6 @@ import java.util.UUID
             parentColumns = ["idRoom"],
             childColumns = ["idRoom"]
         ),
-        ForeignKey(
-            onDelete = ForeignKey.CASCADE,
-            entity = ShoppingList::class,
-            parentColumns = ["idShoppingList"],
-            childColumns = ["idShoppingList"]
-        ),
     ],
     indices = [
         Index("idUser", "idRoom")
@@ -43,7 +37,6 @@ data class RoomMessage(
     val isPending: Boolean,
     val isRead: Boolean,
     val version: Int,
-    @ColumnInfo(index = true)
     val idShoppingList: UUID?,
     val content: String?,
 )

@@ -8,30 +8,60 @@ import java.util.UUID
 
 sealed interface ChatMessage {
     val idMessage: UUID
-    val message: String
     val time: LocalDateTime
 }
 
-sealed interface IncomingChatMessage: ChatMessage
+sealed interface IncomingChatMessage: ChatMessage {
+    val isRead: Boolean
+    val sender: String?
+
+    fun clearSender(): IncomingChatMessage
+}
 
 data class IncomingTextMessage(
-    override val message: String,
     override val time: LocalDateTime,
     override val idMessage: UUID,
-    val isRead: Boolean,
-    val sender: String?,
-) : IncomingChatMessage
+    override val isRead: Boolean,
+    override val sender: String?,
+    override val message: String,
+) : IncomingChatMessage, TextMessage {
+    override fun clearSender() = copy(sender = null)
+}
+
+data class IncomingShoppingListMessage(
+    override val time: LocalDateTime,
+    override val idMessage: UUID,
+    override val isRead: Boolean,
+    override val sender: String?,
+    override val idShoppingList: UUID,
+) : IncomingChatMessage, ShoppingListMessage {
+    override fun clearSender() = copy(sender = null)
+}
 
 sealed interface OutgoingChatMessage: ChatMessage {
     val isPending: Boolean
 }
+sealed interface TextMessage {
+    val message: String
+}
+
+sealed interface ShoppingListMessage {
+    val idShoppingList: UUID
+}
 
 data class OutgoingTextMessage(
-    override val message: String,
     override val time: LocalDateTime,
     override val isPending: Boolean,
     override val idMessage: UUID,
-) : OutgoingChatMessage
+    override val message: String,
+) : OutgoingChatMessage, TextMessage
+
+data class OutgoingShoppingListMessage(
+    override val time: LocalDateTime,
+    override val isPending: Boolean,
+    override val idMessage: UUID,
+    override val idShoppingList: UUID,
+) : OutgoingChatMessage, ShoppingListMessage
 
 data class RoomPreviewDto(
     val idRoom: UUID,

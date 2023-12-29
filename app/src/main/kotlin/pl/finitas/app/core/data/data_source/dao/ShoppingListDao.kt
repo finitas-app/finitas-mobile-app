@@ -23,6 +23,7 @@ interface ShoppingListDao {
             sl.idShoppingList as 'idShoppingList',
             sl.name as 'name',
             sl.color as 'color',
+            sl.isFinished as 'isFinished',
             si.idSpendingRecordData as 'idSpendingRecordData',
             si.amount as 'amount',
             srd.name as 'itemName',
@@ -40,6 +41,7 @@ interface ShoppingListDao {
             sl.idShoppingList as 'idShoppingList',
             sl.name as 'name',
             sl.color as 'color',
+            sl.isFinished as 'isFinished',
             si.idSpendingRecordData as 'idSpendingRecordData',
             si.amount as 'amount',
             srd.name as 'itemName',
@@ -97,6 +99,13 @@ interface ShoppingListDao {
         deleteShoppingListItemsByWithData(idShoppingList)
         deleteShoppingListBy(idShoppingList)
     }
+
+    @Query("SELECT * FROM ShoppingList WHERE idUser is null")
+    fun  getCurrentUserShoppingLists(): Flow<List<ShoppingList>>
+
+    @Query("SELECT * FROM ShoppingList WHERE idShoppingList in (:idsShoppingList)")
+    fun  getShoppingListsBy(idsShoppingList: List<UUID>): Flow<List<ShoppingList>>
+
 }
 
 data class SpendingRecordDataId(
@@ -107,6 +116,7 @@ data class ShoppingListItemFlat(
     val idShoppingList: UUID,
     val name: String,
     val color: Int,
+    val isFinished: Boolean,
     val idSpendingRecordData: UUID,
     val amount: Int,
     val itemName: String,

@@ -27,6 +27,10 @@ interface RoomRepository {
     suspend fun deleteUserFromRoom(deleteUserRequest: DeleteUserRequest)
 
     suspend fun assignRoleToUser(assignRoleToUserRequest: AssignRoleToUserRequest)
+
+    fun getAuthorizedUserAuthorities(idUser: UUID?, idRoom: UUID): Flow<Set<Authority>>
+    suspend fun regenerateLink(idRoom: UUID)
+    suspend fun changeRoomName(idRoom: UUID, newName: String)
 }
 
 @Serializable

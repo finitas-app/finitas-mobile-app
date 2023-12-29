@@ -27,12 +27,14 @@ class ShoppingListService(
                         color,
                         idShoppingList,
                         shoppingItems,
+                        isFinished,
                     ) = shoppingList
                     val itemsById = shoppingItems.groupBy { it.idSpendingCategory }
                     ShoppingListView(
                         name = name,
                         color = color,
                         idShoppingList = idShoppingList,
+                        isFinished = isFinished,
                         elements = itemsById.map { (idSpendingCategory, items) ->
                             ShoppingItemCategoryView(
                                 name = categories[idSpendingCategory]?.name
@@ -87,6 +89,7 @@ class ShoppingListService(
                 name = shoppingListState.title,
                 color = shoppingListState.color,
                 idShoppingList = generatedUUID,
+                isFinished = false,
                 shoppingItems = shoppingListState.categories.flatMap { shoppingItemCategory ->
                     shoppingItemCategory.elements.map { shoppingItem ->
                         if (shoppingItem !is ShoppingItemView) throw InvalidShoppingListState(shoppingListState)

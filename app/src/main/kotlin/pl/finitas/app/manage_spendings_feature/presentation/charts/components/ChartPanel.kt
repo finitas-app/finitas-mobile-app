@@ -8,8 +8,12 @@ import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartConstructorViewModel
@@ -21,8 +25,14 @@ fun ChartPanel(
     chartConstructorViewModel: ChartConstructorViewModel,
 ) {
     val charts by chartDisplayViewModel.charts.collectAsState(initial = listOf())
-
-    Column(modifier = Modifier.fillMaxHeight(.55f)) {
+    var sliderWidth by remember { mutableIntStateOf(0) }
+    Column(
+        modifier = Modifier
+            .fillMaxHeight(.55f)
+            .onGloballyPositioned {
+                sliderWidth = it.size.width
+            }
+    ) {
         ClickableIcon(
             imageVector = Icons.Rounded.AddCircle,
             onClick = chartConstructorViewModel::openCreateConstructor,
@@ -33,6 +43,7 @@ fun ChartPanel(
         ChartSlider(
             charts = charts,
             constructorViewModel = chartConstructorViewModel,
+            width = sliderWidth,
         )
     }
 }

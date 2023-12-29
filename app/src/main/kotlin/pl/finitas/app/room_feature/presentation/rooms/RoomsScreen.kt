@@ -1,15 +1,25 @@
 package pl.finitas.app.room_feature.presentation.rooms
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
 import org.koin.androidx.compose.koinViewModel
+import pl.finitas.app.core.domain.emptyUUID
 import pl.finitas.app.core.presentation.components.background.SecondaryBackground
 import pl.finitas.app.core.presentation.components.navbar.NavBar
+import pl.finitas.app.navigation.NavPaths
 import pl.finitas.app.room_feature.presentation.rooms.components.RoomsPanel
 
 @Composable
 fun RoomsScreen(navController: NavController) {
     val viewModel: RoomViewModel = koinViewModel()
+    val idUser by viewModel.authorizedUserId.collectAsState(emptyUUID)
+
+    if (idUser == null) {
+        navController.navigate(NavPaths.AuthScreen.route)
+    }
+
     SecondaryBackground {
         RoomsPanel(
             roomViewModel = viewModel,

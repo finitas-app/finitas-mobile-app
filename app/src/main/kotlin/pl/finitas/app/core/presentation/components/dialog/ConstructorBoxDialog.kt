@@ -50,7 +50,10 @@ fun ConstructorBoxDialog(
                 ) {}
         ) {
             Column {
-                Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 20.dp)) {
+                Column(modifier = Modifier
+                    .padding(start = 20.dp, end = 20.dp, top = 20.dp)
+                    .fillMaxWidth()
+                ) {
                     content()
                 }
                 if (isActiveNavBar) {

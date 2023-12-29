@@ -19,21 +19,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.koin.androidx.compose.koinViewModel
+import pl.finitas.app.core.domain.emptyUUID
 import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.core.presentation.components.background.SecondaryBackground
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.navigation.NavPaths
+import pl.finitas.app.room_feature.domain.IncomingShoppingListMessage
 import pl.finitas.app.room_feature.domain.IncomingTextMessage
+import pl.finitas.app.room_feature.domain.OutgoingShoppingListMessage
 import pl.finitas.app.room_feature.domain.OutgoingTextMessage
-import pl.finitas.app.room_feature.presentation.messanger.components.IncomingMessage
+import pl.finitas.app.room_feature.presentation.messanger.components.IncomingShoppingList
+import pl.finitas.app.room_feature.presentation.messanger.components.IncomingTextMessageComponent
 import pl.finitas.app.room_feature.presentation.messanger.components.MessengerInput
-import pl.finitas.app.room_feature.presentation.messanger.components.OutgoingMessage
+import pl.finitas.app.room_feature.presentation.messanger.components.OutgoingShoppingList
+import pl.finitas.app.room_feature.presentation.messanger.components.OutgoingTextMessageComponent
+import pl.finitas.app.room_feature.presentation.messanger.components.SendObjectDialog
 
 @Composable
 fun MessengerScreen(navController: NavHostController) {
     val viewModel: MessengerViewModel = koinViewModel()
     val messages by viewModel.messages.collectAsState(initial = listOf())
+    val idUser by viewModel.authorizedUserId.collectAsState(emptyUUID)
+    val shoppingLists by viewModel.shoppingLists.collectAsState(mapOf())
+    val shoppingListsPreview by viewModel.shoppingListsPreview.collectAsState(listOf())
 
+    if (idUser == null) {
+        navController.navigate(NavPaths.AuthScreen.route)
+    }
     SecondaryBackground {
         Column {
             MessengerHeader(
@@ -45,15 +57,20 @@ fun MessengerScreen(navController: NavHostController) {
                 reverseLayout = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 15.dp, end = 15.dp, bottom = 65.dp)
-                ,
+                    .padding(start = 15.dp, end = 15.dp, bottom = 65.dp),
             ) {
                 messages.forEach { message ->
                     item {
                         when (message) {
-                            is IncomingTextMessage -> IncomingMessage(message)
-                            is OutgoingTextMessage -> OutgoingMessage(
-                                outgoingTextMessage = message,
+                            is IncomingTextMessage -> IncomingTextMessageComponent(message)
+                            is OutgoingTextMessage -> OutgoingTextMessageComponent(message)
+                            is IncomingShoppingListMessage -> IncomingShoppingList(
+                                incomingShoppingListMessage = message,
+                                shoppingList = shoppingLists[message.idShoppingList],
+                            )
+                            is OutgoingShoppingListMessage -> OutgoingShoppingList(
+                                outgoingShoppingListMessage = message,
+                                shoppingList = shoppingLists[message.idShoppingList],
                             )
                         }
                         Spacer(modifier = Modifier.height(5.dp))
@@ -63,10 +80,17 @@ fun MessengerScreen(navController: NavHostController) {
         }
         MessengerInput(
             onSendMessage = viewModel::sendTextMessage,
+            onPinObject = viewModel::openSendObjectDialog,
             modifier = Modifier
                 .padding(horizontal = 15.dp, vertical = 10.dp)
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
+        )
+        SendObjectDialog(
+            shoppingListsPreview = shoppingListsPreview,
+            isOpen = viewModel.isSendObjectDialogOpen,
+            onClose = viewModel::closeSendObjectDialog,
+            onSave = viewModel::sendShoppingList,
         )
     }
 }

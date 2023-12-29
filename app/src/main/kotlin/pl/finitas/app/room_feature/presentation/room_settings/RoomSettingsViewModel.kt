@@ -6,18 +6,24 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.room_feature.domain.RoomWithAdditionalInfoView
+import pl.finitas.app.room_feature.domain.service.AuthorizedUserService
 import pl.finitas.app.room_feature.domain.service.RoomService
 import pl.finitas.app.room_feature.presentation.messanger.IdRoomNotProvidedException
 import pl.finitas.app.room_feature.presentation.room_settings.roles.UpsertRoleState
 import java.util.UUID
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class RoomSettingsViewModel(
     private val roomService: RoomService,
+    private val authorizedUserService: AuthorizedUserService,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -25,6 +31,12 @@ class RoomSettingsViewModel(
     var idRoom: UUID
         get() = _idRoom ?: throw IdRoomNotProvidedException()
         set(value) { _idRoom = value }
+
+    val authorizedUserId = authorizedUserService.getAuthorizedIdUser()
+
+    private val authorities: Flow<Set<Authority>>
+    val hasModifyRoomAuthority: Flow<Boolean>
+    val hasReadUsersDataAuthority: Flow<Boolean>
 
     var upsertRoleState by mutableStateOf(UpsertRoleState.empty)
         private set
@@ -35,6 +47,12 @@ class RoomSettingsViewModel(
     val room: Flow<RoomWithAdditionalInfoView>
 
     var isRoomRoleDialogOpen by mutableStateOf(false)
+        private set
+
+    var isChangeRoomNameDialogOpen by mutableStateOf(false)
+        private set
+
+    var newRoomName by mutableStateOf("")
         private set
 
 
@@ -48,6 +66,11 @@ class RoomSettingsViewModel(
             if (selectedUser != null && room.roomMembers.find { it.idUser == selectedUser } == null)
                 closeUserDialog()
         }
+        authorities = authorizedUserId.flatMapMerge {
+            roomService.getAuthoritiesForUser(it, idRoom)
+        }
+        hasModifyRoomAuthority = authorities.map { Authority.MODIFY_ROOM in it }
+        hasReadUsersDataAuthority = authorities.map { Authority.READ_USERS_DATA in it }
     }
 
     fun openRoleDialog(roomRole: UpsertRoleState = UpsertRoleState.empty) {
@@ -113,5 +136,32 @@ class RoomSettingsViewModel(
             )
             onSuccess()
         }
+    }
+
+    fun regenerateLink() {
+        viewModelScope.launch {
+            roomService.regenerateLink(idRoom)
+        }
+    }
+
+    fun changeRoomName() {
+        viewModelScope.launch {
+            roomService.changeRoomName(idRoom, newRoomName)
+            closeChangeRoomNameDialog()
+        }
+    }
+
+    fun openChangeRoomNameDialog(currentName: String) {
+        this.newRoomName = currentName
+        isChangeRoomNameDialogOpen = true
+    }
+
+    fun closeChangeRoomNameDialog() {
+        this.newRoomName = ""
+        isChangeRoomNameDialogOpen = false
+    }
+
+    fun setNewRoomNameValue(newRoomName: String) {
+        this.newRoomName = newRoomName
     }
 }

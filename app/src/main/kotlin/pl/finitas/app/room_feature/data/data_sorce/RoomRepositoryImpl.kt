@@ -3,12 +3,17 @@ package pl.finitas.app.room_feature.data.data_sorce
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.serialization.Serializable
 import pl.finitas.app.core.data.data_source.dao.RoomDao
+import pl.finitas.app.core.data.data_source.dao.RoomMemberDao
+import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.data.model.Room
 import pl.finitas.app.core.data.model.RoomRole
 import pl.finitas.app.core.http.HttpUrls
@@ -29,6 +34,7 @@ import java.util.UUID
 class RoomRepositoryImpl(
     private val roomDao: RoomDao,
     private val httpClient: HttpClient,
+    private val roomMemberDao: RoomMemberDao,
 ): RoomRepository {
     override fun getRooms(): Flow<List<Room>> {
         return roomDao.getRooms()
@@ -101,6 +107,28 @@ class RoomRepositoryImpl(
             setBody(assignRoleToUserRequest)
         }
     }
+
+    override fun getAuthorizedUserAuthorities(idUser: UUID?, idRoom: UUID): Flow<Set<Authority>> {
+        return roomMemberDao.getAuthorityBy(
+            idUser,
+            idRoom,
+        ).map { it?.authorities ?: setOf() }
+    }
+
+    override suspend fun regenerateLink(idRoom: UUID) {
+        httpClient.post("$frontendApiUrl/rooms/$idRoom/regenerate-link")
+    }
+
+    override suspend fun changeRoomName(idRoom: UUID, newName: String) {
+        httpClient.patch("$frontendApiUrl/rooms/$idRoom/name") {
+            setBody(ChangeRoomNameRequest(newName))
+        }
+    }
 }
 
 private fun RoomRole.toView() = RoomRoleView(idRole, name, authorities)
+
+@Serializable
+data class ChangeRoomNameRequest(
+    val newRoomName: String,
+)

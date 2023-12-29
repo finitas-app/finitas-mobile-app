@@ -24,5 +24,5 @@ data class RoomRoleDto(
 @Serializable
 data class RoomMemberDto(
     val idUser: SerializableUUID,
-    val roomRole: RoomRoleDto? = null,
+    val idRole: SerializableUUID? = null,
 )

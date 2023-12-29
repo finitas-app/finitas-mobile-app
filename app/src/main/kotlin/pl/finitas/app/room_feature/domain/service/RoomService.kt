@@ -2,6 +2,7 @@ package pl.finitas.app.room_feature.domain.service
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.data.model.Room
 import pl.finitas.app.room_feature.domain.AddRoomDto
 import pl.finitas.app.room_feature.domain.RoomPreviewDto
@@ -38,7 +39,13 @@ class RoomService(
             RoomPreviewDto(
                 idRoom = it.idRoom,
                 title = it.title,
-                lastMessage = lastMessagesByRoom[it.idRoom]?.content ?: "",
+                lastMessage = if (lastMessagesByRoom[it.idRoom] == null) {
+                    ""
+                } else if (lastMessagesByRoom[it.idRoom]?.content == null) {
+                    "Shopping list"
+                } else {
+                    lastMessagesByRoom[it.idRoom]?.content!!
+                },
                 unreadMessagesNumber = unreadCountByRoom[it.idRoom]?.unreadCount ?: 0
             )
         }
@@ -100,6 +107,15 @@ class RoomService(
             )
         )
     }
+
+    fun getAuthoritiesForUser(idUser: UUID?, idRoom: UUID): Flow<Set<Authority>> {
+        return roomRepository.getAuthorizedUserAuthorities(idUser, idRoom)
+    }
+
+    suspend fun regenerateLink(idRoom: UUID) = roomRepository.regenerateLink(idRoom)
+
+    suspend fun changeRoomName(idRoom: UUID, newName: String) =
+        roomRepository.changeRoomName(idRoom, newName)
 }
 
 private fun AddRoomState.toDto() = AddRoomDto(title)

@@ -22,4 +22,5 @@ data class ShoppingList(
     val color: Int,
     val name: String,
     @PrimaryKey val idShoppingList: UUID,
+    val isFinished: Boolean,
 )

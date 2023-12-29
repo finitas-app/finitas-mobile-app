@@ -16,8 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircleOutline
 import androidx.compose.material.icons.rounded.ArrowBackIos
-import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -35,6 +35,7 @@ import pl.finitas.app.R
 import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
+import pl.finitas.app.core.presentation.components.utils.trimOnOverflow
 import pl.finitas.app.room_feature.domain.RoomMemberView
 import pl.finitas.app.room_feature.domain.RoomRoleView
 import pl.finitas.app.room_feature.domain.RoomWithAdditionalInfoView
@@ -49,18 +50,22 @@ fun RoomSettingsPanel(
     viewModel: RoomSettingsViewModel,
 ) {
     var roleToDelete by remember { mutableStateOf<RoomRoleView?>(null) }
+    val hasModifyRoomAuthority by viewModel.hasModifyRoomAuthority.collectAsState(initial = false)
+    val hasReadUserDataAuthority by viewModel.hasReadUsersDataAuthority.collectAsState(initial = false)
 
     val room by viewModel.room.collectAsState(RoomWithAdditionalInfoView.empty)
     Column {
         RoomHeader(
             title = room.title,
-            onTitleChangeClick = { /*TODO*/ },
+            onTitleChangeClick = { viewModel.openChangeRoomNameDialog(room.title) },
+            hasModifyRoomAuthority = hasModifyRoomAuthority,
             onBackClick = { navController.popBackStack() }
         )
         RoomLink(
-            invitationLink = "finitas.pl/${room.invitationLinkUUID.toString().take(13)}...",
-            onCopyClick = {},
+            invitationLink = "finitas.pl/${room.invitationLinkUUID}".trimOnOverflow(19),
+            onRefreshClick = viewModel::regenerateLink,
             onShareClick = {},
+            hasModifyRoomAuthority = hasModifyRoomAuthority,
             modifier = Modifier
                 .padding(start = 20.dp, end = 20.dp, top = 20.dp)
         )
@@ -69,12 +74,15 @@ fun RoomSettingsPanel(
             onAddRole = { viewModel.openRoleDialog() },
             onElementClick = { viewModel.openRoleDialog(it.toState()) },
             onDeleteRole = { roleToDelete = it },
+            hasModifyRoomAuthority = hasModifyRoomAuthority,
             modifier = Modifier
                 .padding(top = 24.dp, start = 20.dp, end = 20.dp),
         )
         RoomMembers(
             roomMembers = room.roomMembers,
             onUserClick = { viewModel.selectUser(it.idUser) },
+            hasModifyRoomAuthority = hasModifyRoomAuthority,
+            hasReadUserDataAuthority = hasReadUserDataAuthority,
             modifier = Modifier
                 .padding(top = 24.dp, start = 20.dp, end = 20.dp)
         )
@@ -97,7 +105,16 @@ fun RoomSettingsPanel(
     UserSettingsDialog(
         roomMember = room.roomMembers.find { it.idUser == viewModel.selectedUser },
         roles = room.roomRoles,
+        hasModifyRoomAuthority = hasModifyRoomAuthority,
+        hasReadUserDataAuthority = hasReadUserDataAuthority,
         viewModel = viewModel,
+    )
+    ChangeRoomNameDialog(
+        isDialogOpen = viewModel.isChangeRoomNameDialogOpen,
+        newNameValue = viewModel.newRoomName,
+        onNameChange = viewModel::setNewRoomNameValue,
+        onClose = viewModel::closeChangeRoomNameDialog,
+        onSave = viewModel::changeRoomName
     )
 }
 
@@ -105,6 +122,7 @@ fun RoomSettingsPanel(
 private fun RoomHeader(
     title: String,
     onTitleChangeClick: () -> Unit,
+    hasModifyRoomAuthority: Boolean,
     onBackClick: () -> Unit,
 ) {
     Row(
@@ -116,19 +134,22 @@ private fun RoomHeader(
             onClick = onBackClick,
         )
         Fonts.heading1.Text(text = title)
-        ClickableIcon(
-            painter = painterResource(id = R.drawable.ic_edit_icon),
-            onClick = onTitleChangeClick,
-            iconSize = 23.dp
-        )
+        if (hasModifyRoomAuthority) {
+            ClickableIcon(
+                painter = painterResource(id = R.drawable.ic_edit_icon),
+                onClick = onTitleChangeClick,
+                iconSize = 23.dp
+            )
+        }
     }
 }
 
 @Composable
 private fun RoomLink(
     invitationLink: String,
-    onCopyClick: () -> Unit,
+    onRefreshClick: () -> Unit,
     onShareClick: () -> Unit,
+    hasModifyRoomAuthority: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -150,10 +171,12 @@ private fun RoomLink(
             ) {
                 Fonts.regular.Text(text = invitationLink)
             }
-            ClickableIcon(
-                imageVector = Icons.Rounded.ContentCopy,
-                onClick = onCopyClick,
-            )
+            if (hasModifyRoomAuthority) {
+                ClickableIcon(
+                    imageVector = Icons.Rounded.Refresh,
+                    onClick = onRefreshClick,
+                )
+            }
             ClickableIcon(
                 imageVector = Icons.Rounded.Share,
                 onClick = onShareClick,
@@ -168,6 +191,7 @@ private fun RoomRoles(
     onAddRole: () -> Unit,
     onElementClick: (RoomRoleView) -> Unit,
     onDeleteRole: (RoomRoleView) -> Unit,
+    hasModifyRoomAuthority: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -177,10 +201,12 @@ private fun RoomRoles(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Fonts.heading1.Text(text = "Roles")
-            ClickableIcon(
-                imageVector = Icons.Rounded.AddCircleOutline,
-                onClick = onAddRole,
-            )
+            if (hasModifyRoomAuthority) {
+                ClickableIcon(
+                    imageVector = Icons.Rounded.AddCircleOutline,
+                    onClick = onAddRole,
+                )
+            }
         }
         roles.forEach { role ->
             val interactionSource = remember {
@@ -195,13 +221,19 @@ private fun RoomRoles(
                 Fonts.regular.Text(
                     text = role.name,
                     modifier = Modifier
-                        .padding(start = 8.dp)
+                        .padding(horizontal = 8.dp, vertical = 12.dp)
                         .clickable(
                             interactionSource = interactionSource,
                             indication = null,
                         ) { onElementClick(role) }
                 )
-                ClickableIcon(imageVector = Icons.Rounded.Delete, onClick = { onDeleteRole(role) })
+                if (hasModifyRoomAuthority) {
+                    ClickableIcon(
+                        imageVector = Icons.Rounded.Delete,
+                        onClick = { onDeleteRole(role) })
+                } else {
+                    Box(Modifier)
+                }
             }
             Box(
                 modifier = Modifier
@@ -217,6 +249,8 @@ private fun RoomRoles(
 private fun RoomMembers(
     roomMembers: List<RoomMemberView>,
     onUserClick: (RoomMemberView) -> Unit,
+    hasModifyRoomAuthority: Boolean,
+    hasReadUserDataAuthority: Boolean,
     modifier: Modifier = Modifier,
 ) {
 
@@ -231,7 +265,10 @@ private fun RoomMembers(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(IntrinsicSize.Min)
-                    .clickable { onUserClick(roomMember) }
+                    .clickable {
+                        if (hasModifyRoomAuthority || hasReadUserDataAuthority)
+                            onUserClick(roomMember)
+                    }
             ) {
                 Fonts.regular.Text(
                     text = roomMember.username,

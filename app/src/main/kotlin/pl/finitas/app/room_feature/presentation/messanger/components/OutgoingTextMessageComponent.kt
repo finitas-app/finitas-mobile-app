@@ -25,8 +25,7 @@ import java.time.format.DateTimeFormatter
 private val patternOfMessageTime = DateTimeFormatter.ofPattern("HH:mm")
 
 @Composable
-fun OutgoingMessage(outgoingTextMessage: OutgoingTextMessage, modifier: Modifier = Modifier) {
-    val (message, time) = outgoingTextMessage
+fun OutgoingTextMessageComponent(outgoingTextMessage: OutgoingTextMessage, modifier: Modifier = Modifier) {
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Box(
@@ -46,7 +45,7 @@ fun OutgoingMessage(outgoingTextMessage: OutgoingTextMessage, modifier: Modifier
         ) {
             Column {
                 Fonts.chatMessages.Text(
-                    text = message,
+                    text = outgoingTextMessage.message,
                     color = Color.White,
                     modifier = Modifier.padding(end = 4.dp),
                 )
@@ -60,7 +59,7 @@ fun OutgoingMessage(outgoingTextMessage: OutgoingTextMessage, modifier: Modifier
                     .align(Alignment.End)) {
                     if (!outgoingTextMessage.isPending) {
                         Fonts.chatMessageTime.Text(
-                            text = time.format(patternOfMessageTime),
+                            text = outgoingTextMessage.time.format(patternOfMessageTime),
                             color = Colors.backgroundLight,
                         )
                     } else {

@@ -16,7 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -28,16 +30,34 @@ import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartConstruc
 fun ChartSlider(
     charts: List<ChartWithCategoriesDto>,
     constructorViewModel: ChartConstructorViewModel,
+    width: Int,
 ) {
+    var trigger by remember { mutableIntStateOf(0) }
+    var lastInScrolling by remember { mutableIntStateOf(0) }
+    var previousOffset by remember { mutableIntStateOf(0) }
     val listState = rememberLazyListState(0)
     val positionOfList by remember { derivedStateOf { ItemPositions(listState) } }
-
+    LaunchedEffect(trigger) {
+        val (index, rawOffset, isScrolling) = positionOfList
+        val offset = rawOffset + index * width
+        if (!isScrolling && rawOffset != 0) {
+            if (lastInScrolling >= offset) {
+                listState.animateScrollToItem(index, 0)
+            } else {
+                listState.animateScrollToItem(index + 1, 0)
+            }
+        }
+    }
 
     LaunchedEffect(positionOfList) {
-        val (index, offset, isScrolling) = positionOfList
-
-        if (!isScrolling && offset != 0) {
-            listState.animateScrollToItem(index, 0)
+        val (index, rawOffset, isScrolling) = positionOfList
+        val offset = rawOffset + index * width
+        trigger = if (!isScrolling && rawOffset != 0) {
+            1
+        } else {
+            lastInScrolling = previousOffset
+            previousOffset = offset
+            0
         }
     }
 
@@ -47,6 +67,8 @@ fun ChartSlider(
     ) {
         LazyRow(
             state = listState,
+            modifier = Modifier
+                .fillMaxWidth(),
         ) {
             this.items(charts.size) { index ->
                 Column(

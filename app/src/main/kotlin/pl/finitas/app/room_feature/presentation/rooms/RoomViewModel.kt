@@ -6,12 +6,15 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import pl.finitas.app.room_feature.domain.service.AuthorizedUserService
 import pl.finitas.app.room_feature.domain.service.RoomService
 
 class RoomViewModel(
     private val roomService: RoomService,
+    private val authorizedUserService: AuthorizedUserService,
 ): ViewModel() {
     val roomsState = roomService.getRoomsPreview()
+    val authorizedUserId = authorizedUserService.getAuthorizedIdUser()
 
     var isAddRoomDialogOpen by mutableStateOf(false)
         private set

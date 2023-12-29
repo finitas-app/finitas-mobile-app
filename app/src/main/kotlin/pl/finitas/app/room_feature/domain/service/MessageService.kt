@@ -9,7 +9,9 @@ import pl.finitas.app.core.domain.repository.ProfileRepository
 import pl.finitas.app.core.domain.repository.SendMessageRequest
 import pl.finitas.app.core.domain.repository.SingleMessageDto
 import pl.finitas.app.room_feature.domain.ChatMessage
+import pl.finitas.app.room_feature.domain.IncomingShoppingListMessage
 import pl.finitas.app.room_feature.domain.IncomingTextMessage
+import pl.finitas.app.room_feature.domain.OutgoingShoppingListMessage
 import pl.finitas.app.room_feature.domain.OutgoingTextMessage
 import pl.finitas.app.room_feature.domain.repository.MessageRepository
 import pl.finitas.app.sync_feature.domain.repository.UserRepository
@@ -40,6 +42,14 @@ class MessageService(
                             isPending = message.isPending
                         )
                     }
+                    message.idShoppingList != null -> {
+                        OutgoingShoppingListMessage(
+                            idMessage = message.idMessage,
+                            idShoppingList = message.idShoppingList,
+                            time = message.createdAt,
+                            isPending = message.isPending
+                        )
+                    }
                     else -> {
                         throw MessagesParseException(message)
                     }
@@ -50,6 +60,15 @@ class MessageService(
                         IncomingTextMessage(
                             idMessage = message.idMessage,
                             message = message.content,
+                            time = message.createdAt,
+                            sender = userNames[message.idUser] ?: throw UsernameNotFoundException(message.idUser),
+                            isRead = message.isRead,
+                        )
+                    }
+                    message.idShoppingList != null -> {
+                        IncomingShoppingListMessage(
+                            idMessage = message.idMessage,
+                            idShoppingList = message.idShoppingList,
                             time = message.createdAt,
                             sender = userNames[message.idUser] ?: throw UsernameNotFoundException(message.idUser),
                             isRead = message.isRead,
@@ -91,6 +110,40 @@ class MessageService(
                             idMessage = idMessage,
                             idRoom = idRoom,
                             content = message,
+                        )
+                    )
+                )
+            )
+
+        }catch (_: Exception) {
+
+        }
+    }
+
+    suspend fun sendMessage(idRoom: UUID, idShoppingList: UUID) {
+        val idMessage = UUID.randomUUID()
+        val idUser = profileRepository.getAuthorizedUserId().first() ?: throw UnauthorizedUserException()
+        messageRepository.saveMessage(
+            RoomMessage(
+                idMessage = idMessage,
+                idUser = idUser,
+                idRoom = idRoom,
+                createdAt = LocalDateTime.now(),
+                isPending = true,
+                isRead = true,
+                version = -1,
+                idShoppingList = idShoppingList,
+                content = null,
+            )
+        )
+        try {
+            messageSenderRepository.sendMessages(
+                SendMessageRequest(
+                    listOf(
+                        SingleMessageDto(
+                            idMessage = idMessage,
+                            idRoom = idRoom,
+                            idShoppingList = idShoppingList,
                         )
                     )
                 )

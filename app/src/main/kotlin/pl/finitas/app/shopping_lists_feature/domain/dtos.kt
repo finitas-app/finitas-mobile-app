@@ -24,6 +24,7 @@ data class ShoppingListView(
     override val elements: List<ShoppingListElement>,
     val color: Int,
     val idShoppingList: UUID,
+    val isFinished:Boolean,
     val idUser: UUID? = null,
 ) : ShoppingListElement, NameableCollection<ShoppingListElement>
 
@@ -32,6 +33,7 @@ data class ShoppingListDto(
     val color: Int,
     val idShoppingList: UUID,
     val shoppingItems: List<ShoppingItemDto>,
+    val isFinished: Boolean,
     val idUser: UUID? = null,
 )
 

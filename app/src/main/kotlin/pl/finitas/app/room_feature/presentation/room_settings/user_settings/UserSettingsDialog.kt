@@ -36,6 +36,8 @@ fun UserSettingsDialog(
     roomMember: RoomMemberView?,
     roles: List<RoomRoleView>,
     viewModel: RoomSettingsViewModel,
+    hasModifyRoomAuthority: Boolean,
+    hasReadUserDataAuthority: Boolean,
 ) {
     var selectedRole by remember(roomMember) { mutableStateOf(roomMember?.roomRole?.idRole) }
     var isRoleSelectorOpen by remember { mutableStateOf(false) }
@@ -52,27 +54,34 @@ fun UserSettingsDialog(
                 .padding(bottom = 10.dp)
         ) {
             Fonts.heading1.Text(text = roomMember?.username ?: "")
-            ClickableIcon(
-                imageVector = Icons.Rounded.RemoveRedEye,
-                onClick = { /*TODO*/ }
-            )
+            if (hasReadUserDataAuthority) {
+                ClickableIcon(
+                    imageVector = Icons.Rounded.RemoveRedEye,
+                    onClick = { /*TODO*/ }
+                )
+            }
         }
         Fonts.heading2.Text(text = "Role")
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(13.dp)
         ) {
             Fonts.regular.Text(text = roomMember?.roomRole?.name ?: "none")
-            ClickableIcon(
-                painter = painterResource(id = R.drawable.ic_edit_icon),
-                onClick = { isRoleSelectorOpen = true },
-                iconSize = 20.dp
+            if (hasModifyRoomAuthority) {
+                ClickableIcon(
+                    painter = painterResource(id = R.drawable.ic_edit_icon),
+                    onClick = { isRoleSelectorOpen = true },
+                    iconSize = 20.dp
+                )
+            }
+        }
+        if (hasModifyRoomAuthority) {
+            DeleteIcon(
+                label = "Remove from the room",
+                onDeleteClick = { viewModel.removeSelectedUserFromRoom() },
+                modifier = Modifier.padding(bottom = 13.dp)
             )
         }
-        DeleteIcon(
-            label = "Remove from the room",
-            onDeleteClick = { viewModel.removeSelectedUserFromRoom() },
-            modifier = Modifier.padding(vertical = 26.dp)
-        )
     }
     ConstructorBoxDialog(
         isOpen = viewModel.selectedUser != null && isRoleSelectorOpen,

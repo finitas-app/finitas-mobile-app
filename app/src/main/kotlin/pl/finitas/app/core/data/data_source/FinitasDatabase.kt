@@ -58,7 +58,7 @@ import pl.finitas.app.core.data.model.User
         RoomVersion::class,
         MessagesVersion::class,
     ],
-    version = 2,
+    version = 3,
 )
 @TypeConverters(
     LocalDateTimeConverter::class,

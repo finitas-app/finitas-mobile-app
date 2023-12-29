@@ -30,7 +30,7 @@ interface RoomDao {
             val members = room.members.map {
                 RoomMember(
                     idRoom = room.idRoom,
-                    idRole = it.roomRole?.idRole,
+                    idRole = it.idRole,
                     idUser = it.idUser,
                     isActive = true,
                 )
