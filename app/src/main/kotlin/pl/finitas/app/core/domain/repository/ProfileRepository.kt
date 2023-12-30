@@ -7,13 +7,11 @@ interface ProfileRepository {
 
     fun getAuthToken(): Flow<String?>
 
-    suspend fun setAuthToken(authKey: String)
+    suspend fun setAuthToken(authKey: String, idUser: UUID)
 
     fun getUsername(): Flow<String?>
 
     fun getAuthorizedUserId(): Flow<UUID?>
-
-    suspend fun setAuthorizedUserId(idUser: UUID)
 
     suspend fun clear()
 }

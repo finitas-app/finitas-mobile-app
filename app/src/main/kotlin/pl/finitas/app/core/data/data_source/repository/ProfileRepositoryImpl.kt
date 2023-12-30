@@ -35,9 +35,10 @@ class ProfileRepositoryImpl(
         }
     }
 
-    override suspend fun setAuthToken(authKey: String) {
+    override suspend fun setAuthToken(authKey: String, idUser: UUID) {
         context.dataStore.edit { preferences ->
             preferences[authTokenKey] = authKey
+            preferences[idUserKey] = idUser.toString()
         }
     }
 
@@ -51,12 +52,6 @@ class ProfileRepositoryImpl(
     override fun getAuthorizedUserId(): Flow<UUID?> {
         return context.dataStore.data.map { preferences ->
             preferences[idUserKey]?.let { UUID.fromString(it) }
-        }
-    }
-
-    override suspend fun setAuthorizedUserId(idUser: UUID) {
-        context.dataStore.edit { preferences ->
-            preferences[idUserKey] = idUser.toString()
         }
     }
 
