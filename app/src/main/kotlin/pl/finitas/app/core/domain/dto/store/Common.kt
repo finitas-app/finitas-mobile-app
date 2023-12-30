@@ -1,4 +1,4 @@
-package pl.finitas.app.core.domain.dto.store
+ package pl.finitas.app.core.domain.dto.store
 
 import kotlinx.serialization.Serializable
 import pl.finitas.app.core.domain.dto.BigDecimalSerializer

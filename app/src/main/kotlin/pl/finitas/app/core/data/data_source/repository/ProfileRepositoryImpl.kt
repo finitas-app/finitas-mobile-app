@@ -13,12 +13,11 @@ import java.util.UUID
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "profile")
 
-class ProfileRepositoryImpl(
-    private val context: Context
-): ProfileRepository {
+class  ProfileRepositoryImpl(private val context: Context): ProfileRepository {
 
     private val authTokenKey = stringPreferencesKey("auth_token")
     private val idUserKey = stringPreferencesKey("id_user")
+    private val usernameKey = stringPreferencesKey("username")
 
     override fun getAuthToken(): Flow<String?> {
         return context.dataStore.data.map { preferences ->
@@ -29,6 +28,18 @@ class ProfileRepositoryImpl(
     override suspend fun setAuthToken(authKey: String) {
         context.dataStore.edit { preferences ->
             preferences[authTokenKey] = authKey
+        }
+    }
+
+    override suspend fun setUsername(username: String) {
+        context.dataStore.edit { preferences ->
+            preferences[usernameKey] = username
+        }
+    }
+
+    override fun getUsername(): Flow<String?> {
+        return context.dataStore.data.map { preferences ->
+            preferences[usernameKey]
         }
     }
 

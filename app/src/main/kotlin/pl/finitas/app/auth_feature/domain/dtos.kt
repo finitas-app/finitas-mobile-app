@@ -14,7 +14,7 @@ data class AuthUserResponse(val accessToken: String, val expires: Int, val idUse
 data class CreateUserRequest(val email: String, val password: String)
 
 @Serializable
-data class CreateUserResponse(val userId: SerializableUUID, val nickname: String)
+data class CreateUserResponse(val userId: SerializableUUID)
 
 data class SignUpCommand(
     val email: String,

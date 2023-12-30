@@ -18,8 +18,12 @@ class ProfileViewModel(
     var profileSettingsState by mutableStateOf(ProfileSettingsState.empty)
         private set
 
+    val username = profileService.getUsername()
+
     fun setVisibleName(value: String) {
-        profileSettingsState = profileSettingsState.copy(visibleName = value)
+        viewModelScope.launch {
+            profileService.setUsername(value)
+        }
     }
 
     fun setCurrency(value: CurrencyValues) {
