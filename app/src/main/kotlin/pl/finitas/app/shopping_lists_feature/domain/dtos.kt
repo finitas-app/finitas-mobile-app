@@ -34,6 +34,8 @@ data class ShoppingListDto(
     val idShoppingList: UUID,
     val shoppingItems: List<ShoppingItemDto>,
     val isFinished: Boolean,
+    val isDeleted: Boolean,
+    val version: Int?,
     val idUser: UUID? = null,
 )
 

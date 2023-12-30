@@ -9,6 +9,7 @@ import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import pl.finitas.app.core.data.model.ShoppingItem
 import pl.finitas.app.core.data.model.ShoppingList
+import pl.finitas.app.core.data.model.ShoppingListVersion
 import pl.finitas.app.core.data.model.SpendingRecordData
 import pl.finitas.app.core.data.model.relations.SpendingRecordDataToShoppingItem
 import java.util.UUID
@@ -24,6 +25,8 @@ interface ShoppingListDao {
             sl.name as 'name',
             sl.color as 'color',
             sl.isFinished as 'isFinished',
+            sl.isDeleted as 'isDeleted',
+            sl.version as 'version',
             si.idSpendingRecordData as 'idSpendingRecordData',
             si.amount as 'amount',
             srd.name as 'itemName',
@@ -31,9 +34,9 @@ interface ShoppingListDao {
         FROM ShoppingList sl
         JOIN ShoppingItem si on sl.idShoppingList = sl.idShoppingList
         JOIN SpendingRecordData srd on si.idSpendingRecordData = srd.idSpendingRecordData
-        WHERE sl.idUser is null
+        WHERE sl.idUser is null AND sl.isDeleted = 0
     """)
-    fun getShoppingListWithItemsFlat(): Flow<List<ShoppingListItemFlat>>
+    fun getShoppingListWithItemsFlatFlow(): Flow<List<ShoppingListItemFlat>>
 
     @Transaction
     @Query("""
@@ -42,6 +45,28 @@ interface ShoppingListDao {
             sl.name as 'name',
             sl.color as 'color',
             sl.isFinished as 'isFinished',
+            sl.isDeleted as 'isDeleted',
+            sl.version as 'version',
+            si.idSpendingRecordData as 'idSpendingRecordData',
+            si.amount as 'amount',
+            srd.name as 'itemName',
+            srd.idCategory as 'idSpendingCategory'
+        FROM ShoppingList sl
+        JOIN ShoppingItem si on sl.idShoppingList = sl.idShoppingList
+        JOIN SpendingRecordData srd on si.idSpendingRecordData = srd.idSpendingRecordData
+        WHERE version is null
+    """)
+    fun getNotSynchronizedShoppingListsFlat(): List<ShoppingListItemFlat>
+
+    @Transaction
+    @Query("""
+        SELECT 
+            sl.idShoppingList as 'idShoppingList',
+            sl.name as 'name',
+            sl.color as 'color',
+            sl.isFinished as 'isFinished',
+            sl.isDeleted as 'isDeleted',
+            sl.version as 'version',
             si.idSpendingRecordData as 'idSpendingRecordData',
             si.amount as 'amount',
             srd.name as 'itemName',
@@ -94,6 +119,9 @@ interface ShoppingListDao {
         deleteSpendingRecordsDataBy(spendingRecordDataIds.map { it.idSpendingRecordData })
     }
 
+    @Query("UPDATE ShoppingList SET isDeleted = 1 WHERE idShoppingList = :idShoppingList")
+    suspend fun markAsDeleted(idShoppingList: UUID)
+
     @Transaction
     suspend fun deleteShoppingListWithItemsBy(idShoppingList: UUID) {
         deleteShoppingListItemsByWithData(idShoppingList)
@@ -106,6 +134,35 @@ interface ShoppingListDao {
     @Query("SELECT * FROM ShoppingList WHERE idShoppingList in (:idsShoppingList)")
     fun  getShoppingListsBy(idsShoppingList: List<UUID>): Flow<List<ShoppingList>>
 
+    @Query("SELECT idUser, version FROM ShoppingList WHERE idShoppingList = :idShoppingList")
+    suspend fun getShoppingListVersionBy(idShoppingList: UUID): ShoppingListVersionDto
+
+    @Query("SELECT idUser, version FROM ShoppingListVersion")
+    suspend fun getShoppingListVersions(): List<ShoppingListVersion>
+
+    @Upsert
+    suspend fun setShoppingListVersion(shoppingListVersion: ShoppingListVersion)
+
+    @Query("SELECT idShoppingList FROM ShoppingList WHERE idUser is null and version <= :version")
+    suspend fun currentUserMarkedShoppingListUnderVersion(version: Int): List<ShoppingListId>
+    @Query("SELECT idShoppingList FROM ShoppingList WHERE idUser = :idUser and version <= :version")
+    suspend fun markedShoppingListUnderVersion(version: Int, idUser: UUID): List<ShoppingListId>
+
+    @Transaction
+    suspend fun deleteCurrentUserMarkedShoppingListUnderVersion(version: Int) {
+        val temp = currentUserMarkedShoppingListUnderVersion(version)
+        temp.forEach {
+            deleteShoppingListWithItemsBy(it.idShoppingList)
+        }
+    }
+
+    @Transaction
+    suspend fun deleteMarkedShoppingListUnderVersion(version: ShoppingListVersion) {
+        val temp = markedShoppingListUnderVersion(version.version, version.idUser)
+        temp.forEach {
+            deleteShoppingListWithItemsBy(it.idShoppingList)
+        }
+    }
 }
 
 data class SpendingRecordDataId(
@@ -117,8 +174,19 @@ data class ShoppingListItemFlat(
     val name: String,
     val color: Int,
     val isFinished: Boolean,
+    val isDeleted: Boolean,
+    val version: Int?,
     val idSpendingRecordData: UUID,
     val amount: Int,
     val itemName: String,
     val idSpendingCategory: UUID,
+)
+
+data class ShoppingListVersionDto(
+    val idUser: UUID?,
+    val version: Int?,
+)
+
+data class ShoppingListId(
+    val idShoppingList: UUID,
 )

@@ -5,6 +5,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import pl.finitas.app.core.data.data_source.dao.RoomDao
 import pl.finitas.app.core.data.model.RoomVersion
 import pl.finitas.app.core.http.HttpUrls
@@ -23,9 +24,10 @@ class RoomSyncRepositoryImpl(
     }
 
     override suspend fun getRoomsFromVersionRemote(versions: List<RoomVersion>): SyncRoomsResponse {
-        return httpClient.post(HttpUrls.syncRooms) {
+        val response: String = httpClient.post(HttpUrls.syncRooms) {
             setBody(SyncRoomsFromVersionsRequest(versions))
         }.body()
+        return Json.decodeFromString(response)
     }
 
     override suspend fun deleteRooms(idsRoom: List<UUID>) {

@@ -88,9 +88,9 @@ interface RegularSpendingDao {
         spendingSummaryToRegularSpending: SpendingSummaryToRegularSpending,
         spendingRecords: List<SpendingRecordDataToSpendingRecord>,
     ) {
-        deleteRegularSpending(spendingSummaryToRegularSpending.regularSpending)
-        deleteSpendingSummary(spendingSummaryToRegularSpending.spendingSummary)
         deleteSpendingRecordsData(spendingRecords.map { it.spendingRecordData })
+        deleteSpendingSummary(spendingSummaryToRegularSpending.spendingSummary)
+        deleteRegularSpending(spendingSummaryToRegularSpending.regularSpending)
         deleteSpendingRecords(spendingRecords.map { it.spendingRecord })
     }
 

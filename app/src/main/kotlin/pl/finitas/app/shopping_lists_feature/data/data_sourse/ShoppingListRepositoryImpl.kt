@@ -16,7 +16,7 @@ class ShoppingListRepositoryImpl(
     private val shoppingListDao: ShoppingListDao,
 ) : ShoppingListRepository {
     override fun getShoppingLists(): Flow<List<ShoppingListDto>> =
-        shoppingListDao.getShoppingListWithItemsFlat().map { items ->
+        shoppingListDao.getShoppingListWithItemsFlatFlow().map { items ->
             items
                 .groupBy {
                     TempShoppingList(
@@ -24,6 +24,8 @@ class ShoppingListRepositoryImpl(
                         it.color,
                         it.idShoppingList,
                         it.isFinished,
+                        it.isDeleted,
+                        it.version,
                     )
                 }
                 .map { (shoppingList, shoppingItems) ->
@@ -33,6 +35,8 @@ class ShoppingListRepositoryImpl(
                         idShoppingList = shoppingList.idShoppingList,
                         idUser = null,
                         isFinished = shoppingList.isFinished,
+                        isDeleted = shoppingList.isDeleted,
+                        version = shoppingList.version,
                         shoppingItems = shoppingItems.map {
                             ShoppingItemDto(
                                 name = it.itemName,
@@ -55,6 +59,8 @@ class ShoppingListRepositoryImpl(
             idShoppingList = shoppingListFlat[0].idShoppingList,
             idUser = null,
             isFinished = shoppingListFlat[0].isFinished,
+            isDeleted = shoppingListFlat[0].isDeleted,
+            version = shoppingListFlat[0].version,
             shoppingItems = shoppingListFlat.map {
                 ShoppingItemDto(
                     name = it.itemName,
@@ -74,6 +80,8 @@ class ShoppingListRepositoryImpl(
                 idShoppingList = shoppingListDto.idShoppingList,
                 name = shoppingListDto.name,
                 isFinished = false,
+                isDeleted = shoppingListDto.isDeleted,
+                version = shoppingListDto.version,
             ),
             shoppingItems = shoppingListDto.shoppingItems.map {
                 SpendingRecordDataToShoppingItem(
@@ -93,7 +101,12 @@ class ShoppingListRepositoryImpl(
     }
 
     override suspend fun deleteShoppingListBy(idShoppingList: UUID) {
-        shoppingListDao.deleteShoppingListWithItemsBy(idShoppingList)
+        val shoppingListVersion = shoppingListDao.getShoppingListVersionBy(idShoppingList)
+        if (shoppingListVersion.version == null) {
+            shoppingListDao.deleteShoppingListWithItemsBy(idShoppingList)
+        } else {
+            shoppingListDao.markAsDeleted(idShoppingList)
+        }
     }
 }
 
@@ -102,6 +115,8 @@ private data class TempShoppingList(
     val color: Int,
     val idShoppingList: UUID,
     val isFinished: Boolean,
+    val isDeleted: Boolean,
+    val version: Int?,
 )
 
 class ShoppingListNotFoundException(idShoppingList: UUID): Exception("Shopping list '$idShoppingList' not found.")

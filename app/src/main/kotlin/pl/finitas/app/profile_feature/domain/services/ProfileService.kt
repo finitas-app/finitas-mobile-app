@@ -13,10 +13,9 @@ class ProfileService(
     fun getToken() = profileRepository.getAuthToken()
     suspend fun logout() = profileRepository.clear()
     suspend fun setUsername(username: String) {
-        try {
-            userStoreRepository.patchVisibleName(visibleName = VisibleName(username))
-            println("Patched!!!")
-        } catch (_: Exception) { }
+        println("Patched!!!Start")
+        userStoreRepository.patchVisibleName(visibleName = VisibleName(username))
+        println("Patched!!!End")
     }
 
     fun getUsername(): Flow<String?> = profileRepository.getUsername()

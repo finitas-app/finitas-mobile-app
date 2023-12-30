@@ -3,6 +3,7 @@ package pl.finitas.app.core.data.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.util.UUID
 
@@ -12,9 +13,10 @@ import java.util.UUID
             onDelete = ForeignKey.CASCADE,
             entity = User::class,
             parentColumns = ["idUser"],
-            childColumns = ["idUser"]
+            childColumns = ["idUser"],
         ),
     ],
+    indices = [Index("idUser", "version")]
 )
 data class ShoppingList(
     @ColumnInfo(index = true)
@@ -23,4 +25,6 @@ data class ShoppingList(
     val name: String,
     @PrimaryKey val idShoppingList: UUID,
     val isFinished: Boolean,
+    val isDeleted: Boolean,
+    val version: Int?,
 )

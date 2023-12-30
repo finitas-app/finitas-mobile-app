@@ -2,31 +2,29 @@
 
 import kotlinx.serialization.Serializable
 import pl.finitas.app.core.domain.dto.BigDecimalSerializer
+import pl.finitas.app.core.domain.dto.SerializableUUID
 import pl.finitas.app.core.domain.dto.UUIDSerializer
-import java.math.BigDecimal
 import java.util.UUID
 
 @Serializable
 data class SynchronizationRequest<T>(
     val lastSyncVersion: Int,
-    val isAuthorDataToUpdate: Boolean,
-    val objects: List<T>
+    val idUser: SerializableUUID,
+    val objects: List<T>,
 )
 
 @Serializable
 data class SynchronizationResponse<T>(
     val actualizedSyncVersion: Int,
-    val objects: List<T>
+    val objects: List<T>,
 )
 
 @Serializable
-data class SpendingRecordDataDto(
-    @Serializable(UUIDSerializer::class)
-    val idSpendingRecordData: UUID,
+data class RemoteSpendingRecordDataDto(
+    val idSpendingRecordData: SerializableUUID,
     val name: String,
     @Serializable(BigDecimalSerializer::class)
-    val price: BigDecimal,
-    val category: CategoryDto,
+    val idCategory: SerializableUUID,
 )
 
 @Serializable

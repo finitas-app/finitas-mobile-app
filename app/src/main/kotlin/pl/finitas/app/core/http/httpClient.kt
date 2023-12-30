@@ -59,7 +59,8 @@ fun Module.httpClient() {
                         val error = response.body<ErrorResponse>()
                         if (error.errorCode == ErrorCode.AUTH_ERROR) {
                             profileRepository.clear()
-                        } else throw FrontendApiException(
+                        }
+                        throw FrontendApiException(
                             statusCode = httpStatusCode,
                             errorCode = error.errorCode,
                             errorMessage = error.errorMessage
