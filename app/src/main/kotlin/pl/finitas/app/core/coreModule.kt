@@ -35,6 +35,7 @@ val coreModule = module {
     single<ProfileRepository> {
         ProfileRepositoryImpl(
             androidApplication(),
+            getDatabase().userDao,
         )
     }
     single<FinishedSpendingStoreRepository> {

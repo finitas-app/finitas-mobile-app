@@ -6,15 +6,21 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import pl.finitas.app.core.data.data_source.dao.UserDao
 import pl.finitas.app.core.domain.repository.ProfileRepository
 import java.util.UUID
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "profile")
 
-class ProfileRepositoryImpl(
-    private val context: Context
+@OptIn(ExperimentalCoroutinesApi::class)
+class  ProfileRepositoryImpl(
+    private val context: Context,
+    private val userDao: UserDao,
 ): ProfileRepository {
 
     private val authTokenKey = stringPreferencesKey("auth_token")
@@ -29,6 +35,13 @@ class ProfileRepositoryImpl(
     override suspend fun setAuthToken(authKey: String) {
         context.dataStore.edit { preferences ->
             preferences[authTokenKey] = authKey
+        }
+    }
+
+    override fun getUsername(): Flow<String?> {
+        return getAuthorizedUserId().flatMapMerge { idUser ->
+            if (idUser == null) flow {}
+            else userDao.getUserByIdFlow(idUser).map { it?.username }
         }
     }
 

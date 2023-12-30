@@ -9,6 +9,8 @@ interface ProfileRepository {
 
     suspend fun setAuthToken(authKey: String)
 
+    fun getUsername(): Flow<String?>
+
     fun getAuthorizedUserId(): Flow<UUID?>
 
     suspend fun setAuthorizedUserId(idUser: UUID)

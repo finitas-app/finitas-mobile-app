@@ -16,7 +16,6 @@ data class ReminderSettingsState(
 )
 
 data class ProfileSettingsState(
-    val visibleName: String,
     val currency: CurrencyValues,
     val reminderSettingsState: ReminderSettingsState,
     val regularSpendingsSettingsState: RegularSpendingsSettingsState
@@ -24,7 +23,6 @@ data class ProfileSettingsState(
     companion object {
         val empty
             get() = ProfileSettingsState(
-                visibleName = "",
                 currency = CurrencyValues.PLN,
                 reminderSettingsState = ReminderSettingsState(
                     notificationTime = TimeState(0, 0),

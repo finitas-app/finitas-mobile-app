@@ -15,6 +15,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import pl.finitas.app.core.domain.dto.store.UserIdValue
 import pl.finitas.app.core.domain.repository.ProfileRepository
 import pl.finitas.app.core.http.HttpUrls
 import pl.finitas.app.room_feature.domain.service.UnauthorizedUserException
@@ -79,6 +80,11 @@ class SynchronizationViewModel(
             event == UserNotificationEvent.SYNC_ROOM && jsonData == null -> {
                 synchronizationService.fullSyncRooms(authorizedUserId)
             }
+            event == UserNotificationEvent.USERNAME_CHANGE && jsonData != null -> {
+                val data = Json.decodeFromString<UserIdValue>(jsonData)
+                // TODO: Send username using websocket
+                synchronizationService.fullSyncNames(listOf(data))
+            }
         }
     }
 }
@@ -92,4 +98,5 @@ private data class UserNotification(
 enum class UserNotificationEvent {
     SYNC_MESSAGE,
     SYNC_ROOM,
+    USERNAME_CHANGE,
 }

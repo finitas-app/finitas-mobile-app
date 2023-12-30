@@ -27,7 +27,7 @@ class SynchronizationService(
 ) {
     suspend fun fullSync(authorizedUserId: UUID) {
         fullSyncRooms(authorizedUserId)
-        fullSyncNames()
+        fullSyncNames(listOf())
         fullSyncMessages(authorizedUserId)
     }
 
@@ -49,7 +49,7 @@ class SynchronizationService(
             fullSyncMessages(authorizedUserId, newMessageVersions)
         }
         // TODO: Left it only for new user added
-        fullSyncNames()
+        fullSyncNames(listOf())
     }
 
     suspend fun syncMessages(authorizedUserId: UUID, newMessages: List<NewMessagesResponse>) {
@@ -80,11 +80,8 @@ class SynchronizationService(
         }
     }
 
-    private suspend fun fullSyncNames() {
-        userRepository.getUserIds()
-            .let { idsUser ->
-                userStoreRepository.getVisibleNames(GetVisibleNamesRequest(idsUser.map { UserIdValue(it) }))
-            }
+    suspend fun fullSyncNames(names: List<UserIdValue>) {
+        userStoreRepository.getVisibleNames(GetVisibleNamesRequest(names))
             .let { users ->
                 userRepository.saveUsers(users.map { User(idUser = it.idUser, username = it.visibleName) })
             }
