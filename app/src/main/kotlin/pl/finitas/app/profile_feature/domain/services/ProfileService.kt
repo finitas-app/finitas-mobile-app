@@ -15,7 +15,7 @@ class ProfileService(
     suspend fun setUsername(username: String) {
         try {
             userStoreRepository.patchVisibleName(visibleName = VisibleName(username))
-            profileRepository.setUsername(username)
+            println("Patched!!!")
         } catch (_: Exception) { }
     }
 
