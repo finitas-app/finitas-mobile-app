@@ -106,6 +106,9 @@ interface RoomDao {
 
     @Query("DELETE FROM RoomRole WHERE idRoom in (:idsRoom)")
     suspend fun deleteRoles(idsRoom: List<UUID>)
+
+    @Query("DELETE FROM Room WHERE 1 = 1")
+    suspend fun deleteAllRooms()
 }
 
 data class RoomMemberFlatDto(

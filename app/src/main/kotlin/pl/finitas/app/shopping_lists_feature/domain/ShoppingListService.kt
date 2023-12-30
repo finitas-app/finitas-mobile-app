@@ -90,6 +90,8 @@ class ShoppingListService(
                 color = shoppingListState.color,
                 idShoppingList = generatedUUID,
                 isFinished = false,
+                isDeleted = false,
+                version = null,
                 shoppingItems = shoppingListState.categories.flatMap { shoppingItemCategory ->
                     shoppingItemCategory.elements.map { shoppingItem ->
                         if (shoppingItem !is ShoppingItemView) throw InvalidShoppingListState(shoppingListState)
@@ -135,6 +137,7 @@ private fun ShoppingListView.normalizeShoppingListView(categoryById: Map<UUID, S
             verifyPrevious(previousSpendingElements, currentCategory.idParent)
         if (possiblePrevious != null) {
             possiblePrevious += currentShoppingElement
+            recordsByCategoryId.remove(idSpendingCategory)
             continue
         }
 

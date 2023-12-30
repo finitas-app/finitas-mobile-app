@@ -46,7 +46,9 @@ class SynchronizationViewModel(
                     }) {
                         val authorizedUserId = profileRepository.getAuthorizedUserId().first()
                             ?: throw UnauthorizedUserException()
-                        synchronizationService.fullSync(authorizedUserId)
+                        with(synchronizationService) {
+                            this@launch.fullSync(authorizedUserId)
+                        }
                         for (message in incoming) {
                             message as? Frame.Text ?: continue
 

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import pl.finitas.app.core.data.data_source.dao.RoomDao
 import pl.finitas.app.core.data.data_source.dao.UserDao
 import pl.finitas.app.core.domain.repository.ProfileRepository
 import java.util.UUID
@@ -18,8 +19,9 @@ import java.util.UUID
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "profile")
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class  ProfileRepositoryImpl(
+class ProfileRepositoryImpl(
     private val context: Context,
+    private val roomDao: RoomDao,
     private val userDao: UserDao,
 ): ProfileRepository {
 
@@ -60,6 +62,7 @@ class  ProfileRepositoryImpl(
     override suspend fun clear() {
         context.dataStore.edit { preferences ->
             preferences.clear()
+            roomDao.deleteAllRooms()
         }
     }
 }

@@ -41,5 +41,5 @@ data class SpendingSummaryDto(
 data class SpendingRecordDto(
     @Serializable(UUIDSerializer::class)
     val idSpendingRecord: UUID,
-    val spendingRecordData: SpendingRecordDataDto,
+    val spendingRecordData: RemoteSpendingRecordDataDto,
 )
