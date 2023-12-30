@@ -21,7 +21,7 @@ data class GetVisibleNamesRequest(
 data class IdUserWithVisibleName(
     @Serializable(UUIDSerializer::class)
     val idUser: UUID,
-    val visibleName: String,
+    val visibleName: String?,
 )
 
 @Serializable

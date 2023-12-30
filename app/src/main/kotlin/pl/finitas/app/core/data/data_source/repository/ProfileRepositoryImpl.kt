@@ -29,6 +29,7 @@ class ProfileRepositoryImpl(
     private val idUserKey = stringPreferencesKey("id_user")
 
     override fun getAuthToken(): Flow<String?> {
+        context.dataStore.data.map {  }
         return context.dataStore.data.map { preferences ->
             preferences[authTokenKey]
         }

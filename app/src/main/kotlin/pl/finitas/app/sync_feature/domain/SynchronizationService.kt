@@ -107,7 +107,7 @@ class SynchronizationService(
     suspend fun fullSyncNames(names: List<UserIdValue>) {
         userStoreRepository.getVisibleNames(GetVisibleNamesRequest(names))
             .let { users ->
-                userRepository.saveUsers(users.map { User(idUser = it.idUser, username = it.visibleName) })
+                userRepository.saveUsers(users.map { User(idUser = it.idUser, username = it.visibleName ?: "") })
             }
     }
 

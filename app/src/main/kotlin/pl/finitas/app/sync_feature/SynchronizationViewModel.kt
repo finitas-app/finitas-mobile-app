@@ -3,12 +3,18 @@ package pl.finitas.app.sync_feature
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerAuthProvider
+import io.ktor.client.plugins.plugin
+import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.url
 import io.ktor.websocket.Frame
+import io.ktor.websocket.close
 import io.ktor.websocket.readText
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
@@ -31,39 +37,52 @@ class SynchronizationViewModel(
 
     init {
         println("Synchronization task start")
+        var connection: DefaultClientWebSocketSession? = null
+        var job: Job? = null
         viewModelScope.launch(Dispatchers.Default) {
-            while (isActive) {
-                // TODO: replace with flow changes
-                val authToken = profileRepository.getAuthToken().first()
-                if (authToken == null) {
-                    delay(2000)
-                    continue
-                }
-                try {
-                    httpClient.webSocket({
-                        url(HttpUrls.synchronizationWebsocket)
-                        bearerAuth(authToken)
-                    }) {
-                        val authorizedUserId = profileRepository.getAuthorizedUserId().first()
-                            ?: throw UnauthorizedUserException()
-                        with(synchronizationService) {
-                            this@launch.fullSync(authorizedUserId)
-                        }
-                        for (message in incoming) {
-                            message as? Frame.Text ?: continue
+            // TODO: replace with flow changes
+            profileRepository.getAuthToken().collect { authToken ->
+                println("Retry with token: ${authToken?.take(30)}")
+                httpClient.plugin(Auth).providers.filterIsInstance<BearerAuthProvider>().firstOrNull()?.clearToken()
+                connection?.close()
+                connection = null
+                job?.cancel()
+                if (authToken != null) {
+                    job = launch(Dispatchers.Default) {
+                        val coroutineScope = this
+                        while (this.isActive) {
+                            connection?.close()
+                            try {
+                                httpClient.webSocket({
+                                    url(HttpUrls.synchronizationWebsocket)
+                                    bearerAuth(authToken)
+                                }) {
+                                    connection = this
+                                    val authorizedUserId =
+                                        profileRepository.getAuthorizedUserId().first()
+                                            ?: throw UnauthorizedUserException()
+                                    with(synchronizationService) {
+                                        coroutineScope.fullSync(authorizedUserId)
+                                    }
+                                    for (message in incoming) {
+                                        message as? Frame.Text ?: continue
 
-                            val userNotification: UserNotification = Json.decodeFromString(
-                                message.readText()
-                            )
-                            proceedEvent(userNotification, authorizedUserId)
+                                        val userNotification: UserNotification = Json.decodeFromString(
+                                            message.readText()
+                                        )
+                                        proceedEvent(userNotification, authorizedUserId)
+                                    }
+                                }
+                            } catch (_: ConnectException) {
+                                delay(5000)
+                            } catch (e: Exception) {
+                                delay(1000)
+                                e.printStackTrace()
+                            }
                         }
                     }
-                } catch (_: ConnectException) {
-                    delay(5000)
-                } catch (e: Exception) {
-                    delay(1000)
-                    e.printStackTrace()
                 }
+
             }
         }
     }
@@ -79,9 +98,11 @@ class SynchronizationViewModel(
                     Json.decodeFromString(jsonData),
                 )
             }
+
             event == UserNotificationEvent.SYNC_ROOM && jsonData == null -> {
                 synchronizationService.fullSyncRooms(authorizedUserId)
             }
+
             event == UserNotificationEvent.USERNAME_CHANGE && jsonData != null -> {
                 val data = Json.decodeFromString<UserIdValue>(jsonData)
                 // TODO: Send username using websocket
