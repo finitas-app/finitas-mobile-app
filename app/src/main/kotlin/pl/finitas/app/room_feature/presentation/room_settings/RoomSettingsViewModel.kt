@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -44,7 +45,7 @@ class RoomSettingsViewModel(
     var selectedUser by mutableStateOf<UUID?>(null)
         private set
 
-    val room: Flow<RoomWithAdditionalInfoView>
+    val room: Flow<RoomWithAdditionalInfoView?>
 
     var isRoomRoleDialogOpen by mutableStateOf(false)
         private set
@@ -65,6 +66,8 @@ class RoomSettingsViewModel(
                 closeRoleDialog()
             if (selectedUser != null && room.roomMembers.find { it.idUser == selectedUser } == null)
                 closeUserDialog()
+        }.catch<RoomWithAdditionalInfoView?> {
+            emit(null)
         }
         authorities = authorizedUserId.flatMapMerge {
             roomService.getAuthoritiesForUser(it, idRoom)

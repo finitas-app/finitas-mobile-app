@@ -45,15 +45,15 @@ class SynchronizationService(
     private val categoriesRepository: SpendingCategoryRepository,
 ) {
     fun CoroutineScope.fullSync(authorizedUserId: UUID) = launch {
-        fullSyncRooms(authorizedUserId)
+        fullSyncRooms(authorizedUserId).join()
         fullSyncNames(listOf())
         fullSyncMessages(authorizedUserId)
         fullSyncCategories(authorizedUserId)
-        fullSyncShoppingLists(authorizedUserId)
+        fullSyncShoppingLists(authorizedUserId).join()
     }
 
     // TODO: split for room parts and sync only room that is needed
-    suspend fun fullSyncRooms(authorizedUserId: UUID) {
+    fun CoroutineScope.fullSyncRooms(authorizedUserId: UUID) = launch {
         val roomVersions = versionsRepository.getRoomVersions()
         val messagesVersion = versionsRepository.getMessagesVersions().map { it.idRoom }
         val (remoteRooms, unavailableRooms) = roomSyncRepository.getRoomsFromVersionRemote(
@@ -73,6 +73,12 @@ class SynchronizationService(
         }
         // TODO: Left it only for new user added
         fullSyncNames(listOf())
+        fullSyncCategories(authorizedUserId)
+        userRepository.getUserIds().forEach {
+            shoppingListSyncRepository.createShoppingListVersionIfNotPresent(it)
+        }
+        fullSyncShoppingLists(authorizedUserId).join()
+        // TODO: Left it only for new user added
     }
 
     suspend fun syncMessages(authorizedUserId: UUID, newMessages: List<NewMessagesResponse>) {

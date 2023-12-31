@@ -38,6 +38,10 @@ import pl.finitas.app.room_feature.presentation.messanger.components.SendObjectD
 @Composable
 fun MessengerScreen(navController: NavHostController) {
     val viewModel: MessengerViewModel = koinViewModel()
+    val idRoom = viewModel.idRoom
+    if (idRoom == null) {
+        navController.navigate(NavPaths.RoomsScreen.route)
+    }
     val messages by viewModel.messages.collectAsState(initial = listOf())
     val idUser by viewModel.authorizedUserId.collectAsState(emptyUUID)
     val shoppingLists by viewModel.shoppingLists.collectAsState(mapOf())
@@ -45,6 +49,7 @@ fun MessengerScreen(navController: NavHostController) {
 
     if (idUser == null) {
         navController.navigate(NavPaths.AuthScreen.route)
+        return
     }
     SecondaryBackground {
         Column {

@@ -28,6 +28,7 @@ import pl.finitas.app.room_feature.domain.repository.DeleteRoleRequest
 import pl.finitas.app.room_feature.domain.repository.DeleteUserRequest
 import pl.finitas.app.room_feature.domain.repository.RoomRepository
 import pl.finitas.app.room_feature.domain.repository.UpdateRoleRequest
+import pl.finitas.app.room_feature.presentation.messanger.IdRoomNotProvidedException
 import pl.finitas.app.sync_feature.domain.RoomDto
 import java.util.UUID
 
@@ -58,6 +59,7 @@ class RoomRepositoryImpl(
             roomDao.getRoomRolesByIdRoom(idRoom),
             roomDao.getRoomMembers(idRoom),
         ) { room, roles, members ->
+            if (room == null) throw IdRoomNotProvidedException()
             val rolesById = roles
                 .map { it.toView() }
                 .associateBy { it.idRole }

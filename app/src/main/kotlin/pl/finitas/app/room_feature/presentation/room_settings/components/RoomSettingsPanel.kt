@@ -36,6 +36,7 @@ import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.core.presentation.components.utils.trimOnOverflow
+import pl.finitas.app.navigation.NavPaths
 import pl.finitas.app.room_feature.domain.RoomMemberView
 import pl.finitas.app.room_feature.domain.RoomRoleView
 import pl.finitas.app.room_feature.domain.RoomWithAdditionalInfoView
@@ -53,16 +54,21 @@ fun RoomSettingsPanel(
     val hasModifyRoomAuthority by viewModel.hasModifyRoomAuthority.collectAsState(initial = false)
     val hasReadUserDataAuthority by viewModel.hasReadUsersDataAuthority.collectAsState(initial = false)
 
+
     val room by viewModel.room.collectAsState(RoomWithAdditionalInfoView.empty)
+    if (room == null) {
+        navController.navigate(NavPaths.RoomsScreen.route)
+        return
+    }
     Column {
         RoomHeader(
-            title = room.title,
-            onTitleChangeClick = { viewModel.openChangeRoomNameDialog(room.title) },
+            title = room!!.title,
+            onTitleChangeClick = { viewModel.openChangeRoomNameDialog(room!!.title) },
             hasModifyRoomAuthority = hasModifyRoomAuthority,
             onBackClick = { navController.popBackStack() }
         )
         RoomLink(
-            invitationLink = "finitas.pl/${room.invitationLinkUUID}".trimOnOverflow(19),
+            invitationLink = "finitas.pl/${room!!.invitationLinkUUID}".trimOnOverflow(19),
             onRefreshClick = viewModel::regenerateLink,
             onShareClick = {},
             hasModifyRoomAuthority = hasModifyRoomAuthority,
@@ -70,7 +76,7 @@ fun RoomSettingsPanel(
                 .padding(start = 20.dp, end = 20.dp, top = 20.dp)
         )
         RoomRoles(
-            roles = room.roomRoles,
+            roles = room!!.roomRoles,
             onAddRole = { viewModel.openRoleDialog() },
             onElementClick = { viewModel.openRoleDialog(it.toState()) },
             onDeleteRole = { roleToDelete = it },
@@ -79,7 +85,7 @@ fun RoomSettingsPanel(
                 .padding(top = 24.dp, start = 20.dp, end = 20.dp),
         )
         RoomMembers(
-            roomMembers = room.roomMembers,
+            roomMembers = room!!.roomMembers,
             onUserClick = { viewModel.selectUser(it.idUser) },
             hasModifyRoomAuthority = hasModifyRoomAuthority,
             hasReadUserDataAuthority = hasReadUserDataAuthority,
@@ -103,8 +109,8 @@ fun RoomSettingsPanel(
         }
     )
     UserSettingsDialog(
-        roomMember = room.roomMembers.find { it.idUser == viewModel.selectedUser },
-        roles = room.roomRoles,
+        roomMember = room!!.roomMembers.find { it.idUser == viewModel.selectedUser },
+        roles = room!!.roomRoles,
         hasModifyRoomAuthority = hasModifyRoomAuthority,
         hasReadUserDataAuthority = hasReadUserDataAuthority,
         viewModel = viewModel,

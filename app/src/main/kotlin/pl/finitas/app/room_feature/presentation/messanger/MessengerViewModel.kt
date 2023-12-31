@@ -41,7 +41,7 @@ class MessengerViewModel(
 
     val shoppingListsPreview = roomShoppingListService.getShoppingListsPreview()
 
-    var idRoom by mutableStateOf<UUID?>(null)
+    var idRoom by mutableStateOf<UUID?>(UUID.randomUUID())
         private set
 
     var isSendObjectDialogOpen by mutableStateOf(false)
@@ -51,8 +51,16 @@ class MessengerViewModel(
         val idRoom = savedStateHandle
             .get<String>("idRoom")
             ?.let { UUID.fromString(it) } ?: throw IdRoomNotProvidedException()
+        this@MessengerViewModel.idRoom = idRoom
+        viewModelScope.launch {
+            roomService.getRoomsPreview().collect { rooms ->
+                this@MessengerViewModel.idRoom = idRoom
+                if (idRoom !in rooms.map { it.idRoom }) {
+                    this@MessengerViewModel.idRoom = null
+                }
+            }
+        }
 
-        this.idRoom = idRoom
 
 
         viewModelScope.launch {

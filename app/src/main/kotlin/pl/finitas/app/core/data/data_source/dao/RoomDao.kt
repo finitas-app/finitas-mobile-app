@@ -78,7 +78,7 @@ interface RoomDao {
     suspend fun upsertRoomMembers(roomMembers: List<RoomMember>)
 
     @Query("SELECT * FROM Room WHERE idRoom = :idRoom")
-    fun getRoomByIdFlow(idRoom: UUID): Flow<Room>
+    fun getRoomByIdFlow(idRoom: UUID): Flow<Room?>
 
     @Query(
         """
