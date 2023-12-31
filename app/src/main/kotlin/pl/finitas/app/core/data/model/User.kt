@@ -8,4 +8,6 @@ import java.util.UUID
 data class User(
     val username: String,
     @PrimaryKey val idUser: UUID,
+    val version: Int,
+    val spendingCategoryVersion: Int,
 )

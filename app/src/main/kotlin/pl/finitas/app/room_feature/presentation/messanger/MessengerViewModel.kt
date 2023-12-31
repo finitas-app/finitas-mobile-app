@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import pl.finitas.app.core.data.model.ShoppingList
@@ -80,7 +80,7 @@ class MessengerViewModel(
             )
             result
         }
-        shoppingLists = messages.flatMapMerge { messages ->
+        shoppingLists = messages.flatMapLatest { messages ->
             roomShoppingListService.getShoppingListsBy(
                 messages
                     .filterIsInstance<ShoppingListMessage>()

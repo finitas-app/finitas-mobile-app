@@ -32,7 +32,7 @@ interface ShoppingListDao {
             srd.name as 'itemName',
             srd.idCategory as 'idSpendingCategory'
         FROM ShoppingList sl
-        JOIN ShoppingItem si on sl.idShoppingList = sl.idShoppingList
+        JOIN ShoppingItem si on sl.idShoppingList = si.idShoppingList
         JOIN SpendingRecordData srd on si.idSpendingRecordData = srd.idSpendingRecordData
         WHERE sl.idUser is null AND sl.isDeleted = 0
     """)
@@ -52,7 +52,7 @@ interface ShoppingListDao {
             srd.name as 'itemName',
             srd.idCategory as 'idSpendingCategory'
         FROM ShoppingList sl
-        JOIN ShoppingItem si on sl.idShoppingList = sl.idShoppingList
+        JOIN ShoppingItem si on sl.idShoppingList = si.idShoppingList
         JOIN SpendingRecordData srd on si.idSpendingRecordData = srd.idSpendingRecordData
         WHERE version is null
     """)
@@ -72,7 +72,7 @@ interface ShoppingListDao {
             srd.name as 'itemName',
             srd.idCategory as 'idSpendingCategory'
         FROM ShoppingList sl
-        JOIN ShoppingItem si on sl.idShoppingList = sl.idShoppingList
+        JOIN ShoppingItem si on sl.idShoppingList = si.idShoppingList
         JOIN SpendingRecordData srd on si.idSpendingRecordData = srd.idSpendingRecordData
         WHERE sl.idUser is null and sl.idShoppingList = :idShoppingList
     """)
@@ -137,15 +137,18 @@ interface ShoppingListDao {
     @Query("SELECT idUser, version FROM ShoppingList WHERE idShoppingList = :idShoppingList")
     suspend fun getShoppingListVersionBy(idShoppingList: UUID): ShoppingListVersionDto
 
+    @Query("SELECT idUser, version FROM ShoppingListVersion WHERE idUser = :idUser")
+    suspend fun getShoppingListVersionByIdUser(idUser: UUID): ShoppingListVersion?
+
     @Query("SELECT idUser, version FROM ShoppingListVersion")
     suspend fun getShoppingListVersions(): List<ShoppingListVersion>
 
     @Upsert
     suspend fun setShoppingListVersion(shoppingListVersion: ShoppingListVersion)
 
-    @Query("SELECT idShoppingList FROM ShoppingList WHERE idUser is null and version <= :version")
+    @Query("SELECT idShoppingList FROM ShoppingList WHERE idUser is null and version <= :version and isDeleted = 1")
     suspend fun currentUserMarkedShoppingListUnderVersion(version: Int): List<ShoppingListId>
-    @Query("SELECT idShoppingList FROM ShoppingList WHERE idUser = :idUser and version <= :version")
+    @Query("SELECT idShoppingList FROM ShoppingList WHERE idUser = :idUser and version <= :version and isDeleted = 1")
     suspend fun markedShoppingListUnderVersion(version: Int, idUser: UUID): List<ShoppingListId>
 
     @Transaction
@@ -161,6 +164,15 @@ interface ShoppingListDao {
         val temp = markedShoppingListUnderVersion(version.version, version.idUser)
         temp.forEach {
             deleteShoppingListWithItemsBy(it.idShoppingList)
+        }
+    }
+
+    @Transaction
+    suspend fun createShoppingListVersionIfNotPresent(idUser: UUID): ShoppingListVersion {
+        return getShoppingListVersionByIdUser(idUser) ?: run {
+            val newVersion = ShoppingListVersion(idUser, 0)
+            setShoppingListVersion(newVersion)
+            newVersion
         }
     }
 }

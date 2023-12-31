@@ -55,6 +55,8 @@ interface RoomDao {
                 User(
                     idUser = it.idUser,
                     username = "",
+                    version = -1,
+                    spendingCategoryVersion = -1,
                 )
             }
         })

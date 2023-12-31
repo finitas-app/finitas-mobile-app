@@ -60,7 +60,7 @@ import pl.finitas.app.core.data.model.User
         MessagesVersion::class,
         ShoppingListVersion::class,
     ],
-    version = 4,
+    version = 5,
 )
 @TypeConverters(
     LocalDateTimeConverter::class,

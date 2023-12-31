@@ -22,7 +22,7 @@ val manageSpendingsModule = module {
         FinishedSpendingRepositoryImpl(getDatabase().finishedSpendingDao)
     }
     single<SpendingCategoryRepository> {
-        SpendingCategoryRepositoryImpl(getDatabase().spendingCategoryDao)
+        SpendingCategoryRepositoryImpl(getDatabase().spendingCategoryDao, getDatabase().userDao)
     }
     single<ChartRepository> {
         ChartRepositoryImpl(getDatabase().chartDao)
@@ -31,7 +31,7 @@ val manageSpendingsModule = module {
         FinishedSpendingService(get(), get())
     }
     single {
-        SpendingCategoryService(get())
+        SpendingCategoryService(get(), get())
     }
     single {
         ChartService(get(), get())

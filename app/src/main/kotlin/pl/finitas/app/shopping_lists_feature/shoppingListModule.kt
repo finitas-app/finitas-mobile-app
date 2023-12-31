@@ -14,7 +14,7 @@ val shoppingListModule = module {
         ShoppingListRepositoryImpl(getDatabase().shoppingListDao)
     }
     single {
-        ShoppingListService(get(), get())
+        ShoppingListService(get(), get(), get(), get())
     }
     viewModel {
         UpsertShoppingListViewModel(get(), get())

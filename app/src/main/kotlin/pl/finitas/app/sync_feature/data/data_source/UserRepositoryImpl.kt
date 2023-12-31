@@ -9,6 +9,10 @@ import java.util.UUID
 class UserRepositoryImpl(
     private val userDao: UserDao,
 ): UserRepository {
+    override suspend fun getUsers(): List<User> {
+        return userDao.getAllUsers()
+    }
+
     override suspend fun getUsernamesByIds(ids: List<UUID>): List<UsernameDto> {
         return userDao.getUsernamesByIds(ids)
     }

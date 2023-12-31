@@ -21,11 +21,11 @@ class FinishedSpendingDto(
     val idReceipt: UUID?,
     @Serializable(LocalDateTimeSerializer::class)
     val purchaseDate: LocalDateTime,
-    val version: Int,
+    override val version: Int,
     @Serializable(UUIDSerializer::class)
-    val idUser: UUID,
-    val isDeleted: Boolean,
-)
+    override val idUser: UUID,
+    override val isDeleted: Boolean,
+): SynchronizableEntity
 
 @Serializable
 data class SpendingSummaryDto(

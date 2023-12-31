@@ -57,6 +57,10 @@ class ShoppingListSyncRepositoryImpl(
         shoppingListDao.setShoppingListVersion(actualShoppingListVersion)
     }
 
+    override suspend fun createShoppingListVersionIfNotPresent(idUser: UUID): ShoppingListVersion {
+        return shoppingListDao.createShoppingListVersionIfNotPresent(idUser)
+    }
+
     override suspend fun upsertShoppingList(shoppingListDto: ShoppingListDto) {
         shoppingListDao.upsertShoppingListWithItems(
             shoppingList = ShoppingList(

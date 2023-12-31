@@ -13,10 +13,10 @@ import java.util.UUID
 @Dao
 interface SpendingCategoryDao {
 
-    @Query("SELECT * FROM SpendingCategory")
+    @Query("SELECT * FROM SpendingCategory WHERE idUser is null")
     fun getSpendingCategoriesFlow(): Flow<List<SpendingCategory>>
 
-    @Query("SELECT * FROM SpendingCategory")
+    @Query("SELECT * FROM SpendingCategory WHERE idUser is null")
     suspend fun getSpendingCategories(): List<SpendingCategory>
 
     @Query("SELECT * FROM SpendingCategory WHERE idCategory = :idCategory")
@@ -33,4 +33,13 @@ interface SpendingCategoryDao {
 
     @Delete
     suspend fun deleteSpendingCategory(spendingCategory: SpendingCategory)
+
+    @Query("DELETE FROM SpendingCategory WHERE idCategory in (:idsSpendingCategory)")
+    suspend fun deleteSpendingCategoryBy(idsSpendingCategory: List<UUID>)
+
+    @Upsert
+    suspend fun upsertSpendingCategories(spendingCategories: List<SpendingCategory>)
+
+    @Query("SELECT * FROM SpendingCategory WHERE version is null")
+    suspend fun getChangedCategories(): List<SpendingCategory>
 }

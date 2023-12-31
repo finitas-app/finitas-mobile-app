@@ -5,7 +5,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
-import java.util.UUID
+import kotlinx.serialization.Serializable
+import pl.finitas.app.core.domain.dto.SerializableUUID
 
 @Entity(
     foreignKeys = [
@@ -17,10 +18,13 @@ import java.util.UUID
         ),
     ],
 )
+@Serializable
 data class SpendingCategory(
     val name: String,
-    val idParent: UUID?,
+    val idParent: SerializableUUID?,
     @ColumnInfo(index = true)
-    val idUser: UUID? = null,
-    @PrimaryKey val idCategory: UUID,
+    val idUser: SerializableUUID? = null,
+    @PrimaryKey val idCategory: SerializableUUID,
+    val version: Int?,
+    val isDeleted: Boolean,
 )

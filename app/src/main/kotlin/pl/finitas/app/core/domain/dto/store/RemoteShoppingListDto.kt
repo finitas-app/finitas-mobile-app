@@ -17,19 +17,19 @@ data class DeleteShoppingListRequest(
 class RemoteShoppingListDto(
     val idShoppingList: SerializableUUID,
     val shoppingItems: List<RemoteShoppingItemDto>,
-    val version: Int,
-    @Serializable(UUIDSerializer::class)
     val name: String,
-    val idUser: SerializableUUID?,
-    val isDeleted: Boolean,
-    val isFinished: Boolean,
     val color: Int,
-)
+    override val version: Int,
+    override val idUser: SerializableUUID,
+    override val isDeleted: Boolean,
+    val isFinished: Boolean,
+): SynchronizableEntity
 
 @Serializable
 data class RemoteShoppingItemDto(
-    @Serializable(UUIDSerializer::class)
-    val idShoppingItem: UUID,
+    val idShoppingItem: SerializableUUID,
     val amount: Int,
-    val spendingRecordData: RemoteSpendingRecordDataDto,
+    val idSpendingRecordData: SerializableUUID,
+    val name: String,
+    val idCategory: SerializableUUID,
 )

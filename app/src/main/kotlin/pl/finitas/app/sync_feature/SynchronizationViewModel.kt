@@ -13,6 +13,7 @@ import io.ktor.client.request.url
 import io.ktor.websocket.Frame
 import io.ktor.websocket.close
 import io.ktor.websocket.readText
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -43,7 +44,8 @@ class SynchronizationViewModel(
             // TODO: replace with flow changes
             profileRepository.getAuthToken().collect { authToken ->
                 println("Retry with token: ${authToken?.take(30)}")
-                httpClient.plugin(Auth).providers.filterIsInstance<BearerAuthProvider>().firstOrNull()?.clearToken()
+                httpClient.plugin(Auth).providers.filterIsInstance<BearerAuthProvider>()
+                    .firstOrNull()?.clearToken()
                 connection?.close()
                 connection = null
                 job?.cancel()
@@ -67,9 +69,10 @@ class SynchronizationViewModel(
                                     for (message in incoming) {
                                         message as? Frame.Text ?: continue
 
-                                        val userNotification: UserNotification = Json.decodeFromString(
-                                            message.readText()
-                                        )
+                                        val userNotification: UserNotification =
+                                            Json.decodeFromString(
+                                                message.readText()
+                                            )
                                         proceedEvent(userNotification, authorizedUserId)
                                     }
                                 }
@@ -87,26 +90,45 @@ class SynchronizationViewModel(
         }
     }
 
-    private suspend fun proceedEvent(
+    private fun CoroutineScope.proceedEvent(
         userNotification: UserNotification,
         authorizedUserId: UUID,
-    ) = with(userNotification) {
-        when {
-            event == UserNotificationEvent.SYNC_MESSAGE && jsonData != null -> {
-                synchronizationService.syncMessages(
-                    authorizedUserId,
-                    Json.decodeFromString(jsonData),
-                )
-            }
+    ) = launch {
+        with(userNotification) {
+            when {
+                event == UserNotificationEvent.SYNC_MESSAGE && jsonData != null -> {
+                    with(synchronizationService) {
+                        syncMessages(
+                            authorizedUserId,
+                            Json.decodeFromString(jsonData),
+                        )
+                    }
+                }
 
-            event == UserNotificationEvent.SYNC_ROOM && jsonData == null -> {
-                synchronizationService.fullSyncRooms(authorizedUserId)
-            }
+                event == UserNotificationEvent.SYNC_ROOM && jsonData == null -> {
+                    with(synchronizationService) {
+                        fullSyncRooms(authorizedUserId)
+                    }
+                }
 
-            event == UserNotificationEvent.USERNAME_CHANGE && jsonData != null -> {
-                val data = Json.decodeFromString<UserIdValue>(jsonData)
-                // TODO: Send username using websocket
-                synchronizationService.fullSyncNames(listOf(data))
+                event == UserNotificationEvent.USERNAME_CHANGE && jsonData != null -> {
+                    val data = Json.decodeFromString<UserIdValue>(jsonData)
+                    // TODO: Send username using websocket
+                    synchronizationService.fullSyncNames(listOf(data))
+                }
+
+                event == UserNotificationEvent.CATEGORY_CHANGED && jsonData != null-> {
+                    val data = Json.decodeFromString<UserIdValue>(jsonData)
+                    // TODO: Send categories using websocket or optimize providing user id
+                    synchronizationService.retrieveNewCategories(authorizedUserId)
+                }
+
+                event == UserNotificationEvent.SHOPPING_LIST_CHANGED-> {
+                    // TODO: Send categories using websocket or optimize providing user id
+                    with(synchronizationService) {
+                        fullSyncShoppingLists(authorizedUserId)
+                    }
+                }
             }
         }
     }
@@ -122,4 +144,6 @@ enum class UserNotificationEvent {
     SYNC_MESSAGE,
     SYNC_ROOM,
     USERNAME_CHANGE,
+    CATEGORY_CHANGED,
+    SHOPPING_LIST_CHANGED,
 }

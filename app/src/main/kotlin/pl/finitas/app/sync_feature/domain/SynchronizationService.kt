@@ -8,17 +8,19 @@ import pl.finitas.app.core.data.model.MessagesVersion
 import pl.finitas.app.core.data.model.RoomMessage
 import pl.finitas.app.core.data.model.RoomVersion
 import pl.finitas.app.core.data.model.ShoppingListVersion
+import pl.finitas.app.core.data.model.SpendingCategory
 import pl.finitas.app.core.data.model.User
 import pl.finitas.app.core.domain.dto.store.GetVisibleNamesRequest
 import pl.finitas.app.core.domain.dto.store.RemoteShoppingItemDto
 import pl.finitas.app.core.domain.dto.store.RemoteShoppingListDto
-import pl.finitas.app.core.domain.dto.store.RemoteSpendingRecordDataDto
 import pl.finitas.app.core.domain.dto.store.SynchronizationRequest
 import pl.finitas.app.core.domain.dto.store.UserIdValue
+import pl.finitas.app.core.domain.repository.CategoryVersionDto
 import pl.finitas.app.core.domain.repository.MessageSenderRepository
 import pl.finitas.app.core.domain.repository.SendMessageRequest
 import pl.finitas.app.core.domain.repository.ShoppingListStoreRepository
 import pl.finitas.app.core.domain.repository.SingleMessageDto
+import pl.finitas.app.core.domain.repository.SpendingCategoryRepository
 import pl.finitas.app.core.domain.repository.UserStoreRepository
 import pl.finitas.app.shopping_lists_feature.domain.ShoppingItemDto
 import pl.finitas.app.shopping_lists_feature.domain.ShoppingListDto
@@ -40,12 +42,14 @@ class SynchronizationService(
     private val userRepository: UserRepository,
     private val shoppingListSyncRepository: ShoppingListSyncRepository,
     private val shoppingListStoreRepository: ShoppingListStoreRepository,
+    private val categoriesRepository: SpendingCategoryRepository,
 ) {
     fun CoroutineScope.fullSync(authorizedUserId: UUID) = launch {
         fullSyncRooms(authorizedUserId)
         fullSyncNames(listOf())
         fullSyncMessages(authorizedUserId)
-        //fullSyncShoppingLists(authorizedUserId)
+        fullSyncCategories(authorizedUserId)
+        fullSyncShoppingLists(authorizedUserId)
     }
 
     // TODO: split for room parts and sync only room that is needed
@@ -80,6 +84,11 @@ class SynchronizationService(
                 fullSyncMessages(authorizedUserId)
                 break
             }
+            messages.forEach {
+                if (it.idShoppingList != null) {
+                    shoppingListSyncRepository.createShoppingListVersionIfNotPresent(it.idUser)
+                }
+            }
             messageSyncRepository.upsertMessages(
                 sortedMessagesByVersion.map {
                     RoomMessage(
@@ -105,11 +114,63 @@ class SynchronizationService(
     }
 
     suspend fun fullSyncNames(names: List<UserIdValue>) {
+        val usersById = userRepository.getUsers().associateBy { it.idUser }
         userStoreRepository.getVisibleNames(GetVisibleNamesRequest(names))
             .let { users ->
-                userRepository.saveUsers(users.map { User(idUser = it.idUser, username = it.visibleName ?: "") })
+                userRepository.saveUsers(
+                    users.map {
+                        User(
+                            idUser = it.idUser,
+                            username = it.visibleName ?: "",
+                            version = usersById[it.idUser]?.version ?: -1,
+                            spendingCategoryVersion = usersById[it.idUser]?.spendingCategoryVersion
+                                ?: -1,
+                        )
+                    }
+                )
             }
     }
+
+    suspend fun fullSyncCategories(authorizedUserId: UUID) {
+        val changedCategories = categoriesRepository.getChangedCategories()
+        if (changedCategories.isNotEmpty())
+            userStoreRepository.changeCategories(changedCategories)
+        retrieveNewCategories(authorizedUserId)
+    }
+
+    suspend fun retrieveNewCategories(authorizedUserId: UUID) {
+        val usersBy = userRepository.getUsers()
+        val response = userStoreRepository.syncCategories(usersBy.map {
+            CategoryVersionDto(
+                it.idUser,
+                it.spendingCategoryVersion,
+            )
+        })
+        val categoriesToDelete =
+            response.userCategories.flatMap { user -> user.categories }.filter { it.isDeleted }
+        categoriesRepository.deleteSpendingCategoriesBy(categoriesToDelete.map { it.idCategory })
+        categoriesRepository.upsertSpendingCategories(
+            response.userCategories.flatMap { user ->
+                user.categories.filter { !it.isDeleted }.map {
+                    SpendingCategory(
+                        name = it.name,
+                        idParent = it.idParent,
+                        idUser = if (authorizedUserId == user.idUser) null else user.idUser,
+                        idCategory = it.idCategory,
+                        version = it.version,
+                        isDeleted = it.isDeleted,
+                    )
+                }
+            }
+        )
+        categoriesRepository.setCategoryVersions(response.userCategories.map {
+            CategoryVersionDto(
+                it.idUser,
+                it.categoryVersion
+            )
+        })
+    }
+
 
     private suspend fun fullSyncMessages(
         authorizedUserId: UUID,
@@ -133,6 +194,11 @@ class SynchronizationService(
                 )
             )
         } catch (_: Exception) {
+        }
+        response.messages.forEach {
+            if (it.idShoppingList != null) {
+                shoppingListSyncRepository.createShoppingListVersionIfNotPresent(it.idUser)
+            }
         }
 
         val messagesByIdRoom = response.messages.groupBy { it.idRoom }
@@ -161,13 +227,13 @@ class SynchronizationService(
         )
     }
 
-    private fun CoroutineScope.fullSyncShoppingLists(authorizedUserId: UUID) = launch {
+    fun CoroutineScope.fullSyncShoppingLists(authorizedUserId: UUID) = launch {
         var versions = shoppingListSyncRepository.getShoppingListVersions()
         val forSyncShoppingListByIdUser = shoppingListSyncRepository
             .getNotSynchronizedShoppingLists()
             .groupBy { it.idUser }
         if (versions.find { it.idUser == authorizedUserId } == null) {
-            val currentUserVersions = ShoppingListVersion(authorizedUserId, -1)
+            val currentUserVersions = ShoppingListVersion(authorizedUserId, 0)
             shoppingListSyncRepository.setShoppingListVersion(currentUserVersions)
             versions = versions + currentUserVersions
         }
@@ -206,7 +272,12 @@ class SynchronizationService(
             if (idUser == authorizedUserId) {
                 shoppingListSyncRepository.deleteCurrentUserMarkedShoppingListUnderVersion(version)
             } else {
-                shoppingListSyncRepository.deleteMarkedShoppingListUnderVersion(ShoppingListVersion(idUser, version))
+                shoppingListSyncRepository.deleteMarkedShoppingListUnderVersion(
+                    ShoppingListVersion(
+                        idUser,
+                        version
+                    )
+                )
             }
         }
     }
@@ -218,11 +289,9 @@ private fun ShoppingListDto.toRemote(idUser: UUID) = RemoteShoppingListDto(
         RemoteShoppingItemDto(
             idShoppingItem = it.idSpendingRecordData,
             amount = it.amount,
-            spendingRecordData = RemoteSpendingRecordDataDto(
-                idSpendingRecordData = it.idSpendingRecordData,
-                name = it.name,
-                idCategory = it.idSpendingCategory,
-            )
+            idSpendingRecordData = it.idSpendingRecordData,
+            name = it.name,
+            idCategory = it.idSpendingCategory,
         )
     },
     version = -1,
@@ -239,9 +308,9 @@ private fun RemoteShoppingListDto.toDto(authorizedUserId: UUID) = ShoppingListDt
     idShoppingList = idShoppingList,
     shoppingItems = shoppingItems.map {
         ShoppingItemDto(
-            idSpendingRecordData = it.spendingRecordData.idSpendingRecordData,
-            name = it.spendingRecordData.name,
-            idSpendingCategory = it.spendingRecordData.idCategory,
+            idSpendingRecordData = it.idSpendingRecordData,
+            name = it.name,
+            idSpendingCategory = it.idCategory,
             amount = it.amount,
         )
     },
@@ -250,16 +319,6 @@ private fun RemoteShoppingListDto.toDto(authorizedUserId: UUID) = ShoppingListDt
     version = version,
     idUser = if (idUser == authorizedUserId) null else idUser,
 )
-
-
-
-
-
-
-
-
-
-
 
 
 

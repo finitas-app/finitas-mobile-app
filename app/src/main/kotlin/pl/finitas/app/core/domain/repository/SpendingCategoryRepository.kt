@@ -17,8 +17,15 @@ interface SpendingCategoryRepository {
         findSpendingCategoryBy(idCategory) ?: throw SpendingCategoryNotFoundException(idCategory)
 
     suspend fun upsertSpendingCategory(spendingCategory: SpendingCategory)
+    suspend fun upsertSpendingCategories(spendingCategories: List<SpendingCategory>)
 
     suspend fun deleteSpendingCategory(spendingCategory: SpendingCategory)
+
+    suspend fun deleteSpendingCategoriesBy(idsSpendingCategory: List<UUID>)
+
+    suspend fun setCategoryVersions(versions: List<CategoryVersionDto>)
+
+    suspend fun getChangedCategories(): List<SpendingCategory>
 }
 
 

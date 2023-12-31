@@ -28,10 +28,10 @@ val manageAdditionalElementsModule = module {
         RegularSpendingService(get())
     }
     single<SpendingCategoryRepository> {
-        SpendingCategoryRepositoryImpl(getDatabase().spendingCategoryDao)
+        SpendingCategoryRepositoryImpl(getDatabase().spendingCategoryDao, getDatabase().userDao)
     }
     single {
-        SpendingCategoryService(get())
+        SpendingCategoryService(get(), get())
     }
     single<RegularSpendingActualizationRepository> {
         RegularSpendingActualizationRepositoryImpl(

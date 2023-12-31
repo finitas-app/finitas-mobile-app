@@ -4,11 +4,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import pl.finitas.app.core.data.model.SpendingCategory
 import pl.finitas.app.core.domain.repository.SpendingCategoryRepository
+import pl.finitas.app.core.domain.repository.UserStoreRepository
 import pl.finitas.app.manage_additional_elements_feature.presentation.spending_category.SpendingCategoryState
 import java.util.UUID
 
 class SpendingCategoryService(
     private val spendingCategoryRepository: SpendingCategoryRepository,
+    private val userStoreRepository: UserStoreRepository,
 ) {
     suspend fun getSpendingCategoryById(idSpendingCategory: UUID): SpendingCategoryState {
         return spendingCategoryRepository.getSpendingCategoryBy(idSpendingCategory).let {
@@ -21,7 +23,12 @@ class SpendingCategoryService(
     }
 
     suspend fun upsertSpendingCategory(upsertSpendingCategoryCommand: UpsertSpendingCategoryCommand) {
-        spendingCategoryRepository.upsertSpendingCategory(upsertSpendingCategoryCommand.toModel())
+        val model = upsertSpendingCategoryCommand.toModel()
+        spendingCategoryRepository.upsertSpendingCategory(model)
+        try {
+            userStoreRepository.changeCategories(listOf(model))
+        } catch (_: Exception) {
+        }
     }
 
     fun getSpendingCategoriesFlow(): Flow<List<SpendingCategoryView>> =
@@ -82,4 +89,6 @@ private fun UpsertSpendingCategoryCommand.toModel() = SpendingCategory(
     name = name,
     idParent = idParentCategory,
     idUser = null,
+    version = null,
+    isDeleted = false,
 )
