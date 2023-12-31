@@ -79,7 +79,8 @@ fun IncomingShoppingList(
                         contentDescription = "Assignment",
                         modifier = Modifier
                             .aspectRatio(1f)
-                            .fillMaxHeight()
+                            .fillMaxHeight(),
+                        tint = Color.White.copy(.7f)
                     )
                     Column {
                         Spacer(modifier = Modifier.height(14.dp))
