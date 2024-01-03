@@ -40,6 +40,7 @@ import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import java.util.UUID
 
+// todo: add validation for add record dialog
 @Composable
 fun CategorySpendingList(
     categories: List<SpendingCategoryView>,

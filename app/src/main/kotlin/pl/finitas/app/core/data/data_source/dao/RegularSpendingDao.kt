@@ -65,6 +65,9 @@ interface RegularSpendingDao {
     @Query("SELECT * FROM RegularSpending WHERE idSpendingSummary = :idSpendingSummary")
     suspend fun findRegularSpendingBy(idSpendingSummary: UUID): RegularSpending?
 
+    @Query("DELETE FROM SpendingRecord WHERE idSpendingSummary = :idSpendingSummary")
+    suspend fun deleteSpendingRecordsBySpendingSummary(idSpendingSummary: UUID)
+
     @Insert
     suspend fun insertRegularSpending(regularSpending: RegularSpending): Long
 
@@ -111,6 +114,9 @@ interface RegularSpendingDao {
         spendingSummaryToRegularSpending: SpendingSummaryToRegularSpending,
         spendingRecords: List<SpendingRecordDataToSpendingRecord>,
     ) {
+        deleteSpendingRecordsBySpendingSummary(
+            spendingSummaryToRegularSpending.spendingSummary.idSpendingSummary
+        )
         upsertSpendingSummary(spendingSummaryToRegularSpending.spendingSummary)
         upsertRegularSpending(spendingSummaryToRegularSpending.regularSpending)
         upsertSpendingRecordsData(spendingRecords.map { it.spendingRecordData })
