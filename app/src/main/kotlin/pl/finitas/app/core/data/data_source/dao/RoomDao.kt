@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
+import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.data.model.Room
 import pl.finitas.app.core.data.model.RoomMember
 import pl.finitas.app.core.data.model.RoomRole
@@ -21,7 +22,7 @@ interface RoomDao {
     fun getRooms(): Flow<List<Room>>
 
     @Query("SELECT * FROM Room WHERE idRoom = :idRoom")
-    suspend fun getRoomById(idRoom: UUID): Room
+    fun findRoomById(idRoom: UUID): Flow<Room?>
 
 
     @Transaction
@@ -57,6 +58,7 @@ interface RoomDao {
                     username = "",
                     version = -1,
                     spendingCategoryVersion = -1,
+                    finishedSpendingVersion = -1,
                 )
             }
         })
@@ -91,7 +93,15 @@ interface RoomDao {
         WHERE rm.idRoom = :idRoom and isActive = 1
     """
     )
-    fun getRoomMembers(idRoom: UUID): Flow<List<RoomMemberFlatDto>>
+    fun getRoomMembersFlow(idRoom: UUID): Flow<List<RoomMemberFlatDto>>
+
+    @Query("""
+        SELECT DISTINCT u.*
+        FROM RoomMember rm
+        JOIN User u ON rm.idUser = u.idUser
+        WHERE idRoom in (:idsRoom)
+    """)
+    fun getRoomMembers(idsRoom: List<UUID>): List<User>
 
     @Query("SELECT * FROM RoomRole WHERE idRoom = :idRoom")
     fun getRoomRolesByIdRoom(idRoom: UUID): Flow<List<RoomRole>>
@@ -111,10 +121,23 @@ interface RoomDao {
 
     @Query("DELETE FROM Room WHERE 1 = 1")
     suspend fun deleteAllRooms()
+
+    @Query("""
+        SELECT *
+        FROM User u
+        JOIN RoomMember rm ON u.idUser = rm.idUser
+        JOIN RoomRole rr ON rm.idRole = rr.idRole
+        WHERE rr.authorities like ('%' || :authority || '%') and u.idUser = :idUser
+    """)
+    fun getRoomsWithAuthority(idUser: UUID, authority: Authority): List<IdRoom>
 }
 
 data class RoomMemberFlatDto(
     val idUser: UUID,
     val username: String,
     val idRole: UUID?,
+)
+
+data class IdRoom(
+    val idRoom: UUID,
 )

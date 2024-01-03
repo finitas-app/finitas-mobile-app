@@ -8,6 +8,7 @@ data class FinishedSpendingWithRecordsDto(
     val idSpendingSummary: UUID,
     val title: String,
     val purchaseDate: LocalDateTime,
+    val isDeleted: Boolean,
     val spendingRecords: List<SpendingRecordDto>,
 )
 

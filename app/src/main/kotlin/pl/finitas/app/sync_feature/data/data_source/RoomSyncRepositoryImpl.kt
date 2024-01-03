@@ -6,7 +6,9 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import kotlinx.serialization.Serializable
 import pl.finitas.app.core.data.data_source.dao.RoomDao
+import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.data.model.RoomVersion
+import pl.finitas.app.core.data.model.User
 import pl.finitas.app.core.http.HttpUrls
 import pl.finitas.app.sync_feature.domain.RoomDto
 import pl.finitas.app.sync_feature.domain.repository.RoomSyncRepository
@@ -30,6 +32,14 @@ class RoomSyncRepositoryImpl(
 
     override suspend fun deleteRooms(idsRoom: List<UUID>) {
         roomDao.deleteRooms(idsRoom)
+    }
+
+    override suspend fun getRoomsWithAuthority(authorizedUserId: UUID, authority: Authority): List<UUID> {
+        return roomDao.getRoomsWithAuthority(authorizedUserId, authority).map { it.idRoom }
+    }
+
+    override suspend fun getRoomMembers(idsRoom: List<UUID>): List<User> {
+        return roomDao.getRoomMembers(idsRoom)
     }
 }
 

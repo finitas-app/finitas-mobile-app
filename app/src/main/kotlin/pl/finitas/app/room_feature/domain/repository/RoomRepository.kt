@@ -12,7 +12,7 @@ import java.util.UUID
 interface RoomRepository {
     fun getRooms(): Flow<List<Room>>
 
-    suspend fun getRoomById(idRoom: UUID): Room
+    fun findRoomById(idRoom: UUID): Flow<Room?>
 
     suspend fun addRoomRepository(addRoomDto: AddRoomDto)
 

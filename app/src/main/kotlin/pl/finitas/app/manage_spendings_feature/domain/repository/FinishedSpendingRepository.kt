@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import pl.finitas.app.manage_spendings_feature.domain.model.FinishedSpendingWithRecordsDto
 import java.util.UUID
 
-interface TotalSpendingRepository {
+interface FinishedSpendingRepository {
 
     fun getFinishedSpendings(): Flow<List<FinishedSpendingWithRecordsDto>>
 
@@ -16,7 +16,7 @@ interface TotalSpendingRepository {
             ?: throw TotalSpendingNotFoundException(idTotalSpending)
 
 
-    suspend fun upsertFinishedSpendingWithRecords(totalSpending: FinishedSpendingWithRecordsDto)
+    suspend fun upsertFinishedSpendingWithRecords(finishedSpending: FinishedSpendingWithRecordsDto)
 
     suspend fun deleteFinishedSpending(idFinishedSpending: UUID)
 }

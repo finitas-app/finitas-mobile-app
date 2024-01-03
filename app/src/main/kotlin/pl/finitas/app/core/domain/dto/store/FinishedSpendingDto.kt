@@ -1,45 +1,32 @@
 package pl.finitas.app.core.domain.dto.store
 
 import kotlinx.serialization.Serializable
-import pl.finitas.app.core.domain.dto.LocalDateTimeSerializer
-import pl.finitas.app.core.domain.dto.UUIDSerializer
-import java.time.LocalDateTime
-import java.util.UUID
+import pl.finitas.app.core.domain.dto.SerializableBigDecimal
+import pl.finitas.app.core.domain.dto.SerializableLocalDateTime
+import pl.finitas.app.core.domain.dto.SerializableUUID
 
 @Serializable
 data class DeleteFinishedSpendingRequest(
-    @Serializable(UUIDSerializer::class)
-    val idSpendingSummary: UUID,
-    @Serializable(UUIDSerializer::class)
-    val idUser: UUID,
+    val idSpendingSummary: SerializableUUID,
+    val idUser: SerializableUUID,
 )
 
 @Serializable
 class FinishedSpendingDto(
-    val spendingSummary: SpendingSummaryDto,
-    @Serializable(UUIDSerializer::class)
-    val idReceipt: UUID?,
-    @Serializable(LocalDateTimeSerializer::class)
-    val purchaseDate: LocalDateTime,
+    val idSpendingSummary: SerializableUUID,
+    val idReceipt: SerializableUUID?,
+    val purchaseDate: SerializableLocalDateTime,
     override val version: Int,
-    @Serializable(UUIDSerializer::class)
-    override val idUser: UUID,
+    override val idUser: SerializableUUID,
     override val isDeleted: Boolean,
+    val name: String,
+    val spendingRecords: List<SpendingRecordDto>,
 ): SynchronizableEntity
 
 @Serializable
-data class SpendingSummaryDto(
-    @Serializable(UUIDSerializer::class)
-    val idSpendingSummary: UUID,
-    @Serializable(LocalDateTimeSerializer::class)
-    val createdAt: LocalDateTime,
-    val name: String,
-    val spendingRecords: List<SpendingRecordDto>,
-)
-
-@Serializable
 data class SpendingRecordDto(
-    @Serializable(UUIDSerializer::class)
-    val idSpendingRecord: UUID,
-    val spendingRecordData: RemoteSpendingRecordDataDto,
+    val idSpendingRecordData: SerializableUUID,
+    val name: String,
+    val price: SerializableBigDecimal,
+    val idCategory: SerializableUUID,
 )

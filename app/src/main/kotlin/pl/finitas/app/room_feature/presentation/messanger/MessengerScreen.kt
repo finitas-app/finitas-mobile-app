@@ -42,6 +42,7 @@ fun MessengerScreen(navController: NavHostController) {
     if (idRoom == null) {
         navController.navigate(NavPaths.RoomsScreen.route)
     }
+    val roomTitle by viewModel.roomTitle.collectAsState(initial = "")
     val messages by viewModel.messages.collectAsState(initial = listOf())
     val idUser by viewModel.authorizedUserId.collectAsState(emptyUUID)
     val shoppingLists by viewModel.shoppingLists.collectAsState(mapOf())
@@ -54,7 +55,7 @@ fun MessengerScreen(navController: NavHostController) {
     SecondaryBackground {
         Column {
             MessengerHeader(
-                roomTitle = viewModel.roomTitle,
+                roomTitle = roomTitle,
                 onBackClick = { navController.navigate(NavPaths.RoomsScreen.route) },
                 onSettingsClick = { navController.navigate(NavPaths.RoomsSettingsScreen.route + "?idRoom=${viewModel.idRoom}") }
             )

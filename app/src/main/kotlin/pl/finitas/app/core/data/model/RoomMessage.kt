@@ -12,12 +12,6 @@ import java.util.UUID
     foreignKeys = [
         ForeignKey(
             onDelete = ForeignKey.CASCADE,
-            entity = RoomMember::class,
-            parentColumns = ["idUser", "idRoom"],
-            childColumns = ["idUser", "idRoom"]
-        ),
-        ForeignKey(
-            onDelete = ForeignKey.CASCADE,
             entity = Room::class,
             parentColumns = ["idRoom"],
             childColumns = ["idRoom"]

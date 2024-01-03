@@ -40,7 +40,7 @@ data class UserDto(
     @Serializable(UUIDSerializer::class)
     val idUser: UUID,
     val visibleName: String,
-    val regularSpendings: List<RegularSpendingDto>
+    val regularSpendings: List<RegularSpendingDto>,
 )
 
 @Serializable
@@ -49,5 +49,10 @@ data class RegularSpendingDto(
     val periodUnit: Int,
     @Serializable(with = LocalDateTimeSerializer::class)
     val lastActualizationDate: LocalDateTime,
-    val spendingSummary: SpendingSummaryDto,
+    @Serializable(UUIDSerializer::class)
+    val idSpendingSummary: UUID,
+    @Serializable(LocalDateTimeSerializer::class)
+    val createdAt: LocalDateTime,
+    val name: String,
+    val spendingRecords: List<SpendingRecordDto>,
 )

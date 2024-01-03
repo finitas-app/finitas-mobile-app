@@ -89,12 +89,9 @@ class ShoppingListSyncRepositoryImpl(
         )
     }
 
-    override suspend fun deleteCurrentUserMarkedShoppingListUnderVersion(version: Int) {
-        shoppingListDao.deleteCurrentUserMarkedShoppingListUnderVersion(version)
-    }
 
-    override suspend fun deleteMarkedShoppingListUnderVersion(version: ShoppingListVersion) {
-        shoppingListDao.deleteMarkedShoppingListUnderVersion(version)
+    override suspend fun deleteMarkedShoppingListAndSynchronized() {
+        shoppingListDao.deleteMarkedShoppingListAndSynchronized()
     }
 }
 

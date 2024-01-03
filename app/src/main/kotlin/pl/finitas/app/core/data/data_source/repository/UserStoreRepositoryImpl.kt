@@ -46,7 +46,7 @@ class UserStoreRepositoryImpl(private val httpClient: HttpClient) : UserStoreRep
 
     override suspend fun addRegularSpendings(
         idUser: String,
-        regularSpendings: List<RegularSpendingDto>
+        regularSpendings: List<RegularSpendingDto>,
     ) {
         httpClient.post("${HttpUrls.usersStore}/regular-spendings") {
             setBody(regularSpendings)

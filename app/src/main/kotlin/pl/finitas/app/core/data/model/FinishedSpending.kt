@@ -36,4 +36,6 @@ data class FinishedSpending(
     @ColumnInfo(index = true)
     val idUser: UUID?,
     @PrimaryKey val idSpendingSummary: UUID,
+    val isDeleted: Boolean,
+    val version: Int? = null,
 )

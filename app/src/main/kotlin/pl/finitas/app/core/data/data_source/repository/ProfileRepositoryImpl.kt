@@ -57,6 +57,7 @@ class ProfileRepositoryImpl(
 
     override suspend fun clear() {
         context.dataStore.edit { preferences ->
+            // TODO: delete all users data
             preferences.clear()
             roomDao.deleteAllRooms()
         }

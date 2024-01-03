@@ -10,6 +10,8 @@ interface SpendingCategoryRepository {
 
     suspend fun getSpendingCategories(): List<SpendingCategory>
 
+    fun getAllUsersSpendingCategories(): Flow<List<SpendingCategory>>
+
     suspend fun findSpendingCategoryBy(idCategory: UUID): SpendingCategory?
 
     @Throws(SpendingCategoryNotFoundException::class)

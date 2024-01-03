@@ -51,8 +51,8 @@ class RoomService(
         }
     }
 
-    suspend fun getRoomById(idRoom: UUID): Room {
-        return roomRepository.getRoomById(idRoom)
+    fun findRoomById(idRoom: UUID): Flow<Room?> {
+        return roomRepository.findRoomById(idRoom)
     }
 
     fun getRoomWithAdditionalInfo(idRoom: UUID): Flow<RoomWithAdditionalInfoView> {

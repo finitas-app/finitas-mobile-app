@@ -11,18 +11,18 @@ import pl.finitas.app.core.domain.services.SpendingElementView
 import pl.finitas.app.core.domain.services.SpendingRecordView
 import pl.finitas.app.manage_spendings_feature.domain.model.FinishedSpendingWithRecordsDto
 import pl.finitas.app.manage_spendings_feature.domain.model.SpendingRecordDto
-import pl.finitas.app.manage_spendings_feature.domain.repository.TotalSpendingRepository
+import pl.finitas.app.manage_spendings_feature.domain.repository.FinishedSpendingRepository
 import pl.finitas.app.manage_spendings_feature.presentation.add_spending.FinishedSpendingState
 import java.time.LocalDate
 import java.util.UUID
 
 class FinishedSpendingService(
-    private val totalSpendingRepository: TotalSpendingRepository,
+    private val finishedSpendingRepository: FinishedSpendingRepository,
     private val spendingCategoryRepository: SpendingCategoryRepository,
 ) {
 
     fun getTotalSpendings(): Flow<List<Pair<LocalDate, List<FinishedSpendingView>>>> =
-        totalSpendingRepository.getFinishedSpendings().map { totalSpendings ->
+        finishedSpendingRepository.getFinishedSpendings().map { totalSpendings ->
             val categories =
                 spendingCategoryRepository
                 .getSpendingCategories()
@@ -35,6 +35,7 @@ class FinishedSpendingService(
                         idTotalSpending,
                         title,
                         time,
+                        isDeleted,
                         spendingRecords,
                     ) = totalSpendingWithRecords
                     val recordsByCategory = spendingRecords.groupBy { it.idCategory }
@@ -68,13 +69,13 @@ class FinishedSpendingService(
         }
 
     suspend fun addTotalSpending(totalSpending: FinishedSpendingState) {
-        totalSpendingRepository.upsertFinishedSpendingWithRecords(
+        finishedSpendingRepository.upsertFinishedSpendingWithRecords(
             totalSpending.toTotalSpendingWithRecords()
         )
     }
 
     suspend fun deleteFinishedSpending(idFinishedSpending: UUID) {
-        totalSpendingRepository.deleteFinishedSpending(idFinishedSpending)
+        finishedSpendingRepository.deleteFinishedSpending(idFinishedSpending)
     }
 }
 
@@ -155,6 +156,7 @@ fun FinishedSpendingState.toTotalSpendingWithRecords(): FinishedSpendingWithReco
         idSpendingSummary = generatedUUID,
         title = title,
         purchaseDate = date.atStartOfDay(),
+        isDeleted = false,
         spendingRecords = categories.flatMap { category ->
             category.elements.map { spendingRecord ->
                 if (spendingRecord !is SpendingRecordView) throw  InvalidFinishedSpendingState(this)

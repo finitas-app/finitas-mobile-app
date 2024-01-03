@@ -31,8 +31,7 @@ class MessengerViewModel(
 ) : ViewModel() {
     var authorizedUserId = authorizedUserService.getAuthorizedIdUser()
 
-    var roomTitle by mutableStateOf("")
-        private set
+    val roomTitle: Flow<String>
 
     var messages: Flow<List<ChatMessage>>
         private set
@@ -61,11 +60,8 @@ class MessengerViewModel(
             }
         }
 
+        roomTitle = roomService.findRoomById(idRoom).map { it?.title ?: "" }
 
-
-        viewModelScope.launch {
-            roomTitle = roomService.getRoomById(idRoom).title
-        }
         messages = messageService.getMessagesByIdRoom(idRoom).map { messages ->
             val result = messages.mapIndexed { index, message ->
                 if (message !is IncomingChatMessage || index == messages.lastIndex) {

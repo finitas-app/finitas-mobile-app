@@ -16,14 +16,6 @@ data class SynchronizationResponse<T : SynchronizableEntity>(
     val objects: List<T>,
 )
 
-@Serializable
-data class RemoteSpendingRecordDataDto(
-    val idSpendingRecordData: SerializableUUID,
-    val name: String,
-    val idCategory: SerializableUUID,
-)
-
-
  interface SynchronizableEntity {
      val version: Int
      val idUser: SerializableUUID

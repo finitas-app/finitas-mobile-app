@@ -25,6 +25,7 @@ interface FinishedSpendingDao {
         fs.idSpendingSummary as 'idSpendingSummary',
         ss.name as 'title',
         fs.purchaseDate as 'purchaseDate',
+        fs.isDeleted as 'isDeleted',
         srd.name as 'spendingRecordName',
         sr.price as 'price',
         srd.idCategory as 'idCategory',
@@ -33,9 +34,31 @@ interface FinishedSpendingDao {
         JOIN SpendingSummary ss on fs.idSpendingSummary = ss.idSpendingSummary
         JOIN SpendingRecord sr on ss.idSpendingSummary == sr.idSpendingSummary
         JOIN SpendingRecordData srd on sr.idSpendingRecordData = srd.idSpendingRecordData
+        WHERE idUser is null
     """
     )
     fun getFinishedSpendingsWithRecordFlat(): Flow<List<FinishedSpendingWithRecordFlat>>
+
+    @Transaction
+    @Query(
+        """
+        SELECT 
+        fs.idSpendingSummary as 'idSpendingSummary',
+        ss.name as 'title',
+        fs.purchaseDate as 'purchaseDate',
+        fs.isDeleted as 'isDeleted',
+        srd.name as 'spendingRecordName',
+        sr.price as 'price',
+        srd.idCategory as 'idCategory',
+        srd.idSpendingRecordData as 'idSpendingRecord'
+        FROM FinishedSpending fs
+        JOIN SpendingSummary ss on fs.idSpendingSummary = ss.idSpendingSummary
+        JOIN SpendingRecord sr on ss.idSpendingSummary == sr.idSpendingSummary
+        JOIN SpendingRecordData srd on sr.idSpendingRecordData = srd.idSpendingRecordData
+        WHERE fs.idUser is null and fs.version is null
+    """
+    )
+    suspend fun getChangedFinishedSpendings(): List<FinishedSpendingWithRecordFlat>
 
     @Upsert
     suspend fun upsertFinishedSpending(finishedSpending: FinishedSpending)
@@ -68,29 +91,49 @@ interface FinishedSpendingDao {
         deleteById(idFinishedSpending)
     }
 
-    @Query("""
+    @Query(
+        """
         SELECT srd.* 
         FROM SpendingRecordData srd
         JOIN SpendingRecord sr ON srd.idSpendingRecordData = sr.idSpendingRecordData
         WHERE sr.idSpendingSummary = :idSpendingSummary
-    """)
+    """
+    )
     suspend fun getSpendingRecordsDataBy(idSpendingSummary: UUID): List<SpendingRecordData>
 
     @Delete
     suspend fun deleteSpendingRecordsData(spendingRecords: List<SpendingRecordData>)
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM SpendingSummary WHERE idSpendingSummary = :idFinishedSpending 
-    """)
+    """
+    )
     suspend fun deleteById(idFinishedSpending: UUID)
+
+    @Query("SELECT idSpendingSummary FROM FinishedSpending WHERE version is not null and isDeleted = 1")
+    suspend fun markedShoppingListWithVersion(): List<IdFinishedSpending>
+
+    @Transaction
+    suspend fun deleteMarkedFinishedSpendingsAndSynchronized() {
+        val temp = markedShoppingListWithVersion()
+        temp.forEach {
+            deleteWithRecords(it.idSpendingSummary)
+        }
+    }
 }
 
 data class FinishedSpendingWithRecordFlat(
     val idSpendingSummary: UUID,
     val title: String,
     val purchaseDate: LocalDateTime,
+    val isDeleted: Boolean,
     val spendingRecordName: String,
     val price: BigDecimal,
     val idCategory: UUID,
     val idSpendingRecord: UUID? = null,
+)
+
+data class IdFinishedSpending(
+    val idSpendingSummary: UUID,
 )

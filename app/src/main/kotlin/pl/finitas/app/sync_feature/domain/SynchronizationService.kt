@@ -4,30 +4,40 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
+import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.data.model.MessagesVersion
 import pl.finitas.app.core.data.model.RoomMessage
 import pl.finitas.app.core.data.model.RoomVersion
 import pl.finitas.app.core.data.model.ShoppingListVersion
 import pl.finitas.app.core.data.model.SpendingCategory
 import pl.finitas.app.core.data.model.User
+import pl.finitas.app.core.domain.dto.store.FinishedSpendingDto
 import pl.finitas.app.core.domain.dto.store.GetVisibleNamesRequest
 import pl.finitas.app.core.domain.dto.store.RemoteShoppingItemDto
 import pl.finitas.app.core.domain.dto.store.RemoteShoppingListDto
+import pl.finitas.app.core.domain.dto.store.SpendingRecordDto
 import pl.finitas.app.core.domain.dto.store.SynchronizationRequest
 import pl.finitas.app.core.domain.dto.store.UserIdValue
 import pl.finitas.app.core.domain.repository.CategoryVersionDto
+import pl.finitas.app.core.domain.repository.FinishedSpendingStoreRepository
+import pl.finitas.app.core.domain.repository.FinishedSpendingSyncDto
+import pl.finitas.app.core.domain.repository.FinishedSpendingVersion
 import pl.finitas.app.core.domain.repository.MessageSenderRepository
 import pl.finitas.app.core.domain.repository.SendMessageRequest
 import pl.finitas.app.core.domain.repository.ShoppingListStoreRepository
 import pl.finitas.app.core.domain.repository.SingleMessageDto
 import pl.finitas.app.core.domain.repository.SpendingCategoryRepository
 import pl.finitas.app.core.domain.repository.UserStoreRepository
+import pl.finitas.app.manage_spendings_feature.domain.model.FinishedSpendingWithRecordsDto
 import pl.finitas.app.shopping_lists_feature.domain.ShoppingItemDto
 import pl.finitas.app.shopping_lists_feature.domain.ShoppingListDto
 import pl.finitas.app.sync_feature.data.data_source.NewMessagesResponse
+import pl.finitas.app.sync_feature.domain.repository.FinishedSpendingSyncRepository
 import pl.finitas.app.sync_feature.domain.repository.MessageSyncRepository
 import pl.finitas.app.sync_feature.domain.repository.RoomSyncRepository
 import pl.finitas.app.sync_feature.domain.repository.ShoppingListSyncRepository
+import pl.finitas.app.sync_feature.domain.repository.SyncFinishedSpendingWithRecordsDto
+import pl.finitas.app.sync_feature.domain.repository.SyncSpendingRecordDto
 import pl.finitas.app.sync_feature.domain.repository.UserRepository
 import pl.finitas.app.sync_feature.domain.repository.VersionsRepository
 import java.util.UUID
@@ -43,17 +53,20 @@ class SynchronizationService(
     private val shoppingListSyncRepository: ShoppingListSyncRepository,
     private val shoppingListStoreRepository: ShoppingListStoreRepository,
     private val categoriesRepository: SpendingCategoryRepository,
+    private val finishedSpendingSyncRepository: FinishedSpendingSyncRepository,
+    private val finishedSpendingStoreRepository: FinishedSpendingStoreRepository,
 ) {
     fun CoroutineScope.fullSync(authorizedUserId: UUID) = launch {
-        fullSyncRooms(authorizedUserId).join()
+        fullSyncRooms(authorizedUserId)
         fullSyncNames(listOf())
         fullSyncMessages(authorizedUserId)
         fullSyncCategories(authorizedUserId)
         fullSyncShoppingLists(authorizedUserId).join()
+        //fullSyncFinishedSpendings(authorizedUserId) //TODO: uncomment
     }
 
     // TODO: split for room parts and sync only room that is needed
-    fun CoroutineScope.fullSyncRooms(authorizedUserId: UUID) = launch {
+    suspend fun fullSyncRooms(authorizedUserId: UUID) {
         val roomVersions = versionsRepository.getRoomVersions()
         val messagesVersion = versionsRepository.getMessagesVersions().map { it.idRoom }
         val (remoteRooms, unavailableRooms) = roomSyncRepository.getRoomsFromVersionRemote(
@@ -71,14 +84,6 @@ class SynchronizationService(
             versionsRepository.setMessagesVersions(newMessageVersions)
             fullSyncMessages(authorizedUserId, newMessageVersions)
         }
-        // TODO: Left it only for new user added
-        fullSyncNames(listOf())
-        fullSyncCategories(authorizedUserId)
-        userRepository.getUserIds().forEach {
-            shoppingListSyncRepository.createShoppingListVersionIfNotPresent(it)
-        }
-        fullSyncShoppingLists(authorizedUserId).join()
-        // TODO: Left it only for new user added
     }
 
     suspend fun syncMessages(authorizedUserId: UUID, newMessages: List<NewMessagesResponse>) {
@@ -130,6 +135,8 @@ class SynchronizationService(
                             username = it.visibleName ?: "",
                             version = usersById[it.idUser]?.version ?: -1,
                             spendingCategoryVersion = usersById[it.idUser]?.spendingCategoryVersion
+                                ?: -1,
+                            finishedSpendingVersion = usersById[it.idUser]?.finishedSpendingVersion
                                 ?: -1,
                         )
                     }
@@ -186,20 +193,22 @@ class SynchronizationService(
         val response = messageSyncRepository.getMessagesFromVersionRemote(messageVersions)
         roomSyncRepository.deleteRooms(response.unavailableRooms)
         val pendingMessages = messageSyncRepository.getPendingMessages()
-        try {
-            messageSenderRepository.sendMessages(
-                SendMessageRequest(
-                    messages = pendingMessages.map {
-                        SingleMessageDto(
-                            idMessage = it.idMessage,
-                            idRoom = it.idRoom,
-                            content = it.content,
-                            idShoppingList = it.idShoppingList,
-                        )
-                    }
+        if (pendingMessages.isNotEmpty()) {
+            try {
+                messageSenderRepository.sendMessages(
+                    SendMessageRequest(
+                        messages = pendingMessages.map {
+                            SingleMessageDto(
+                                idMessage = it.idMessage,
+                                idRoom = it.idRoom,
+                                content = it.content,
+                                idShoppingList = it.idShoppingList,
+                            )
+                        }
+                    )
                 )
-            )
-        } catch (_: Exception) {
+            } catch (_: Exception) {
+            }
         }
         response.messages.forEach {
             if (it.idShoppingList != null) {
@@ -234,6 +243,9 @@ class SynchronizationService(
     }
 
     fun CoroutineScope.fullSyncShoppingLists(authorizedUserId: UUID) = launch {
+        userRepository.getUserIds().forEach {
+            shoppingListSyncRepository.createShoppingListVersionIfNotPresent(it)
+        }
         var versions = shoppingListSyncRepository.getShoppingListVersions()
         val forSyncShoppingListByIdUser = shoppingListSyncRepository
             .getNotSynchronizedShoppingLists()
@@ -274,20 +286,88 @@ class SynchronizationService(
                 )
             )
         }
-        versions.forEach { (idUser, version) ->
-            if (idUser == authorizedUserId) {
-                shoppingListSyncRepository.deleteCurrentUserMarkedShoppingListUnderVersion(version)
-            } else {
-                shoppingListSyncRepository.deleteMarkedShoppingListUnderVersion(
-                    ShoppingListVersion(
-                        idUser,
-                        version
-                    )
+        shoppingListSyncRepository.deleteMarkedShoppingListAndSynchronized()
+    }
+
+    suspend fun fullSyncFinishedSpendings(authorizedUserId: UUID) {
+        val changedSpendings = finishedSpendingSyncRepository.getChangedFinishedSpendings()
+        if (changedSpendings.isNotEmpty()) {
+            finishedSpendingStoreRepository.changeFinishedSpendings(
+                changedSpendings.toRemote(
+                    authorizedUserId
                 )
-            }
+            )
         }
+        retrieveNewFinishedSpendings(authorizedUserId)
+    }
+
+    suspend fun retrieveNewFinishedSpendings(authorizedUserId: UUID) {
+        val idsRoomWithReadRole =
+            roomSyncRepository.getRoomsWithAuthority(authorizedUserId, Authority.READ_USERS_DATA)
+        val usersToSynchronized = roomSyncRepository.getRoomMembers(idsRoomWithReadRole)
+        val response: List<FinishedSpendingSyncDto> =
+            finishedSpendingStoreRepository.synchronizeFinishedSpendings(
+                usersToSynchronized.map {
+                    FinishedSpendingVersion(
+                        it.idUser,
+                        it.finishedSpendingVersion
+                    )
+                }
+            )
+        if (response.isEmpty()) return
+
+        finishedSpendingSyncRepository.upsertFinishedSpendingWithRecords(
+            response.flatMap { it.finishedSpendings.toServiceDto(it.idUser) }
+        )
+        finishedSpendingSyncRepository.setFinishedSpendingVersions(
+            response.map { FinishedSpendingVersion(it.idUser, it.actualVersion) }
+        )
+        finishedSpendingSyncRepository.deleteMarkedAndSynchronizedFinishedSpendings()
     }
 }
+
+
+private fun List<FinishedSpendingDto>.toServiceDto(idUser: UUID) = map { finishedSpending ->
+    SyncFinishedSpendingWithRecordsDto(
+        idSpendingSummary = finishedSpending.idSpendingSummary,
+        title = finishedSpending.name,
+        purchaseDate = finishedSpending.purchaseDate,
+        isDeleted = finishedSpending.isDeleted,
+        idUser = idUser,
+        version = finishedSpending.version,
+        spendingRecords = finishedSpending.spendingRecords.map {
+            SyncSpendingRecordDto(
+                name = it.name,
+                price = it.price,
+                idCategory = it.idCategory,
+                idSpendingRecord = it.idSpendingRecordData,
+                idSpendingSummary = finishedSpending.idSpendingSummary,
+            )
+        },
+    )
+}
+
+
+private fun List<FinishedSpendingWithRecordsDto>.toRemote(idUser: UUID): List<FinishedSpendingDto> =
+    map {
+        FinishedSpendingDto(
+            it.idSpendingSummary,
+            null,
+            it.purchaseDate,
+            -1,
+            idUser,
+            it.isDeleted,
+            name = it.title,
+            spendingRecords = it.spendingRecords.map { spendingRecord ->
+                SpendingRecordDto(
+                    idSpendingRecordData = spendingRecord.idSpendingRecord!!,
+                    idCategory = spendingRecord.idCategory,
+                    name = spendingRecord.name,
+                    price = spendingRecord.price,
+                )
+            }
+        )
+    }
 
 private fun ShoppingListDto.toRemote(idUser: UUID) = RemoteShoppingListDto(
     idShoppingList = idShoppingList,
@@ -325,9 +405,6 @@ private fun RemoteShoppingListDto.toDto(authorizedUserId: UUID) = ShoppingListDt
     version = version,
     idUser = if (idUser == authorizedUserId) null else idUser,
 )
-
-
-
 
 
 

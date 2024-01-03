@@ -1,8 +1,8 @@
 package pl.finitas.app.shopping_lists_feature.domain
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import pl.finitas.app.core.data.model.SpendingCategory
 import pl.finitas.app.core.domain.dto.store.RemoteShoppingItemDto
 import pl.finitas.app.core.domain.dto.store.RemoteShoppingListDto
@@ -21,45 +21,49 @@ class ShoppingListService(
     private val profileRepository: ProfileRepository,
 ) {
     fun getShoppingLists(): Flow<List<ShoppingListView>> =
-        shoppingListRepository.getShoppingLists().map { shoppingLists: List<ShoppingListDto> ->
-            val categories =
+        shoppingListRepository
+            .getShoppingLists()
+            .combine(
                 spendingCategoryRepository
-                    .getSpendingCategories()
-                    .associateBy { it.idCategory }
+                    .getAllUsersSpendingCategories()
+            ) { shoppingLists: List<ShoppingListDto>, categories ->
+                val categoriesById = categories.associateBy { it.idCategory }
 
-            shoppingLists
-                .map { shoppingList ->
-                    val (
-                        name,
-                        color,
-                        idShoppingList,
-                        shoppingItems,
-                        isFinished,
-                    ) = shoppingList
-                    val itemsById = shoppingItems.groupBy { it.idSpendingCategory }
-                    ShoppingListView(
-                        name = name,
-                        color = color,
-                        idShoppingList = idShoppingList,
-                        isFinished = isFinished,
-                        elements = itemsById.map { (idSpendingCategory, items) ->
-                            ShoppingItemCategoryView(
-                                name = categories[idSpendingCategory]?.name
-                                    ?: throw SpendingCategoryNotFoundException(idSpendingCategory),
-                                idSpendingCategory = idSpendingCategory,
-                                elements = items.map {
-                                    ShoppingItemView(
-                                        name = it.name,
-                                        amount = it.amount,
-                                        idSpendingCategory = it.idSpendingCategory,
-                                        idShoppingItem = it.idSpendingRecordData,
-                                    )
-                                }
-                            )
-                        }
-                    ).normalizeShoppingListView(categories)
-                }
-        }
+                shoppingLists
+                    .map { shoppingList ->
+                        val (
+                            name,
+                            color,
+                            idShoppingList,
+                            shoppingItems,
+                            isFinished,
+                        ) = shoppingList
+                        val itemsById = shoppingItems.groupBy { it.idSpendingCategory }
+                        ShoppingListView(
+                            name = name,
+                            color = color,
+                            idShoppingList = idShoppingList,
+                            isFinished = isFinished,
+                            elements = itemsById.map { (idSpendingCategory, items) ->
+                                ShoppingItemCategoryView(
+                                    name = categoriesById[idSpendingCategory]?.name
+                                        ?: throw SpendingCategoryNotFoundException(
+                                            idSpendingCategory
+                                        ),
+                                    idSpendingCategory = idSpendingCategory,
+                                    elements = items.map {
+                                        ShoppingItemView(
+                                            name = it.name,
+                                            amount = it.amount,
+                                            idSpendingCategory = it.idSpendingCategory,
+                                            idShoppingItem = it.idSpendingRecordData,
+                                        )
+                                    }
+                                )
+                            }
+                        ).normalizeShoppingListView(categoriesById)
+                    }
+            }
 
     suspend fun getShoppingListBy(
         idShoppingList: UUID,
@@ -99,7 +103,9 @@ class ShoppingListService(
             version = null,
             shoppingItems = shoppingListState.categories.flatMap { shoppingItemCategory ->
                 shoppingItemCategory.elements.map { shoppingItem ->
-                    if (shoppingItem !is ShoppingItemView) throw InvalidShoppingListState(shoppingListState)
+                    if (shoppingItem !is ShoppingItemView) throw InvalidShoppingListState(
+                        shoppingListState
+                    )
 
                     ShoppingItemDto(
                         idSpendingRecordData = shoppingItem.idShoppingItem,
@@ -121,7 +127,7 @@ class ShoppingListService(
             } else {
                 shoppingListStoreRepository.updateShoppingList(dto.toRemote(currentUser))
             }
-        }catch (_: Exception) {
+        } catch (_: Exception) {
 
         }
     }

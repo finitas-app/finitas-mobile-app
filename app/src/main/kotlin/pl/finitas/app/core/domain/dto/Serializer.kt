@@ -13,6 +13,7 @@ import java.time.ZoneId
 import java.util.UUID
 
 typealias SerializableUUID = @Serializable(UUIDSerializer::class) UUID
+typealias SerializableBigDecimal = @Serializable(BigDecimalSerializer::class) BigDecimal
 typealias SerializableLocalDateTime = @Serializable(LocalDateTimeSerializer::class) LocalDateTime
 
 object UUIDSerializer : KSerializer<UUID> {

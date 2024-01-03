@@ -34,7 +34,8 @@ interface ShoppingListDao {
         FROM ShoppingList sl
         JOIN ShoppingItem si on sl.idShoppingList = si.idShoppingList
         JOIN SpendingRecordData srd on si.idSpendingRecordData = srd.idSpendingRecordData
-        WHERE sl.idUser is null AND sl.isDeleted = 0
+        LEFT JOIN RoomMessage rm on sl.idShoppingList = rm.idShoppingList
+        WHERE (sl.idUser is null OR rm.idMessage is not null) AND sl.isDeleted = 0
     """)
     fun getShoppingListWithItemsFlatFlow(): Flow<List<ShoppingListItemFlat>>
 
@@ -146,22 +147,12 @@ interface ShoppingListDao {
     @Upsert
     suspend fun setShoppingListVersion(shoppingListVersion: ShoppingListVersion)
 
-    @Query("SELECT idShoppingList FROM ShoppingList WHERE idUser is null and version <= :version and isDeleted = 1")
-    suspend fun currentUserMarkedShoppingListUnderVersion(version: Int): List<ShoppingListId>
-    @Query("SELECT idShoppingList FROM ShoppingList WHERE idUser = :idUser and version <= :version and isDeleted = 1")
-    suspend fun markedShoppingListUnderVersion(version: Int, idUser: UUID): List<ShoppingListId>
+    @Query("SELECT idShoppingList FROM ShoppingList WHERE version is not null and isDeleted = 1")
+    suspend fun markedShoppingListWithVersion(): List<ShoppingListId>
 
     @Transaction
-    suspend fun deleteCurrentUserMarkedShoppingListUnderVersion(version: Int) {
-        val temp = currentUserMarkedShoppingListUnderVersion(version)
-        temp.forEach {
-            deleteShoppingListWithItemsBy(it.idShoppingList)
-        }
-    }
-
-    @Transaction
-    suspend fun deleteMarkedShoppingListUnderVersion(version: ShoppingListVersion) {
-        val temp = markedShoppingListUnderVersion(version.version, version.idUser)
+    suspend fun deleteMarkedShoppingListAndSynchronized() {
+        val temp = markedShoppingListWithVersion()
         temp.forEach {
             deleteShoppingListWithItemsBy(it.idShoppingList)
         }

@@ -20,6 +20,10 @@ class SpendingCategoryRepositoryImpl(
         return dao.getSpendingCategories()
     }
 
+    override fun getAllUsersSpendingCategories(): Flow<List<SpendingCategory>> {
+        return dao.getAllUsersSpendingCategories()
+    }
+
     override suspend fun findSpendingCategoryBy(idCategory: UUID): SpendingCategory? {
         return dao.findSpendingCategoryBy(idCategory)
     }

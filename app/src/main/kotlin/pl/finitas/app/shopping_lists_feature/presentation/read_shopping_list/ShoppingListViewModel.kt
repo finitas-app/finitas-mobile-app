@@ -14,7 +14,7 @@ class ShoppingListViewModel(
 ): ViewModel() {
     val shoppingLists = shoppingListService.getShoppingLists()
     
-    var selected: UUID? by mutableStateOf<UUID?>(null)
+    var selected by mutableStateOf<UUID?>(null)
         private set
 
     fun onDeleteShoppingList(idShoppingList: UUID) {

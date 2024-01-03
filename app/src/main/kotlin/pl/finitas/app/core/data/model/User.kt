@@ -10,4 +10,5 @@ data class User(
     @PrimaryKey val idUser: UUID,
     val version: Int,
     val spendingCategoryVersion: Int,
+    val finishedSpendingVersion: Int,
 )

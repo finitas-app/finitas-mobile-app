@@ -106,9 +106,7 @@ class SynchronizationViewModel(
                 }
 
                 event == UserNotificationEvent.SYNC_ROOM && jsonData == null -> {
-                    with(synchronizationService) {
-                        fullSyncRooms(authorizedUserId)
-                    }
+                    synchronizationService.fullSyncRooms(authorizedUserId)
                 }
 
                 event == UserNotificationEvent.USERNAME_CHANGE && jsonData != null -> {
@@ -117,17 +115,44 @@ class SynchronizationViewModel(
                     synchronizationService.fullSyncNames(listOf(data))
                 }
 
-                event == UserNotificationEvent.CATEGORY_CHANGED && jsonData != null-> {
+                event == UserNotificationEvent.CATEGORY_CHANGED && jsonData != null -> {
                     val data = Json.decodeFromString<UserIdValue>(jsonData)
                     // TODO: Send categories using websocket or optimize providing user id
                     synchronizationService.retrieveNewCategories(authorizedUserId)
                 }
 
-                event == UserNotificationEvent.SHOPPING_LIST_CHANGED-> {
+                event == UserNotificationEvent.SHOPPING_LIST_CHANGED -> {
                     // TODO: Send categories using websocket or optimize providing user id
                     with(synchronizationService) {
                         fullSyncShoppingLists(authorizedUserId)
                     }
+                }
+
+                event == UserNotificationEvent.REGENERATE_INVITATION_LINK -> {
+                    synchronizationService.fullSyncRooms(authorizedUserId)
+                }
+
+                event == UserNotificationEvent.CHANGE_ROOM_NAME -> {
+                    synchronizationService.fullSyncRooms(authorizedUserId)
+                }
+
+                event == UserNotificationEvent.ADD_USER_TO_ROOM -> {
+                    synchronizationService.fullSyncRooms(authorizedUserId)
+                    synchronizationService.fullSyncNames(listOf())
+                    synchronizationService.retrieveNewCategories(authorizedUserId)
+                    with(synchronizationService) {
+                        fullSyncShoppingLists(authorizedUserId)
+                    }
+                }
+
+                event == UserNotificationEvent.DELETE_USER_FROM_ROOM -> {
+                    synchronizationService.fullSyncRooms(authorizedUserId)
+                    // TODO: Send deleted user id using websocket
+                }
+
+                event == UserNotificationEvent.ASSIGN_ROLE_TO_USER -> {
+                    // TODO: Optimize with
+                    synchronizationService.fullSyncRooms(authorizedUserId)
                 }
             }
         }
@@ -146,4 +171,9 @@ enum class UserNotificationEvent {
     USERNAME_CHANGE,
     CATEGORY_CHANGED,
     SHOPPING_LIST_CHANGED,
+    REGENERATE_INVITATION_LINK,
+    CHANGE_ROOM_NAME,
+    ADD_USER_TO_ROOM,
+    DELETE_USER_FROM_ROOM,
+    ASSIGN_ROLE_TO_USER,
 }

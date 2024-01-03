@@ -37,7 +37,7 @@ interface UserDao {
     @Transaction
     suspend fun addUserIfNotPresent(idUser: UUID) {
         if(getUserById(idUser) == null) {
-            insertUser(User(username = "", idUser = idUser, 0, -1))
+            insertUser(User(username = "", idUser = idUser, 0, -1, -1))
         }
     }
     @Query("SELECT * FROM User")
@@ -47,5 +47,8 @@ interface UserDao {
 
     @Query("UPDATE User set spendingCategoryVersion = :version WHERE idUser = :idUser")
     suspend fun setCategoryVersion(idUser: UUID, version: Int)
+
+    @Query("UPDATE User set finishedSpendingVersion = :version WHERE idUser = :idUser")
+    suspend fun setFinishedSpendingVersion(idUser: UUID, version: Int)
 
 }

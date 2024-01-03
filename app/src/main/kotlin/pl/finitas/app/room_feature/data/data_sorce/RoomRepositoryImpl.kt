@@ -41,8 +41,8 @@ class RoomRepositoryImpl(
         return roomDao.getRooms()
     }
 
-    override suspend fun getRoomById(idRoom: UUID): Room {
-        return roomDao.getRoomById(idRoom)
+    override fun findRoomById(idRoom: UUID): Flow<Room?> {
+        return roomDao.findRoomById(idRoom)
     }
 
     override suspend fun addRoomRepository(addRoomDto: AddRoomDto) {
@@ -57,7 +57,7 @@ class RoomRepositoryImpl(
         return combine(
             roomDao.getRoomByIdFlow(idRoom),
             roomDao.getRoomRolesByIdRoom(idRoom),
-            roomDao.getRoomMembers(idRoom),
+            roomDao.getRoomMembersFlow(idRoom),
         ) { room, roles, members ->
             if (room == null) throw IdRoomNotProvidedException()
             val rolesById = roles

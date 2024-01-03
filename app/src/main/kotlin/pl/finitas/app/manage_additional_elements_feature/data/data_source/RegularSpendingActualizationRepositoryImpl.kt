@@ -58,6 +58,7 @@ class RegularSpendingActualizationRepositoryImpl(
                     purchaseDate = totalSpending.purchaseDate,
                     idUser = null,
                     idSpendingSummary = generatedSpendingSummary,
+                    isDeleted = false,
                 )
             ),
             totalSpending.spendingRecords.map {

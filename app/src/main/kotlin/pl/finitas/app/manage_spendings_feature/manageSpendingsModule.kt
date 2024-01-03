@@ -9,7 +9,7 @@ import pl.finitas.app.core.getDatabase
 import pl.finitas.app.manage_spendings_feature.data.data_source.ChartRepositoryImpl
 import pl.finitas.app.manage_spendings_feature.data.data_source.FinishedSpendingRepositoryImpl
 import pl.finitas.app.manage_spendings_feature.domain.repository.ChartRepository
-import pl.finitas.app.manage_spendings_feature.domain.repository.TotalSpendingRepository
+import pl.finitas.app.manage_spendings_feature.domain.repository.FinishedSpendingRepository
 import pl.finitas.app.manage_spendings_feature.domain.service.ChartService
 import pl.finitas.app.manage_spendings_feature.domain.service.FinishedSpendingService
 import pl.finitas.app.manage_spendings_feature.presentation.add_spending.AddSpendingViewModel
@@ -18,7 +18,7 @@ import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartDisplayV
 import pl.finitas.app.manage_spendings_feature.presentation.spendings.FinishedSpendingViewModel
 
 val manageSpendingsModule = module {
-    single<TotalSpendingRepository> {
+    single<FinishedSpendingRepository> {
         FinishedSpendingRepositoryImpl(getDatabase().finishedSpendingDao)
     }
     single<SpendingCategoryRepository> {
