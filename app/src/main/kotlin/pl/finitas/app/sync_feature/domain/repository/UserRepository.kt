@@ -9,6 +9,8 @@ interface UserRepository {
 
     suspend fun getUsernamesByIds(ids: List<UUID>): List<UsernameDto>
 
+    suspend fun getUserById(idUser: UUID): User?
+
     suspend fun addUserIfNotPresent(idUser: UUID)
 
     suspend fun getUserIds(): List<UUID>

@@ -10,8 +10,10 @@ interface ShoppingListSyncRepository {
     suspend fun getShoppingListVersions(): List<ShoppingListVersion>
 
     suspend fun setShoppingListVersion(actualShoppingListVersion: ShoppingListVersion)
+
     suspend fun createShoppingListVersionIfNotPresent(idUser: UUID): ShoppingListVersion
 
     suspend fun upsertShoppingList(shoppingListDto: ShoppingListDto)
+
     suspend fun deleteMarkedShoppingListAndSynchronized()
 }

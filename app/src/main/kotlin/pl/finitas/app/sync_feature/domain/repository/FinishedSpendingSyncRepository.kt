@@ -25,7 +25,7 @@ data class SyncFinishedSpendingWithRecordsDto(
     val title: String,
     val purchaseDate: LocalDateTime,
     val isDeleted: Boolean,
-    val idUser: UUID,
+    val idUser: UUID?,
     val version: Int,
     val spendingRecords: List<SyncSpendingRecordDto>,
 )

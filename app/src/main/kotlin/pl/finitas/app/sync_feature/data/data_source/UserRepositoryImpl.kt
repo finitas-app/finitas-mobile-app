@@ -17,6 +17,10 @@ class UserRepositoryImpl(
         return userDao.getUsernamesByIds(ids)
     }
 
+    override suspend fun getUserById(idUser: UUID): User? {
+        return userDao.getUserById(idUser)
+    }
+
     override suspend fun addUserIfNotPresent(idUser: UUID) {
         userDao.addUserIfNotPresent(idUser)
     }

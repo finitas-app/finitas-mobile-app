@@ -11,9 +11,9 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import pl.finitas.app.core.domain.dto.store.DeleteFinishedSpendingRequest
+import pl.finitas.app.core.domain.dto.store.FetchUpdatesResponse
 import pl.finitas.app.core.domain.dto.store.FinishedSpendingDto
 import pl.finitas.app.core.domain.repository.FinishedSpendingStoreRepository
-import pl.finitas.app.core.domain.repository.FinishedSpendingSyncDto
 import pl.finitas.app.core.domain.repository.FinishedSpendingVersion
 import pl.finitas.app.core.http.HttpUrls
 
@@ -21,15 +21,15 @@ class FinishedSpendingStoreRepositoryImpl(private val httpClient: HttpClient) :
     FinishedSpendingStoreRepository {
     override suspend fun changeFinishedSpendings(request: List<FinishedSpendingDto>) {
         // TODO: change url and method
-        httpClient.put("${HttpUrls.finishedSpendingsStore}/synchronize") {
+        httpClient.put("${HttpUrls.finishedSpendingsStore}/sync") {
             setBody(request)
             contentType(ContentType.Application.Json)
         }
     }
 
-    override suspend fun synchronizeFinishedSpendings(request: List<FinishedSpendingVersion>): List<FinishedSpendingSyncDto> {
+    override suspend fun synchronizeFinishedSpendings(request: List<FinishedSpendingVersion>): List<FetchUpdatesResponse<FinishedSpendingDto>> {
         // TODO: change url and method
-        return httpClient.post("${HttpUrls.finishedSpendingsStore}/synchronize") {
+        return httpClient.post("${HttpUrls.finishedSpendingsStore}/sync") {
             setBody(request)
             contentType(ContentType.Application.Json)
         }.body()

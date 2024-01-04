@@ -10,18 +10,27 @@ import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import pl.finitas.app.core.data.model.ShoppingListVersion
 import pl.finitas.app.core.domain.dto.store.DeleteShoppingListRequest
+import pl.finitas.app.core.domain.dto.store.FetchUpdatesResponse
 import pl.finitas.app.core.domain.dto.store.RemoteShoppingListDto
 import pl.finitas.app.core.domain.dto.store.SynchronizationRequest
-import pl.finitas.app.core.domain.dto.store.SynchronizationResponse
 import pl.finitas.app.core.domain.repository.ShoppingListStoreRepository
 import pl.finitas.app.core.http.HttpUrls
 
-class ShoppingListStoreRepositoryImpl(private val httpClient: HttpClient) :
-    ShoppingListStoreRepository {
+class ShoppingListStoreRepositoryImpl(
+    private val httpClient: HttpClient,
+) : ShoppingListStoreRepository {
 
-    override suspend fun synchronizeShoppingLists(request: SynchronizationRequest<RemoteShoppingListDto>): SynchronizationResponse<RemoteShoppingListDto> {
-        return httpClient.put("${HttpUrls.shoppingListsStore}/synchronize") {
+    override suspend fun changeShoppingLists(request: List<RemoteShoppingListDto>) {
+        return httpClient.put("${HttpUrls.shoppingListsStore}/sync") {
+            setBody(request)
+            contentType(ContentType.Application.Json)
+        }.body()
+    }
+
+    override suspend fun synchronizeShoppingLists(request: List<ShoppingListVersion>): List<FetchUpdatesResponse<RemoteShoppingListDto>> {
+        return httpClient.post("${HttpUrls.shoppingListsStore}/sync") {
             setBody(request)
             contentType(ContentType.Application.Json)
         }.body()

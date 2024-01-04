@@ -55,7 +55,7 @@ interface ShoppingListDao {
         FROM ShoppingList sl
         JOIN ShoppingItem si on sl.idShoppingList = si.idShoppingList
         JOIN SpendingRecordData srd on si.idSpendingRecordData = srd.idSpendingRecordData
-        WHERE version is null
+        WHERE version is null and idUser is null
     """)
     fun getNotSynchronizedShoppingListsFlat(): List<ShoppingListItemFlat>
 

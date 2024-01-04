@@ -1,8 +1,6 @@
 package pl.finitas.app.sync_feature.domain
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.data.model.MessagesVersion
@@ -16,11 +14,10 @@ import pl.finitas.app.core.domain.dto.store.GetVisibleNamesRequest
 import pl.finitas.app.core.domain.dto.store.RemoteShoppingItemDto
 import pl.finitas.app.core.domain.dto.store.RemoteShoppingListDto
 import pl.finitas.app.core.domain.dto.store.SpendingRecordDto
-import pl.finitas.app.core.domain.dto.store.SynchronizationRequest
 import pl.finitas.app.core.domain.dto.store.UserIdValue
+import pl.finitas.app.core.domain.emptyUUID
 import pl.finitas.app.core.domain.repository.CategoryVersionDto
 import pl.finitas.app.core.domain.repository.FinishedSpendingStoreRepository
-import pl.finitas.app.core.domain.repository.FinishedSpendingSyncDto
 import pl.finitas.app.core.domain.repository.FinishedSpendingVersion
 import pl.finitas.app.core.domain.repository.MessageSenderRepository
 import pl.finitas.app.core.domain.repository.SendMessageRequest
@@ -61,8 +58,8 @@ class SynchronizationService(
         fullSyncNames(listOf())
         fullSyncMessages(authorizedUserId)
         fullSyncCategories(authorizedUserId)
-        fullSyncShoppingLists(authorizedUserId).join()
-        //fullSyncFinishedSpendings(authorizedUserId) //TODO: uncomment
+        fullSyncShoppingLists(authorizedUserId)
+        fullSyncFinishedSpendings(authorizedUserId) //TODO: uncomment
     }
 
     // TODO: split for room parts and sync only room that is needed
@@ -242,47 +239,42 @@ class SynchronizationService(
         )
     }
 
-    fun CoroutineScope.fullSyncShoppingLists(authorizedUserId: UUID) = launch {
+    suspend fun fullSyncShoppingLists(authorizedUserId: UUID) {
+        val forSyncShoppingListByIdUser = shoppingListSyncRepository
+            .getNotSynchronizedShoppingLists()
+        if (forSyncShoppingListByIdUser.isNotEmpty()) {
+            shoppingListStoreRepository.changeShoppingLists(forSyncShoppingListByIdUser.map {
+                it.toRemote(emptyUUID)
+            })
+        }
+        fetchNewShoppingLists(authorizedUserId)
+    }
+
+    suspend fun fetchNewShoppingLists(authorizedUserId: UUID) {
         userRepository.getUserIds().forEach {
             shoppingListSyncRepository.createShoppingListVersionIfNotPresent(it)
         }
         var versions = shoppingListSyncRepository.getShoppingListVersions()
-        val forSyncShoppingListByIdUser = shoppingListSyncRepository
-            .getNotSynchronizedShoppingLists()
-            .groupBy { it.idUser }
+
         if (versions.find { it.idUser == authorizedUserId } == null) {
             val currentUserVersions = ShoppingListVersion(authorizedUserId, 0)
             shoppingListSyncRepository.setShoppingListVersion(currentUserVersions)
             versions = versions + currentUserVersions
         }
 
-        val responses = versions.map { (idUser, version) ->
-            idUser to async {
-                shoppingListStoreRepository.synchronizeShoppingLists(
-                    SynchronizationRequest(
-                        lastSyncVersion = version,
-                        idUser = idUser,
-                        objects = forSyncShoppingListByIdUser[
-                            if (idUser == authorizedUserId) null else idUser
-                        ]?.map { it.toRemote(idUser) } ?: listOf(),
-                    )
-                )
-            }
-        }
         // TODO: Add unavailable users ids to response
-        val result = responses
-            .map { it.first }
-            .zip(responses.map { it.second }.awaitAll())
-            .filter { it.second.objects.isNotEmpty() }
+        val responses = shoppingListStoreRepository
+            .synchronizeShoppingLists(versions)
 
-        result.forEach { (idUser, response) ->
-            response.objects.forEach {
+        responses.forEach { response ->
+            response.updates.forEach {
                 shoppingListSyncRepository.upsertShoppingList(it.toDto(authorizedUserId))
             }
+
             shoppingListSyncRepository.setShoppingListVersion(
                 ShoppingListVersion(
-                    idUser,
-                    response.actualizedSyncVersion
+                    response.idUser,
+                    response.actualVersion
                 )
             )
         }
@@ -302,22 +294,36 @@ class SynchronizationService(
     }
 
     suspend fun retrieveNewFinishedSpendings(authorizedUserId: UUID) {
-        val idsRoomWithReadRole =
-            roomSyncRepository.getRoomsWithAuthority(authorizedUserId, Authority.READ_USERS_DATA)
+        val idsRoomWithReadRole = roomSyncRepository.getRoomsWithAuthority(
+            authorizedUserId,
+            Authority.READ_USERS_DATA,
+        )
         val usersToSynchronized = roomSyncRepository.getRoomMembers(idsRoomWithReadRole)
-        val response: List<FinishedSpendingSyncDto> =
-            finishedSpendingStoreRepository.synchronizeFinishedSpendings(
-                usersToSynchronized.map {
-                    FinishedSpendingVersion(
-                        it.idUser,
-                        it.finishedSpendingVersion
+            .map {
+                FinishedSpendingVersion(
+                    it.idUser,
+                    it.finishedSpendingVersion
+                )
+            }
+            .let { versions ->
+                if (versions.find { it.idUser == authorizedUserId } == null) {
+                    val authorizedUser = userRepository.getUserById(authorizedUserId)
+                        ?: throw UserNotFoundException(authorizedUserId)
+                    versions + FinishedSpendingVersion(
+                        authorizedUser.idUser,
+                        authorizedUser.finishedSpendingVersion,
                     )
+                } else {
+                    versions
                 }
-            )
+            }
+        val response = finishedSpendingStoreRepository.synchronizeFinishedSpendings(
+            usersToSynchronized
+        )
         if (response.isEmpty()) return
 
         finishedSpendingSyncRepository.upsertFinishedSpendingWithRecords(
-            response.flatMap { it.finishedSpendings.toServiceDto(it.idUser) }
+            response.flatMap { it.updates.toServiceDto(it.idUser) }
         )
         finishedSpendingSyncRepository.setFinishedSpendingVersions(
             response.map { FinishedSpendingVersion(it.idUser, it.actualVersion) }
@@ -333,7 +339,7 @@ private fun List<FinishedSpendingDto>.toServiceDto(idUser: UUID) = map { finishe
         title = finishedSpending.name,
         purchaseDate = finishedSpending.purchaseDate,
         isDeleted = finishedSpending.isDeleted,
-        idUser = idUser,
+        idUser = if (finishedSpending.idUser == idUser) null else finishedSpending.idUser,
         version = finishedSpending.version,
         spendingRecords = finishedSpending.spendingRecords.map {
             SyncSpendingRecordDto(
@@ -406,6 +412,4 @@ private fun RemoteShoppingListDto.toDto(authorizedUserId: UUID) = ShoppingListDt
     idUser = if (idUser == authorizedUserId) null else idUser,
 )
 
-
-
-
+class UserNotFoundException(idUser: UUID) : Exception("User with id '$idUser' not found")

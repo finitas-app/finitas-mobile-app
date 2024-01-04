@@ -1,4 +1,4 @@
- package pl.finitas.app.core.domain.dto.store
+package pl.finitas.app.core.domain.dto.store
 
 import kotlinx.serialization.Serializable
 import pl.finitas.app.core.domain.dto.SerializableUUID
@@ -16,9 +16,17 @@ data class SynchronizationResponse<T : SynchronizableEntity>(
     val objects: List<T>,
 )
 
- interface SynchronizableEntity {
-     val version: Int
-     val idUser: SerializableUUID
-     val isDeleted: Boolean
- }
+
+@Serializable
+data class FetchUpdatesResponse<T>(
+    val updates: List<T>,
+    val idUser: SerializableUUID,
+    val actualVersion: Int,
+)
+
+interface SynchronizableEntity {
+    val version: Int
+    val idUser: SerializableUUID
+    val isDeleted: Boolean
+}
 
