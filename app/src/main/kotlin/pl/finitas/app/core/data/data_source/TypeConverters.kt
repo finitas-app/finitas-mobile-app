@@ -46,12 +46,12 @@ class UUIDConverter {
 class AuthoritiesConverter {
     @TypeConverter
     fun fromEnumSet(enumSet: Set<Authority>): String {
-        return enumSet.joinToString(separator = ",", transform = { it.ordinal.toString() })
+        return enumSet.joinToString(separator = ",")
     }
 
     @TypeConverter
     fun fromString(string: String): Set<Authority> {
         if (string.isEmpty()) return setOf()
-        return string.split(",").map { Authority.entries[it.toInt()] }.toSet()
+        return string.split(",").map { Authority.valueOf(it) }.toSet()
     }
 }

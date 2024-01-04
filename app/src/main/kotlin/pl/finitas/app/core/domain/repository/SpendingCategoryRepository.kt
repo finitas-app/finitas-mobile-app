@@ -28,6 +28,7 @@ interface SpendingCategoryRepository {
     suspend fun setCategoryVersions(versions: List<CategoryVersionDto>)
 
     suspend fun getChangedCategories(): List<SpendingCategory>
+    fun getSpendingCategoriesOfAllUsersFlow(): Flow<List<SpendingCategory>>
 }
 
 

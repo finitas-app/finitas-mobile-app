@@ -54,5 +54,5 @@ data class RegularSpendingDto(
     @Serializable(LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     val name: String,
-    val spendingRecords: List<SpendingRecordDto>,
+    val spendingRecords: List<RemoteSpendingRecordDto>,
 )

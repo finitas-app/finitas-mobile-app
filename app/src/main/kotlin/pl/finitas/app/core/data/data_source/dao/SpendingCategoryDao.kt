@@ -16,6 +16,9 @@ interface SpendingCategoryDao {
     @Query("SELECT * FROM SpendingCategory WHERE idUser is null")
     fun getSpendingCategoriesFlow(): Flow<List<SpendingCategory>>
 
+    @Query("SELECT * FROM SpendingCategory")
+    fun getSpendingCategoriesOfAllUsersFlow(): Flow<List<SpendingCategory>>
+
     @Query("SELECT * FROM SpendingCategory WHERE idUser is null")
     suspend fun getSpendingCategories(): List<SpendingCategory>
 

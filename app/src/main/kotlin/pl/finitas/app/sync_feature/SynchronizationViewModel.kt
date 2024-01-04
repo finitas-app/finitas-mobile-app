@@ -123,9 +123,7 @@ class SynchronizationViewModel(
 
                 event == UserNotificationEvent.SHOPPING_LIST_CHANGED -> {
                     // TODO: Send categories using websocket or optimize providing user id
-                    with(synchronizationService) {
-                        fullSyncShoppingLists(authorizedUserId)
-                    }
+                    synchronizationService.retrieveNewShoppingLists(authorizedUserId)
                 }
 
                 event == UserNotificationEvent.REGENERATE_INVITATION_LINK -> {
@@ -140,9 +138,8 @@ class SynchronizationViewModel(
                     synchronizationService.fullSyncRooms(authorizedUserId)
                     synchronizationService.fullSyncNames(listOf())
                     synchronizationService.retrieveNewCategories(authorizedUserId)
-                    with(synchronizationService) {
-                        fullSyncShoppingLists(authorizedUserId)
-                    }
+                    synchronizationService.retrieveNewShoppingLists(authorizedUserId)
+                    synchronizationService.retrieveNewFinishedSpendings(authorizedUserId)
                 }
 
                 event == UserNotificationEvent.DELETE_USER_FROM_ROOM -> {
@@ -153,6 +150,10 @@ class SynchronizationViewModel(
                 event == UserNotificationEvent.ASSIGN_ROLE_TO_USER -> {
                     // TODO: Optimize with
                     synchronizationService.fullSyncRooms(authorizedUserId)
+                }
+
+                event == UserNotificationEvent.FINISHED_SPENDING_CHANGED -> {
+                    synchronizationService.retrieveNewFinishedSpendings(authorizedUserId)
                 }
             }
         }
@@ -176,4 +177,5 @@ enum class UserNotificationEvent {
     ADD_USER_TO_ROOM,
     DELETE_USER_FROM_ROOM,
     ASSIGN_ROLE_TO_USER,
+    FINISHED_SPENDING_CHANGED,
 }

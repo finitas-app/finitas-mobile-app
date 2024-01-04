@@ -1,8 +1,13 @@
 package pl.finitas.app.manage_spendings_feature.domain.service
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import pl.finitas.app.core.data.model.SpendingCategory
+import pl.finitas.app.core.domain.dto.store.RemoteFinishedSpendingDto
+import pl.finitas.app.core.domain.dto.store.RemoteSpendingRecordDto
+import pl.finitas.app.core.domain.repository.FinishedSpendingStoreRepository
+import pl.finitas.app.core.domain.repository.ProfileRepository
 import pl.finitas.app.core.domain.repository.SpendingCategoryNotFoundException
 import pl.finitas.app.core.domain.repository.SpendingCategoryRepository
 import pl.finitas.app.core.domain.services.FinishedSpendingView
@@ -19,23 +24,27 @@ import java.util.UUID
 class FinishedSpendingService(
     private val finishedSpendingRepository: FinishedSpendingRepository,
     private val spendingCategoryRepository: SpendingCategoryRepository,
+    private val finishedSpendingStoreRepository: FinishedSpendingStoreRepository,
+    private val profileRepository: ProfileRepository,
 ) {
 
     fun getTotalSpendings(): Flow<List<Pair<LocalDate, List<FinishedSpendingView>>>> =
-        finishedSpendingRepository.getFinishedSpendings().map { totalSpendings ->
-            val categories =
-                spendingCategoryRepository
-                .getSpendingCategories()
+        finishedSpendingRepository.getFinishedSpendings().combine(
+            spendingCategoryRepository
+                .getSpendingCategoriesOfAllUsersFlow()
+        ) { totalSpendings, categories ->
+            val categoriesById = categories
                 .associateBy { it.idCategory }
 
 
-            return@map totalSpendings
+            totalSpendings
                 .groupBy(keySelector = { it.purchaseDate.toLocalDate() }) { totalSpendingWithRecords ->
                     val (
                         idTotalSpending,
                         title,
                         time,
-                        isDeleted,
+                        _,
+                        _,
                         spendingRecords,
                     ) = totalSpendingWithRecords
                     val recordsByCategory = spendingRecords.groupBy { it.idCategory }
@@ -46,14 +55,14 @@ class FinishedSpendingService(
                         date = time,
                         elements = recordsByCategory.map { (idCategory, records) ->
                             SpendingCategoryView(
-                                name = categories[idCategory]?.name
+                                name = categoriesById[idCategory]?.name
                                     ?: throw SpendingCategoryNotFoundException(idCategory),
                                 idCategory = idCategory,
                                 elements = records.map { record ->
                                     SpendingRecordView(
                                         name = record.name,
                                         totalPrice = record.price,
-                                        idSpendingRecord = record.idSpendingRecord!!,
+                                        idSpendingRecord = record.idSpendingRecord,
                                         idCategory = record.idCategory,
                                     )
                                 }
@@ -62,16 +71,23 @@ class FinishedSpendingService(
                     )
                 }
                 .map { (date, totalSpendingsByDay) ->
-                    date to totalSpendingsByDay.map { it.normalizeTotalSpendingView(categories) }
+                    date to totalSpendingsByDay.map { it.normalizeTotalSpendingView(categoriesById) }
                         .sortedByDescending { it.date }
                 }
                 .sortedByDescending { it.first }
         }
 
-    suspend fun addTotalSpending(totalSpending: FinishedSpendingState) {
-        finishedSpendingRepository.upsertFinishedSpendingWithRecords(
-            totalSpending.toTotalSpendingWithRecords()
-        )
+    suspend fun upsertTotalSpending(totalSpending: FinishedSpendingState) {
+        val dto = totalSpending.toTotalSpendingWithRecords()
+        finishedSpendingRepository.upsertFinishedSpendingWithRecords(dto)
+        val currentUser = profileRepository.getAuthorizedUserId().first() ?: return
+        try {
+            finishedSpendingStoreRepository.changeFinishedSpendings(
+                listOf(dto.toRemote(currentUser))
+            )
+        } catch (_: Exception) {
+
+        }
     }
 
     suspend fun deleteFinishedSpending(idFinishedSpending: UUID) {
@@ -85,9 +101,9 @@ private fun FinishedSpendingView.normalizeTotalSpendingView(categoryById: Map<UU
     val recordsByCategoryId = elements.associate { element ->
         (element as SpendingCategoryView).let { it.idCategory to it.elements }
     }.toMutableMap()
-        /*.groupBy {
-        (it as? SpendingRecordView)?.idCategory ?: -1
-    }.toMutableMap()*/
+    /*.groupBy {
+    (it as? SpendingRecordView)?.idCategory ?: -1
+}.toMutableMap()*/
     val result = mutableListOf<SpendingElementView>()
     val previousSpendingElements = mutableMapOf<UUID, SpendingCategoryView>()
 
@@ -115,7 +131,8 @@ private fun FinishedSpendingView.normalizeTotalSpendingView(categoryById: Map<UU
                     currentCategory.idParent!!
                 )
             val categoryId = currentCategory.idCategory
-            val newContainers: MutableList<SpendingElementView> = mutableListOf(currentSpendingElement)
+            val newContainers: MutableList<SpendingElementView> =
+                mutableListOf(currentSpendingElement)
             if (currentCategory.idCategory in recordsByCategoryId) {
                 newContainers.addAll(recordsByCategoryId[categoryId]!!)
                 recordsByCategoryId.remove(categoryId)
@@ -150,22 +167,22 @@ private fun verifyPrevious(
 
 @Throws(InvalidFinishedSpendingState::class)
 fun FinishedSpendingState.toTotalSpendingWithRecords(): FinishedSpendingWithRecordsDto {
-    val generatedUUID = idFinishedSpending ?: UUID.randomUUID()
-
+    val idSpendingSummary = idFinishedSpending ?: UUID.randomUUID()
     return FinishedSpendingWithRecordsDto(
-        idSpendingSummary = generatedUUID,
+        idSpendingSummary = idSpendingSummary,
         title = title,
         purchaseDate = date.atStartOfDay(),
         isDeleted = false,
+        idReceipt = null,
         spendingRecords = categories.flatMap { category ->
             category.elements.map { spendingRecord ->
-                if (spendingRecord !is SpendingRecordView) throw  InvalidFinishedSpendingState(this)
+                if (spendingRecord !is SpendingRecordView) throw InvalidFinishedSpendingState(this)
 
                 SpendingRecordDto(
                     name = spendingRecord.name,
                     price = spendingRecord.totalPrice,
                     idCategory = category.idCategory,
-                    idSpendingSummary = generatedUUID,
+                    idSpendingSummary = idSpendingSummary,
                     idSpendingRecord = spendingRecord.idSpendingRecord,
                 )
             }
@@ -173,6 +190,25 @@ fun FinishedSpendingState.toTotalSpendingWithRecords(): FinishedSpendingWithReco
     )
 }
 
+private fun FinishedSpendingWithRecordsDto.toRemote(idUser: UUID): RemoteFinishedSpendingDto {
+    return RemoteFinishedSpendingDto(
+        idSpendingSummary = idSpendingSummary,
+        idReceipt = idReceipt,
+        purchaseDate = purchaseDate,
+        version = 0,
+        idUser = idUser,
+        isDeleted = isDeleted,
+        name = title,
+        spendingRecords = spendingRecords.map {
+            RemoteSpendingRecordDto(
+                idSpendingRecordData = it.idSpendingRecord,
+                name = it.name,
+                price = it.price,
+                idCategory = it.idCategory,
+            )
+        }
+    )
+}
 
 class InvalidFinishedSpendingState(finishedSpendingView: FinishedSpendingState) :
     Exception("Finished spending state is invalid: $finishedSpendingView")

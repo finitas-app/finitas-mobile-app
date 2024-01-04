@@ -28,7 +28,7 @@ val manageSpendingsModule = module {
         ChartRepositoryImpl(getDatabase().chartDao)
     }
     single {
-        FinishedSpendingService(get(), get())
+        FinishedSpendingService(get(), get(), get(), get())
     }
     single {
         SpendingCategoryService(get(), get())

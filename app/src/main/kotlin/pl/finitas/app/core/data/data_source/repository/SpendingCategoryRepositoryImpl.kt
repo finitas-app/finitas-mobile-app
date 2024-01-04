@@ -16,6 +16,10 @@ class SpendingCategoryRepositoryImpl(
         return dao.getSpendingCategoriesFlow()
     }
 
+    override fun getSpendingCategoriesOfAllUsersFlow(): Flow<List<SpendingCategory>> {
+        return dao.getSpendingCategoriesOfAllUsersFlow()
+    }
+
     override suspend fun getSpendingCategories(): List<SpendingCategory> {
         return dao.getSpendingCategories()
     }

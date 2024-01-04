@@ -14,7 +14,6 @@ import pl.finitas.app.room_feature.domain.IncomingTextMessage
 import pl.finitas.app.room_feature.domain.OutgoingShoppingListMessage
 import pl.finitas.app.room_feature.domain.OutgoingTextMessage
 import pl.finitas.app.room_feature.domain.repository.MessageRepository
-import pl.finitas.app.room_feature.domain.repository.RoomRepository
 import pl.finitas.app.sync_feature.domain.repository.UserRepository
 import java.time.LocalDateTime
 import java.util.UUID
@@ -62,7 +61,7 @@ class MessageService(
                             idMessage = message.idMessage,
                             message = message.content,
                             time = message.createdAt,
-                            sender = userNames[message.idUser] ?: throw UsernameNotFoundException(message.idUser),
+                            sender = userNames[message.idUser] ?: "unknown",
                             isRead = message.isRead,
                         )
                     }
@@ -71,7 +70,7 @@ class MessageService(
                             idMessage = message.idMessage,
                             idShoppingList = message.idShoppingList,
                             time = message.createdAt,
-                            sender = userNames[message.idUser] ?: throw UsernameNotFoundException(message.idUser),
+                            sender = userNames[message.idUser] ?: "unknown",
                             isRead = message.isRead,
                         )
                     }

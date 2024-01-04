@@ -33,11 +33,12 @@ class FinishedSpendingRepositoryImpl(
                     }
                     .map { (tempFinishedSpending, spendingRecords) ->
                         FinishedSpendingWithRecordsDto(
-                            tempFinishedSpending.idSpendingSummary,
-                            tempFinishedSpending.title,
-                            tempFinishedSpending.purchaseDate,
-                            tempFinishedSpending.isDeleted,
-                            spendingRecords.map {
+                            idSpendingSummary = tempFinishedSpending.idSpendingSummary,
+                            title = tempFinishedSpending.title,
+                            purchaseDate = tempFinishedSpending.purchaseDate,
+                            isDeleted = tempFinishedSpending.isDeleted,
+                            idReceipt = null,
+                            spendingRecords = spendingRecords.map {
                                 SpendingRecordDto(
                                     name = it.spendingRecordName,
                                     price = it.price,
@@ -65,7 +66,7 @@ class FinishedSpendingRepositoryImpl(
                     name = finishedSpending.title
                 ),
                 finishedSpending = FinishedSpending(
-                    idReceipt = null,
+                    idReceipt = finishedSpending.idReceipt,
                     purchaseDate = finishedSpending.purchaseDate,
                     idUser = null,
                     idSpendingSummary = generatedSpendingSummary,
@@ -73,17 +74,16 @@ class FinishedSpendingRepositoryImpl(
                 )
             ),
             finishedSpending.spendingRecords.map {
-                val generatedIdSpendingRecordData = it.idSpendingRecord ?: UUID.randomUUID()
                 SpendingRecordDataToSpendingRecord(
                     spendingRecord = SpendingRecord(
                         idSpendingSummary = generatedSpendingSummary,
-                        idSpendingRecordData = generatedIdSpendingRecordData,
+                        idSpendingRecordData = it.idSpendingRecord,
                         price = it.price,
                     ),
                     spendingRecordData = SpendingRecordData(
                         name = it.name,
                         idCategory = it.idCategory,
-                        idSpendingRecordData = generatedIdSpendingRecordData,
+                        idSpendingRecordData = it.idSpendingRecord,
                     )
                 )
             }

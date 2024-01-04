@@ -9,11 +9,11 @@ import pl.finitas.app.core.data.model.RoomVersion
 import pl.finitas.app.core.data.model.ShoppingListVersion
 import pl.finitas.app.core.data.model.SpendingCategory
 import pl.finitas.app.core.data.model.User
-import pl.finitas.app.core.domain.dto.store.FinishedSpendingDto
 import pl.finitas.app.core.domain.dto.store.GetVisibleNamesRequest
+import pl.finitas.app.core.domain.dto.store.RemoteFinishedSpendingDto
 import pl.finitas.app.core.domain.dto.store.RemoteShoppingItemDto
 import pl.finitas.app.core.domain.dto.store.RemoteShoppingListDto
-import pl.finitas.app.core.domain.dto.store.SpendingRecordDto
+import pl.finitas.app.core.domain.dto.store.RemoteSpendingRecordDto
 import pl.finitas.app.core.domain.dto.store.UserIdValue
 import pl.finitas.app.core.domain.emptyUUID
 import pl.finitas.app.core.domain.repository.CategoryVersionDto
@@ -247,10 +247,10 @@ class SynchronizationService(
                 it.toRemote(emptyUUID)
             })
         }
-        fetchNewShoppingLists(authorizedUserId)
+        retrieveNewShoppingLists(authorizedUserId)
     }
 
-    suspend fun fetchNewShoppingLists(authorizedUserId: UUID) {
+    suspend fun retrieveNewShoppingLists(authorizedUserId: UUID) {
         userRepository.getUserIds().forEach {
             shoppingListSyncRepository.createShoppingListVersionIfNotPresent(it)
         }
@@ -333,7 +333,7 @@ class SynchronizationService(
 }
 
 
-private fun List<FinishedSpendingDto>.toServiceDto(idUser: UUID) = map { finishedSpending ->
+private fun List<RemoteFinishedSpendingDto>.toServiceDto(idUser: UUID) = map { finishedSpending ->
     SyncFinishedSpendingWithRecordsDto(
         idSpendingSummary = finishedSpending.idSpendingSummary,
         title = finishedSpending.name,
@@ -354,9 +354,9 @@ private fun List<FinishedSpendingDto>.toServiceDto(idUser: UUID) = map { finishe
 }
 
 
-private fun List<FinishedSpendingWithRecordsDto>.toRemote(idUser: UUID): List<FinishedSpendingDto> =
+private fun List<FinishedSpendingWithRecordsDto>.toRemote(idUser: UUID): List<RemoteFinishedSpendingDto> =
     map {
-        FinishedSpendingDto(
+        RemoteFinishedSpendingDto(
             it.idSpendingSummary,
             null,
             it.purchaseDate,
@@ -365,8 +365,8 @@ private fun List<FinishedSpendingWithRecordsDto>.toRemote(idUser: UUID): List<Fi
             it.isDeleted,
             name = it.title,
             spendingRecords = it.spendingRecords.map { spendingRecord ->
-                SpendingRecordDto(
-                    idSpendingRecordData = spendingRecord.idSpendingRecord!!,
+                RemoteSpendingRecordDto(
+                    idSpendingRecordData = spendingRecord.idSpendingRecord,
                     idCategory = spendingRecord.idCategory,
                     name = spendingRecord.name,
                     price = spendingRecord.price,

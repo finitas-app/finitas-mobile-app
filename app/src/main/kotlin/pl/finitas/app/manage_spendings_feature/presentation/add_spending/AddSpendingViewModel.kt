@@ -68,7 +68,7 @@ class AddSpendingViewModel(
 
     fun onSave() {
         viewModelScope.launch {
-            finishedSpendingService.addTotalSpending(finishedSpendingState)
+            finishedSpendingService.upsertTotalSpending(finishedSpendingState)
             closeDialog()
         }
     }

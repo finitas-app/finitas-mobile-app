@@ -13,6 +13,7 @@ data class ShoppingListState(
     val color: Int,
     val categories: List<ShoppingItemCategoryView>,
     val idShoppingList: UUID? = null,
+    val idUser: UUID? = null,
 ) {
     val addSpending = getSpendingsMutator { list, spending -> list + spending }
     val removeSpending = getSpendingsMutator { list, spending -> list - spending }

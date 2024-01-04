@@ -34,7 +34,6 @@ interface FinishedSpendingDao {
         JOIN SpendingSummary ss on fs.idSpendingSummary = ss.idSpendingSummary
         JOIN SpendingRecord sr on ss.idSpendingSummary == sr.idSpendingSummary
         JOIN SpendingRecordData srd on sr.idSpendingRecordData = srd.idSpendingRecordData
-        WHERE idUser is null
     """
     )
     fun getFinishedSpendingsWithRecordFlat(): Flow<List<FinishedSpendingWithRecordFlat>>
@@ -77,6 +76,13 @@ interface FinishedSpendingDao {
         spendingSummaryToFinishedSpending: SpendingSummaryToFinishedSpending,
         spendingRecords: List<SpendingRecordDataToSpendingRecord>,
     ) {
+        deleteSpendingRecordsData(
+            getSpendingRecordsDataBy(
+                idSpendingSummary = spendingSummaryToFinishedSpending
+                    .spendingSummary
+                    .idSpendingSummary,
+            )
+        )
         upsertSpendingSummary(spendingSummaryToFinishedSpending.spendingSummary)
         upsertFinishedSpending(spendingSummaryToFinishedSpending.finishedSpending)
         upsertSpendingRecordsData(spendingRecords.map { it.spendingRecordData })
@@ -131,7 +137,7 @@ data class FinishedSpendingWithRecordFlat(
     val spendingRecordName: String,
     val price: BigDecimal,
     val idCategory: UUID,
-    val idSpendingRecord: UUID? = null,
+    val idSpendingRecord: UUID,
 )
 
 data class IdFinishedSpending(

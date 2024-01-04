@@ -235,7 +235,7 @@ fun <T: Nameable>RenderStarter(
             )
         val interactionSource = remember { MutableInteractionSource() }
         Fonts.regular.Text(
-            text = nameable.name.trimOnOverflow(),
+            text = nameable.name.trimOnOverflow(18 - depth * 2),
             Modifier
                 .align(Alignment.CenterVertically)
                 .clickable(

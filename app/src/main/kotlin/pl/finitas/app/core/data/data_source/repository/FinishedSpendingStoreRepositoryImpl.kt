@@ -12,14 +12,14 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import pl.finitas.app.core.domain.dto.store.DeleteFinishedSpendingRequest
 import pl.finitas.app.core.domain.dto.store.FetchUpdatesResponse
-import pl.finitas.app.core.domain.dto.store.FinishedSpendingDto
+import pl.finitas.app.core.domain.dto.store.RemoteFinishedSpendingDto
 import pl.finitas.app.core.domain.repository.FinishedSpendingStoreRepository
 import pl.finitas.app.core.domain.repository.FinishedSpendingVersion
 import pl.finitas.app.core.http.HttpUrls
 
 class FinishedSpendingStoreRepositoryImpl(private val httpClient: HttpClient) :
     FinishedSpendingStoreRepository {
-    override suspend fun changeFinishedSpendings(request: List<FinishedSpendingDto>) {
+    override suspend fun changeFinishedSpendings(request: List<RemoteFinishedSpendingDto>) {
         // TODO: change url and method
         httpClient.put("${HttpUrls.finishedSpendingsStore}/sync") {
             setBody(request)
@@ -27,7 +27,7 @@ class FinishedSpendingStoreRepositoryImpl(private val httpClient: HttpClient) :
         }
     }
 
-    override suspend fun synchronizeFinishedSpendings(request: List<FinishedSpendingVersion>): List<FetchUpdatesResponse<FinishedSpendingDto>> {
+    override suspend fun synchronizeFinishedSpendings(request: List<FinishedSpendingVersion>): List<FetchUpdatesResponse<RemoteFinishedSpendingDto>> {
         // TODO: change url and method
         return httpClient.post("${HttpUrls.finishedSpendingsStore}/sync") {
             setBody(request)
@@ -35,20 +35,20 @@ class FinishedSpendingStoreRepositoryImpl(private val httpClient: HttpClient) :
         }.body()
     }
 
-    override suspend fun getAllFinishedSpendings(idUser: String): List<FinishedSpendingDto> {
+    override suspend fun getAllFinishedSpendings(idUser: String): List<RemoteFinishedSpendingDto> {
         return httpClient.get("${HttpUrls.finishedSpendingsStore}/$idUser"){
             contentType(ContentType.Application.Json)
         }.body()
     }
 
-    override suspend fun createFinishedSpending(dto: FinishedSpendingDto) {
+    override suspend fun createFinishedSpending(dto: RemoteFinishedSpendingDto) {
         httpClient.post(HttpUrls.finishedSpendingsStore) {
             setBody(dto)
             contentType(ContentType.Application.Json)
         }
     }
 
-    override suspend fun updateFinishedSpending(dto: FinishedSpendingDto) {
+    override suspend fun updateFinishedSpending(dto: RemoteFinishedSpendingDto) {
         httpClient.patch(HttpUrls.finishedSpendingsStore) {
             setBody(dto)
             contentType(ContentType.Application.Json)

@@ -12,7 +12,7 @@ data class DeleteFinishedSpendingRequest(
 )
 
 @Serializable
-class FinishedSpendingDto(
+class RemoteFinishedSpendingDto(
     val idSpendingSummary: SerializableUUID,
     val idReceipt: SerializableUUID?,
     val purchaseDate: SerializableLocalDateTime,
@@ -20,11 +20,11 @@ class FinishedSpendingDto(
     override val idUser: SerializableUUID,
     override val isDeleted: Boolean,
     val name: String,
-    val spendingRecords: List<SpendingRecordDto>,
+    val spendingRecords: List<RemoteSpendingRecordDto>,
 ): SynchronizableEntity
 
 @Serializable
-data class SpendingRecordDto(
+data class RemoteSpendingRecordDto(
     val idSpendingRecordData: SerializableUUID,
     val name: String,
     val price: SerializableBigDecimal,

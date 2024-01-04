@@ -9,6 +9,7 @@ data class FinishedSpendingWithRecordsDto(
     val title: String,
     val purchaseDate: LocalDateTime,
     val isDeleted: Boolean,
+    val idReceipt: UUID?,
     val spendingRecords: List<SpendingRecordDto>,
 )
 
@@ -16,6 +17,6 @@ data class SpendingRecordDto(
     val name: String,
     val price: BigDecimal,
     val idCategory: UUID,
-    val idSpendingRecord: UUID? = null,
+    val idSpendingRecord: UUID,
     val idSpendingSummary: UUID? = null,
 )

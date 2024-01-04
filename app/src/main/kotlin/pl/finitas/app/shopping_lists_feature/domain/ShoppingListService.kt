@@ -75,6 +75,7 @@ class ShoppingListService(
         return ShoppingListState(
             title = shoppingList.name,
             idShoppingList = shoppingList.idShoppingList,
+            idUser = shoppingList.idUser,
             color = shoppingList.color,
             categories = categories.map { category ->
                 category.copy(
@@ -93,6 +94,7 @@ class ShoppingListService(
     }
 
     suspend fun upsertShoppingList(shoppingListState: ShoppingListState) {
+        if (shoppingListState.idUser != null) throw InvalidShoppingListState(shoppingListState, "Is not possible to upsert shopping list of not current user.")
         val generatedUUID = shoppingListState.idShoppingList ?: UUID.randomUUID()
         val dto = ShoppingListDto(
             name = shoppingListState.title,
@@ -120,13 +122,7 @@ class ShoppingListService(
         shoppingListRepository.upsertShoppingList(dto)
         val currentUser = profileRepository.getAuthorizedUserId().first() ?: return
         try {
-            if (shoppingListState.idShoppingList == null) {
-                shoppingListStoreRepository.createShoppingList(
-                    dto.toRemote(currentUser)
-                )
-            } else {
-                shoppingListStoreRepository.updateShoppingList(dto.toRemote(currentUser))
-            }
+            shoppingListStoreRepository.changeShoppingLists(listOf(dto.toRemote(currentUser)))
         } catch (_: Exception) {
 
         }
@@ -226,5 +222,5 @@ private fun ShoppingListDto.toRemote(idUser: UUID): RemoteShoppingListDto = Remo
 )
 
 
-class InvalidShoppingListState(shoppingListState: ShoppingListState) :
-    Exception("Total spending state is invalid: $shoppingListState")
+class InvalidShoppingListState(shoppingListState: ShoppingListState, message: String = "Total spending state is invalid: $shoppingListState") :
+    Exception(message)
