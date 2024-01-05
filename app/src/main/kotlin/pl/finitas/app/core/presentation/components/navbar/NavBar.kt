@@ -43,7 +43,7 @@ fun BoxScope.NavBar(
             .background(
                 Brush.verticalGradient(
                     listOf(Color.Transparent, backgroundColor),
-                    endY = with(LocalDensity.current) { 90.dp.toPx() }
+                    endY = with(LocalDensity.current) { 100.dp.toPx() }
                 )
             )
     ) {

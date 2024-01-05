@@ -41,5 +41,5 @@ data class FinishedSpendingContext(
     val idRoom: UUID?,
     val idsUser: List<UUID>,
 ) {
-    val isSingleUserFinishedSpendings get() = idsUser.size in (0..1)
+    val isClear get() = idRoom == null && idsUser.isEmpty()
 }
