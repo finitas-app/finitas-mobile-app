@@ -23,7 +23,10 @@ interface SpendingCategoryDao {
     suspend fun getSpendingCategories(): List<SpendingCategory>
 
     @Query("SELECT * FROM SpendingCategory")
-    fun getAllUsersSpendingCategories(): Flow<List<SpendingCategory>>
+    fun getAllUsersSpendingCategoriesFlow(): Flow<List<SpendingCategory>>
+
+    @Query("SELECT * FROM SpendingCategory")
+    suspend fun getAllUsersSpendingCategories(): List<SpendingCategory>
 
     @Query("SELECT * FROM SpendingCategory WHERE idCategory = :idCategory")
     suspend fun findSpendingCategoryBy(idCategory: UUID): SpendingCategory?
@@ -48,4 +51,7 @@ interface SpendingCategoryDao {
 
     @Query("SELECT * FROM SpendingCategory WHERE version is null")
     suspend fun getChangedCategories(): List<SpendingCategory>
+
+    @Query("SELECT * FROM SpendingCategory WHERE idUser = :idUser")
+    suspend fun getSpendingCategoriesByIdUser(idUser: UUID): List<SpendingCategory>
 }

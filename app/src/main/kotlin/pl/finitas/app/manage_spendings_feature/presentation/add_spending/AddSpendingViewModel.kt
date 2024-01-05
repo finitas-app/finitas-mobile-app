@@ -24,13 +24,14 @@ class AddSpendingViewModel(
     var finishedSpendingState by mutableStateOf(FinishedSpendingState.emptyState)
         private set
 
-    fun openDialog(finishedSpendingView: FinishedSpendingView?) {
+    fun openDialog(finishedSpendingView: FinishedSpendingView?, idUser: UUID?) {
         viewModelScope.launch {
-            val categories = spendingCategoryService.getSpendingCategoriesFlat()
             finishedSpendingState =
             if (finishedSpendingView == null) {
-                FinishedSpendingState(categories = categories)
+                val categories = spendingCategoryService.getSpendingCategoriesByIdUserFlat(idUser)
+                FinishedSpendingState(categories = categories, idUser)
             } else {
+                val categories = spendingCategoryService.getSpendingCategoriesByIdUserFlat(idUser)
                 FinishedSpendingState(categories = categories, finishedSpendingView)
             }
             isDialogOpen = true
@@ -40,14 +41,6 @@ class AddSpendingViewModel(
     fun closeDialog() {
         finishedSpendingState = FinishedSpendingState.emptyState
         isDialogOpen = false
-    }
-
-    init {
-        viewModelScope.launch {
-            finishedSpendingState = spendingCategoryService.getSpendingCategoriesFlat().let {
-                finishedSpendingState.copy(categories = it)
-            }
-        }
     }
 
     fun setTitle(title: String) {
@@ -68,7 +61,7 @@ class AddSpendingViewModel(
 
     fun onSave() {
         viewModelScope.launch {
-            finishedSpendingService.upsertTotalSpending(finishedSpendingState)
+            finishedSpendingService.upsertFinishedSpending(finishedSpendingState)
             closeDialog()
         }
     }

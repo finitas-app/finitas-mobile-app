@@ -37,6 +37,7 @@ data class FinishedSpendingView(
     override val elements: List<SpendingElementView>,
     val idFinishedSpending: UUID,
     val date: LocalDateTime,
+    val idUser: UUID?,
 ) : SpendingElementView, NameableCollection<SpendingElementView> {
     override val totalPrice by lazy { elements.sumOf { it.totalPrice } }
 }

@@ -38,6 +38,7 @@ class FinishedSpendingSyncRepositoryImpl(
                         purchaseDate = tempFinishedSpending.purchaseDate,
                         isDeleted = tempFinishedSpending.isDeleted,
                         idReceipt = null,
+                        idUser = null,
                         spendingRecords = spendingRecords.map {
                             SpendingRecordDto(
                                 name = it.spendingRecordName,

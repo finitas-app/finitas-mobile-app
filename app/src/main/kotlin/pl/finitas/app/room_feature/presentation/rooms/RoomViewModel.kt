@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import pl.finitas.app.room_feature.domain.service.AuthorizedUserService
+import pl.finitas.app.core.domain.services.AuthorizedUserService
 import pl.finitas.app.room_feature.domain.service.RoomService
 
 class RoomViewModel(

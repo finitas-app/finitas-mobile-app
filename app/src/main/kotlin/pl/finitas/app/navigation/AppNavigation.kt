@@ -33,12 +33,16 @@ fun AppNavigation() {
             AuthScreen(navController)
         }
         composable(
-            route = NavPaths.HomeScreen.route + "?idsUser={idsUser}",
+            route = NavPaths.HomeScreen.route + "?idsUser={idsUser}&idRoom={idRoom}",
             arguments = listOf(
                 navArgument(name = "idsUser") {
                     type = NavType.StringType
                     defaultValue = ""
-                }
+                },
+                navArgument(name = "idRoom") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
             )
         ) {
             HomeScreen(navController)

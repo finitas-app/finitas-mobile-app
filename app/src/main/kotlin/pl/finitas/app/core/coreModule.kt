@@ -17,6 +17,7 @@ import pl.finitas.app.core.domain.repository.MessageSenderRepository
 import pl.finitas.app.core.domain.repository.ProfileRepository
 import pl.finitas.app.core.domain.repository.ShoppingListStoreRepository
 import pl.finitas.app.core.domain.repository.UserStoreRepository
+import pl.finitas.app.core.domain.services.AuthorizedUserService
 import pl.finitas.app.core.http.httpClient
 import pl.finitas.app.sync_feature.data.data_source.UserRepositoryImpl
 import pl.finitas.app.sync_feature.domain.repository.UserRepository
@@ -54,6 +55,7 @@ val coreModule = module {
     single<AuthorityRepository> { AuthorityRepositoryImpl(getDatabase().roomMemberDao) }
     single<UserRepository> { UserRepositoryImpl(getDatabase().userDao) }
     single<MessageSenderRepository> { MessageSenderRepositoryImpl(get()) }
+    single { AuthorizedUserService(get(), get()) }
 }
 
 fun Scope.getDatabase() = get<FinitasDatabase>()

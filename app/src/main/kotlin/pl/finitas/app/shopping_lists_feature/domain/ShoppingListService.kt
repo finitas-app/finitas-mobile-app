@@ -26,7 +26,7 @@ class ShoppingListService(
             .getShoppingLists()
             .combine(
                 spendingCategoryRepository
-                    .getAllUsersSpendingCategories()
+                    .getAllUsersSpendingCategoriesFlow()
             ) { shoppingLists: List<ShoppingListDto>, categories ->
                 val categoriesById = categories.associateBy { it.idCategory }
 

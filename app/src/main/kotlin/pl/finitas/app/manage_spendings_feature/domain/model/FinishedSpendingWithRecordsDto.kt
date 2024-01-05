@@ -10,6 +10,7 @@ data class FinishedSpendingWithRecordsDto(
     val purchaseDate: LocalDateTime,
     val isDeleted: Boolean,
     val idReceipt: UUID?,
+    val idUser: UUID?,
     val spendingRecords: List<SpendingRecordDto>,
 )
 

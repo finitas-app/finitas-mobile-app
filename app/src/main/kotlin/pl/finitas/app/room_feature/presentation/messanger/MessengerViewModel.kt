@@ -10,17 +10,15 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.data.model.ShoppingList
-import pl.finitas.app.core.domain.repository.AuthorityRepository
+import pl.finitas.app.core.domain.services.AuthorizedUserService
 import pl.finitas.app.navigation.NavPaths
 import pl.finitas.app.room_feature.domain.ChatMessage
 import pl.finitas.app.room_feature.domain.IncomingChatMessage
 import pl.finitas.app.room_feature.domain.ShoppingListMessage
-import pl.finitas.app.room_feature.domain.service.AuthorizedUserService
 import pl.finitas.app.room_feature.domain.service.MessageService
 import pl.finitas.app.room_feature.domain.service.RoomService
 import pl.finitas.app.room_feature.domain.service.RoomShoppingListService
@@ -32,7 +30,6 @@ class MessengerViewModel(
     private val roomService: RoomService,
     private val authorizedUserService: AuthorizedUserService,
     private val roomShoppingListService: RoomShoppingListService,
-    private val authorityRepository: AuthorityRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     var authorizedUserId = authorizedUserService.getAuthorizedIdUser()
@@ -94,11 +91,7 @@ class MessengerViewModel(
                 shoppingLists.associateBy { it.idShoppingList }
             }
         }
-        currentUserAuthorities =
-            authorizedUserService.getAuthorizedIdUser().flatMapLatest { idUser ->
-                if (idUser == null) flow { emit(setOf()) }
-                else authorityRepository.getAuthorityOfUser(idUser, idRoom)
-            }
+        currentUserAuthorities = authorizedUserService.getAuthorityOfCurrentUser(idRoom)
     }
 
     fun sendTextMessage(message: String) {
@@ -131,7 +124,7 @@ class MessengerViewModel(
                         members.joinToString(
                             separator = ",",
                         )
-                    }"
+                    }&idRoom=${idRoom}"
                 )
             }
         }

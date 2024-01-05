@@ -14,7 +14,9 @@ data class ChartState(
     val chartType: ChartType,
     val startDate: LocalDate?,
     val endDate: LocalDate?,
-    val categories: List<SpendingCategoryView>
+    val categories: List<SpendingCategoryView>,
+    val idTargetUser: UUID?,
+    val idRoom: UUID?,
 ) {
     companion object {
         fun empty() = ChartState(
@@ -22,7 +24,9 @@ data class ChartState(
             startDate = null,
             endDate = null,
             categories = listOf(),
-            chartId = UUID.randomUUID()
+            chartId = UUID.randomUUID(),
+            idTargetUser = null,
+            idRoom = null,
         )
     }
 }

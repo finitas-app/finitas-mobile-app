@@ -39,7 +39,7 @@ class RegularSpendingsViewModel(
         viewModelScope.launch {
             regularSpendingState = regularSpendingService.getStateFrom(
                 regularSpending = currentSpending,
-                allCategories = spendingCategoryService.getSpendingCategoriesFlat()
+                allCategories = spendingCategoryService.getSpendingCategoriesByIdUserFlat()
             )
             constructorAction = ConstructorAction.EDIT
             isDialogOpen = true
@@ -49,7 +49,7 @@ class RegularSpendingsViewModel(
     fun addIconOnClick() {
         viewModelScope.launch {
             regularSpendingState = regularSpendingState.copy(
-                categories = spendingCategoryService.getSpendingCategoriesFlat()
+                categories = spendingCategoryService.getSpendingCategoriesByIdUserFlat()
             )
             constructorAction = ConstructorAction.CREATE
             isDialogOpen = true

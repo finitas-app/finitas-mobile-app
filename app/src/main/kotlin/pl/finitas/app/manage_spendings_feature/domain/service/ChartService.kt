@@ -13,10 +13,15 @@ class ChartService(
     private val chartRepository: ChartRepository,
     private val spendingCategoryRepository: SpendingCategoryRepository,
 ) {
-    fun getChartsWithCategoriesFlow() = chartRepository.getChartsWithCategoriesFlow()
+    fun getChartsWithCategoriesFlow(idRoom: UUID?, idTargetUser: UUID?) = chartRepository.getChartsWithCategoriesFlow(idRoom, idTargetUser)
 
-    suspend fun getSpendingCategories(): List<SpendingCategoryView> {
-        val (originCategories, nestedCategories) = spendingCategoryRepository.getSpendingCategories()
+    suspend fun getSpendingCategories(idRoom: UUID?, idTargetUser: UUID?): List<SpendingCategoryView> {
+        val categories = when {
+            idRoom != null -> spendingCategoryRepository.getAllUsersSpendingCategories()
+            idTargetUser != null -> spendingCategoryRepository.getSpendingCategoriesByIdUser(idTargetUser)
+            else -> spendingCategoryRepository.getSpendingCategories()
+        }
+        val (originCategories, nestedCategories) = categories
             .partition { it.idParent == null }
         val categoriesByParentId = nestedCategories.groupBy { it.idParent!! }.toMutableMap()
 
@@ -34,6 +39,8 @@ class ChartService(
                 startDate = chartState.startDate,
                 endDate = chartState.endDate,
                 categoryIds = categoryIds,
+                idTargetUser = chartState.idTargetUser,
+                idRoom = chartState.idRoom,
             ),
         )
     }

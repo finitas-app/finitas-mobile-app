@@ -27,7 +27,7 @@ class UpsertShoppingListViewModel(
     fun openDialog(idShoppingList: UUID?) {
         viewModelScope.launch {
             val categories = spendingCategoryService
-                .getSpendingCategoriesFlat()
+                .getSpendingCategoriesByIdUserFlat()
                 .map { it.toShoppingItemCategory() }
             shoppingListState = if (idShoppingList == null) {
                 shoppingListState.copy(categories = categories)

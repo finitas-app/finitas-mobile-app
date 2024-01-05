@@ -11,9 +11,10 @@ data class FinishedSpendingState(
     val title: String,
     val date: LocalDate,
     val categories: List<SpendingCategoryView>,
+    val idUser: UUID?,
     val idFinishedSpending: UUID? = null,
 ) {
-    constructor(categories: List<SpendingCategoryView>) : this("", LocalDate.now(), categories)
+    constructor(categories: List<SpendingCategoryView>, idUser: UUID?) : this("", LocalDate.now(), categories, idUser)
     constructor(
         categories: List<SpendingCategoryView>,
         finishedSpendingView: FinishedSpendingView,
@@ -33,6 +34,7 @@ data class FinishedSpendingState(
             }
         },
         idFinishedSpending = finishedSpendingView.idFinishedSpending,
+        idUser = finishedSpendingView.idUser,
     )
 
     val addSpending = getSpendingsMutator { list, spending -> list + spending }
@@ -51,7 +53,7 @@ data class FinishedSpendingState(
         }
 
     companion object {
-        val emptyState = FinishedSpendingState("", LocalDate.now(), listOf())
+        val emptyState = FinishedSpendingState("", LocalDate.now(), listOf(), null)
     }
 }
 

@@ -36,8 +36,8 @@ val manageSpendingsModule = module {
     single {
         ChartService(get(), get())
     }
-    viewModel { FinishedSpendingViewModel(get(), get()) }
+    viewModel { FinishedSpendingViewModel(get(), get(), get()) }
     viewModel { AddSpendingViewModel(get(), get()) }
-    viewModel { ChartDisplayViewModel(get()) }
-    viewModel { ChartConstructorViewModel(get()) }
+    viewModel { ChartDisplayViewModel(get(), get(), get()) }
+    viewModel { ChartConstructorViewModel(get(), get()) }
 }

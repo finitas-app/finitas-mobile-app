@@ -61,7 +61,7 @@ fun UserSettingsDialog(
                 ClickableIcon(
                     imageVector = Icons.Rounded.RemoveRedEye,
                     onClick = {
-                        navController.navigate(NavPaths.HomeScreen.route + "?idsUser=${roomMember.idUser}")
+                        navController.navigate(NavPaths.HomeScreen.route + "?idsUser=${roomMember.idUser}&idRoom=${viewModel.idRoom}")
                         viewModel.closeUserDialog()
                     }
                 )

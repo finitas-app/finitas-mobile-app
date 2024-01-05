@@ -87,6 +87,7 @@ private fun List<FinishedSpendingWithRecordFlat>.toDto() =
             title = it.title,
             purchaseDate = it.purchaseDate,
             isDeleted = it.isDeleted,
+            idUser = it.idUser,
         )
     }.map { (tempFinishedSpending, spendingRecords) ->
         FinishedSpendingWithRecordsDto(
@@ -95,6 +96,7 @@ private fun List<FinishedSpendingWithRecordFlat>.toDto() =
             purchaseDate = tempFinishedSpending.purchaseDate,
             isDeleted = tempFinishedSpending.isDeleted,
             idReceipt = null,
+            idUser = tempFinishedSpending.idUser,
             spendingRecords = spendingRecords.map {
                 SpendingRecordDto(
                     name = it.spendingRecordName,
@@ -112,6 +114,7 @@ private data class TempFinishedSpending(
     val title: String,
     val purchaseDate: LocalDateTime,
     val isDeleted: Boolean,
+    val idUser: UUID?,
 )
 
 class FinishedSpendingNotFoundException(

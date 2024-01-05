@@ -42,6 +42,7 @@ class FinishedSpendingService(
                         transform = ::mapToView,
                     )
                 }
+
                 idsUser.size == 1 && idsUser[0] != currentUser -> {
                     finishedSpendingRepository.getFinishedSpendingsByIdUser(idsUser[0]).combine(
                         spendingCategoryRepository
@@ -49,6 +50,7 @@ class FinishedSpendingService(
                         transform = ::mapToView,
                     )
                 }
+
                 else -> {
                     finishedSpendingRepository.getFinishedSpendings(idsUser).combine(
                         spendingCategoryRepository
@@ -61,16 +63,31 @@ class FinishedSpendingService(
     }
 
 
-    suspend fun upsertTotalSpending(totalSpending: FinishedSpendingState) {
+    suspend fun upsertFinishedSpending(totalSpending: FinishedSpendingState) {
+        val currentUser = profileRepository.getAuthorizedUserId().first()
         val dto = totalSpending.toTotalSpendingWithRecords()
-        finishedSpendingRepository.upsertFinishedSpendingWithRecords(dto)
-        val currentUser = profileRepository.getAuthorizedUserId().first() ?: return
-        try {
-            finishedSpendingStoreRepository.changeFinishedSpendings(
-                listOf(dto.toRemote(currentUser))
-            )
-        } catch (_: Exception) {
+        if (dto.idUser == null || dto.idUser == currentUser) {
+            finishedSpendingRepository.upsertFinishedSpendingWithRecords(dto)
+            if (currentUser != null) {
+                try {
+                    finishedSpendingStoreRepository.changeFinishedSpendings(
+                        listOf(dto.toRemote(currentUser))
+                    )
+                } catch (_: Exception) {
 
+                }
+            }
+        } else if (currentUser != null) {
+            try {
+                val remoteDto = dto.toRemote(dto.idUser)
+                if (totalSpending.idFinishedSpending == null) {
+                    finishedSpendingStoreRepository.createFinishedSpending(remoteDto)
+                } else {
+                    finishedSpendingStoreRepository.updateFinishedSpending(remoteDto)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -110,7 +127,10 @@ class FinishedSpendingService(
     }
 }
 
-private fun mapToView(totalSpendings: List<FinishedSpendingWithRecordsDto>, categories: List<SpendingCategory>): List<Pair<LocalDate, List<FinishedSpendingView>>> {
+private fun mapToView(
+    totalSpendings: List<FinishedSpendingWithRecordsDto>,
+    categories: List<SpendingCategory>,
+): List<Pair<LocalDate, List<FinishedSpendingView>>> {
     val categoriesById = categories
         .associateBy { it.idCategory }
 
@@ -123,6 +143,7 @@ private fun mapToView(totalSpendings: List<FinishedSpendingWithRecordsDto>, cate
                 time,
                 _,
                 _,
+                idUser,
                 spendingRecords,
             ) = totalSpendingWithRecords
             val recordsByCategory = spendingRecords.groupBy { it.idCategory }
@@ -131,6 +152,7 @@ private fun mapToView(totalSpendings: List<FinishedSpendingWithRecordsDto>, cate
                 idFinishedSpending = idTotalSpending,
                 name = title,
                 date = time,
+                idUser = idUser,
                 elements = recordsByCategory.map { (idCategory, records) ->
                     SpendingCategoryView(
                         name = categoriesById[idCategory]?.name
@@ -234,6 +256,7 @@ fun FinishedSpendingState.toTotalSpendingWithRecords(): FinishedSpendingWithReco
         purchaseDate = date.atStartOfDay(),
         isDeleted = false,
         idReceipt = null,
+        idUser = idUser,
         spendingRecords = categories.flatMap { category ->
             category.elements.map { spendingRecord ->
                 if (spendingRecord !is SpendingRecordView) throw InvalidFinishedSpendingState(this)
