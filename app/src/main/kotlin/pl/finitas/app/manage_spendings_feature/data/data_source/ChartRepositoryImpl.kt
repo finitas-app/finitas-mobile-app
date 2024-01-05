@@ -7,7 +7,7 @@ import pl.finitas.app.core.data.data_source.dao.ChartWithCategoryFlat
 import pl.finitas.app.core.data.model.Chart
 import pl.finitas.app.core.data.model.ChartToCategoryRef
 import pl.finitas.app.core.data.model.relations.ChartToCategoryRefs
-import pl.finitas.app.core.domain.exceptions.InputValidationException
+import pl.finitas.app.core.domain.validateBuilder
 import pl.finitas.app.manage_spendings_feature.domain.repository.ChartRepository
 import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartType
 import java.math.BigDecimal
@@ -16,7 +16,10 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class ChartRepositoryImpl(val dao: ChartDao) : ChartRepository {
-    override fun getChartsWithCategoriesFlow(idRoom: UUID?, idTargetUser: UUID?): Flow<List<ChartWithCategoriesDto>> {
+    override fun getChartsWithCategoriesFlow(
+        idRoom: UUID?,
+        idTargetUser: UUID?,
+    ): Flow<List<ChartWithCategoriesDto>> {
         require((idRoom != null && idTargetUser != null).not())
         return (if (idRoom != null) {
             dao.getChartsWithCategoriesFlatByIdRoomFlow(idRoom)
@@ -107,26 +110,20 @@ data class ChartDtoWithCategoryIds(
         const val BAR_CHART_MAX_CATEGORIES_SIZE = 10
         const val PIE_CHART_MAX_CATEGORIES_SIZE = 20
     }
+
     init {
-        listOfNotNull(
-            if (categoryIds.isEmpty()) "Chart should have at least one category"
-            else null,
-            if (chartType == ChartType.BAR && categoryIds.size > BAR_CHART_MAX_CATEGORIES_SIZE)
+        validateBuilder {
+            validate(categoryIds.isNotEmpty()) { "Chart should have at least one category" }
+            validate(chartType == ChartType.BAR || categoryIds.size <= BAR_CHART_MAX_CATEGORIES_SIZE) {
                 "Bar chart can include maximum $BAR_CHART_MAX_CATEGORIES_SIZE categories"
-            else null,
-            if (chartType == ChartType.PIE && categoryIds.size > PIE_CHART_MAX_CATEGORIES_SIZE)
-                "Pie chart can include maximum $PIE_CHART_MAX_CATEGORIES_SIZE categories"
-            else null,
-            if (
-                startDate != null
-                && endDate != null
-                && startDate > endDate
-            ) "Start date can not be after end date"
-            else null,
-        )
-            .let {
-                if (it.isNotEmpty()) throw InputValidationException(it)
             }
+            validate(chartType == ChartType.PIE || categoryIds.size <= PIE_CHART_MAX_CATEGORIES_SIZE) {
+                "Pie chart can include maximum $PIE_CHART_MAX_CATEGORIES_SIZE categories"
+            }
+            validate(startDate == null || endDate == null || startDate < endDate) {
+                "Start date can not be after end date"
+            }
+        }
     }
 }
 
