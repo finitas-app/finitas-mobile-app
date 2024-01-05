@@ -31,7 +31,6 @@ import pl.finitas.app.core.data.model.RoomRole
 import pl.finitas.app.core.data.model.RoomVersion
 import pl.finitas.app.core.data.model.ShoppingItem
 import pl.finitas.app.core.data.model.ShoppingList
-import pl.finitas.app.core.data.model.ShoppingListVersion
 import pl.finitas.app.core.data.model.SpendingCategory
 import pl.finitas.app.core.data.model.SpendingRecord
 import pl.finitas.app.core.data.model.SpendingRecordData
@@ -58,7 +57,6 @@ import pl.finitas.app.core.data.model.User
         RoomMessage::class,
         RoomVersion::class,
         MessagesVersion::class,
-        ShoppingListVersion::class,
     ],
     version = 6,
 )

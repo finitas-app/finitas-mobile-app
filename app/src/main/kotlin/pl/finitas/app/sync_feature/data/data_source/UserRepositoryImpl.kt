@@ -33,4 +33,8 @@ class UserRepositoryImpl(
     override suspend fun saveUsers(users: List<User>) {
         return userDao.saveUsers(users)
     }
+
+    override suspend fun clearVersions(idUser: UUID) {
+        return userDao.clearVersions(idUser)
+    }
 }

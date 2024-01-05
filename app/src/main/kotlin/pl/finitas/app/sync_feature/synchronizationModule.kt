@@ -20,7 +20,7 @@ val synchronizationModule = module {
     single<VersionsRepository> { VersionRepositoryImpl(getDatabase().versionsDao) }
     single<MessageSyncRepository> { MessageSyncRepositoryImpl(getDatabase().messageDao, get()) }
     single<RoomSyncRepository> { RoomSyncRepositoryImpl(getDatabase().roomDao, get()) }
-    single<ShoppingListSyncRepository> { ShoppingListSyncRepositoryImpl(getDatabase().shoppingListDao) }
+    single<ShoppingListSyncRepository> { ShoppingListSyncRepositoryImpl(getDatabase().shoppingListDao, getDatabase().userDao) }
     single<FinishedSpendingSyncRepository> { FinishedSpendingSyncRepositoryImpl(getDatabase().finishedSpendingDao, getDatabase().userDao) }
     singleOf(::SynchronizationService)
     viewModel { SynchronizationViewModel(get(), get(), get()) }

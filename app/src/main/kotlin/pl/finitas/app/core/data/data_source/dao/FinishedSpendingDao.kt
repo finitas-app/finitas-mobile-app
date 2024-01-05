@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
+import pl.finitas.app.core.data.model.Chart
 import pl.finitas.app.core.data.model.FinishedSpending
 import pl.finitas.app.core.data.model.SpendingRecord
 import pl.finitas.app.core.data.model.SpendingRecordData
@@ -156,6 +157,33 @@ interface FinishedSpendingDao {
             getSpendingRecordsDataBy(idSpendingSummary = idFinishedSpending)
         )
         deleteById(idFinishedSpending)
+    }
+
+    @Query("DELETE FROM Chart WHERE idTargetUser = :idTargetUser")
+    suspend fun deleteChartsByTargetUser(idTargetUser: UUID)
+
+    @Query("""
+        SELECT c.*
+        FROM Chart c
+        LEFT JOIN ChartToCategoryRef ccr
+        WHERE ccr.idChart is null
+    """)
+    suspend fun findEmptyCharts(): List<Chart>
+
+    @Delete
+    suspend fun deleteCharts(charts: List<Chart>)
+
+    @Query("SELECT * FROM FinishedSpending WHERE idUser = :idUser")
+    suspend fun findByIdUser(idUser: UUID): List<FinishedSpending>
+
+
+    @Transaction
+    suspend fun deleteByIdUser(idUser: UUID) {
+        deleteChartsByTargetUser(idUser)
+        deleteCharts(findEmptyCharts())
+        findByIdUser(idUser).forEach {
+            deleteWithRecords(it.idSpendingSummary)
+        }
     }
 }
 

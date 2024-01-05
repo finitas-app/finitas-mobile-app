@@ -17,6 +17,7 @@ interface UserRepository {
     suspend fun getUserIds(): List<UUID>
 
     suspend fun saveUsers(users: List<User>)
+    suspend fun clearVersions(idUser: UUID)
 }
 
 data class UsernameDto(

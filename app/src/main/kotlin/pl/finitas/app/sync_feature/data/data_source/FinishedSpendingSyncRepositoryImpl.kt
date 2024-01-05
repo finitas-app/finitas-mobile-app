@@ -100,6 +100,10 @@ class FinishedSpendingSyncRepositoryImpl(
             userDao.setFinishedSpendingVersion(it.idUser, it.version)
         }
     }
+
+    override suspend fun deleteByIdUser(idUser: UUID) {
+        finishedSpendingDao.deleteByIdUser(idUser)
+    }
 }
 
 private data class TempFinishedSpending(

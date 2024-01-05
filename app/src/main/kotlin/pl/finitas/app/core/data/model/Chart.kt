@@ -7,7 +7,22 @@ import androidx.room.PrimaryKey
 import java.time.LocalDateTime
 import java.util.UUID
 
-@Entity
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            onDelete = ForeignKey.CASCADE,
+            entity = Room::class,
+            parentColumns = ["idRoom"],
+            childColumns = ["idRoom"],
+        ),
+        ForeignKey(
+            onDelete = ForeignKey.CASCADE,
+            entity = User::class,
+            parentColumns = ["idUser"],
+            childColumns = ["idTargetUser"],
+        ),
+    ]
+)
 data class Chart(
     @PrimaryKey val idChart: UUID,
     val startDate: LocalDateTime?,

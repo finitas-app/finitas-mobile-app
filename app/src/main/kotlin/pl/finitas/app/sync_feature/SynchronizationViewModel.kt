@@ -148,8 +148,10 @@ class SynchronizationViewModel(
                 }
 
                 event == UserNotificationEvent.ASSIGN_ROLE_TO_USER -> {
-                    // TODO: Optimize with
+                    // TODO: Optimize with provided new role for user
                     synchronizationService.fullSyncRooms(authorizedUserId)
+                    // TODO: run only if new role
+                    synchronizationService.retrieveNewFinishedSpendings(authorizedUserId)
                 }
 
                 event == UserNotificationEvent.FINISHED_SPENDING_CHANGED -> {

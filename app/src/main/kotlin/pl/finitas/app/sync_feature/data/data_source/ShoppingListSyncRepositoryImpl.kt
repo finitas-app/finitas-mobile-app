@@ -1,6 +1,7 @@
 package pl.finitas.app.sync_feature.data.data_source
 
 import pl.finitas.app.core.data.data_source.dao.ShoppingListDao
+import pl.finitas.app.core.data.data_source.dao.UserDao
 import pl.finitas.app.core.data.model.ShoppingItem
 import pl.finitas.app.core.data.model.ShoppingList
 import pl.finitas.app.core.data.model.ShoppingListVersion
@@ -13,6 +14,7 @@ import java.util.UUID
 
 class ShoppingListSyncRepositoryImpl(
     private val shoppingListDao: ShoppingListDao,
+    private val userDao: UserDao,
 ) : ShoppingListSyncRepository {
     override suspend fun getNotSynchronizedShoppingLists(): List<ShoppingListDto> {
         return shoppingListDao
@@ -49,16 +51,8 @@ class ShoppingListSyncRepositoryImpl(
 
     }
 
-    override suspend fun getShoppingListVersions(): List<ShoppingListVersion> {
-        return shoppingListDao.getShoppingListVersions()
-    }
-
     override suspend fun setShoppingListVersion(actualShoppingListVersion: ShoppingListVersion) {
-        shoppingListDao.setShoppingListVersion(actualShoppingListVersion)
-    }
-
-    override suspend fun createShoppingListVersionIfNotPresent(idUser: UUID): ShoppingListVersion {
-        return shoppingListDao.createShoppingListVersionIfNotPresent(idUser)
+        userDao.setShoppingListVersion(actualShoppingListVersion.idUser, actualShoppingListVersion.version)
     }
 
     override suspend fun upsertShoppingList(shoppingListDto: ShoppingListDto) {
@@ -92,6 +86,10 @@ class ShoppingListSyncRepositoryImpl(
 
     override suspend fun deleteMarkedShoppingListAndSynchronized() {
         shoppingListDao.deleteMarkedShoppingListAndSynchronized()
+    }
+
+    override suspend fun deleteByIdUser(idUser: UUID) {
+        shoppingListDao.deleteByIdUser(idUser)
     }
 }
 

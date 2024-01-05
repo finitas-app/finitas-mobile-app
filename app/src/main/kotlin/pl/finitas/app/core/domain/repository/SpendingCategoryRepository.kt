@@ -32,6 +32,7 @@ interface SpendingCategoryRepository {
     suspend fun getChangedCategories(): List<SpendingCategory>
     fun getSpendingCategoriesOfAllUsersFlow(): Flow<List<SpendingCategory>>
     suspend fun getAllUsersSpendingCategories(): List<SpendingCategory>
+    suspend fun deleteByIdUser(idUser: UUID)
 }
 
 

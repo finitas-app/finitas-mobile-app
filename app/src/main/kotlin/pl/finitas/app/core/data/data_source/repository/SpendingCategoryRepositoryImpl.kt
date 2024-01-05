@@ -32,6 +32,10 @@ class SpendingCategoryRepositoryImpl(
         return dao.getAllUsersSpendingCategories()
     }
 
+    override suspend fun deleteByIdUser(idUser: UUID) {
+        dao.deleteByIdUser(idUser)
+    }
+
     override fun getAllUsersSpendingCategoriesFlow(): Flow<List<SpendingCategory>> {
         return dao.getAllUsersSpendingCategoriesFlow()
     }

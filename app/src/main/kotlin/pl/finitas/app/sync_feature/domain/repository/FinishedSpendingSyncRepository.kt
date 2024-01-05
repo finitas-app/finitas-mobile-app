@@ -16,6 +16,8 @@ interface FinishedSpendingSyncRepository {
     suspend fun deleteMarkedAndSynchronizedFinishedSpendings()
 
     suspend fun setFinishedSpendingVersions(finishedSpendingVersions: List<FinishedSpendingVersion>)
+
+    suspend fun deleteByIdUser(idUser: UUID)
 }
 
 
