@@ -1,5 +1,6 @@
 package pl.finitas.app.manage_spendings_feature.presentation.add_spending
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,10 +8,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CameraAlt
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
 import pl.finitas.app.core.presentation.components.constructors.DateInput
@@ -18,6 +22,7 @@ import pl.finitas.app.core.presentation.components.constructors.DeleteIcon
 import pl.finitas.app.core.presentation.components.dialog.CustomDialog
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.manage_spendings_feature.presentation.add_spending.components.CategorySpendingList
+import pl.finitas.app.manage_spendings_feature.presentation.add_spending.components.ScanReceiptIcon
 
 @Composable
 fun AddSpendingDialog(
@@ -70,10 +75,14 @@ private fun AddSpendingFormGeneralInfo(
     ) {
         Column {
             Row(
-                modifier = Modifier
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Fonts.heading1.Text(text = "New report")
+                // todo: how to properly set width
             }
+
+            ScanReceiptIcon(addSpendingViewModel)
 
             Fonts.regular.Text(
                 text = "Title",

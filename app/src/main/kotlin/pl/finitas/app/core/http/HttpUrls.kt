@@ -1,6 +1,6 @@
 package pl.finitas.app.core.http
 
-private const val host = "192.168.0.156"
+private const val host = "0.0.0.0"
 private const val port = 8080
 const val frontendApiUrl = "http://$host:$port/api"
 
@@ -15,4 +15,5 @@ object HttpUrls {
     const val syncRooms = "$frontendApiUrl/rooms/sync"
     const val sendMessage = "$frontendApiUrl/rooms/messages"
     const val addRoom = "$frontendApiUrl/rooms"
+    const val parseReceipt = "$frontendApiUrl/receipts/parse"
 }

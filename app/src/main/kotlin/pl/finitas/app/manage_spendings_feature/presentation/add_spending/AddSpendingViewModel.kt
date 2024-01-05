@@ -10,16 +10,21 @@ import pl.finitas.app.core.domain.services.FinishedSpendingView
 import pl.finitas.app.core.domain.services.SpendingCategoryService
 import pl.finitas.app.core.domain.services.SpendingRecordView
 import pl.finitas.app.manage_spendings_feature.domain.service.FinishedSpendingService
+import pl.finitas.app.manage_spendings_feature.domain.service.ScanReceiptService
+import java.io.File
 import java.time.LocalDate
 import java.util.UUID
 
 class AddSpendingViewModel(
     private val spendingCategoryService: SpendingCategoryService,
     private val finishedSpendingService: FinishedSpendingService,
+    private val scanReceiptService: ScanReceiptService
 ): ViewModel() {
 
     var isDialogOpen by mutableStateOf(false)
         private set
+
+    private var image: File? by mutableStateOf(null)
 
     var finishedSpendingState by mutableStateOf(FinishedSpendingState.emptyState)
         private set
@@ -77,6 +82,16 @@ class AddSpendingViewModel(
         viewModelScope.launch {
             finishedSpendingService.deleteFinishedSpending(idFinishedSpending)
             closeDialog()
+        }
+    }
+
+    fun setFileImage(file: ByteArray) {
+//        image = file
+        viewModelScope.launch {
+            val scanRes = scanReceiptService.scanReceipt(file)
+            println("****************************")
+            println(scanRes)
+            println("****************************")
         }
     }
 }
