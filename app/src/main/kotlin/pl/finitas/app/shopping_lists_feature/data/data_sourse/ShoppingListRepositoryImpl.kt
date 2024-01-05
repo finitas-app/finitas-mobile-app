@@ -101,13 +101,11 @@ class ShoppingListRepositoryImpl(
     }
 
     override suspend fun deleteShoppingListBy(idShoppingList: UUID) {
-        val shoppingListVersion = shoppingListDao.getShoppingListVersionBy(idShoppingList)
-        if (shoppingListVersion.version == null) {
-            shoppingListDao.deleteShoppingListWithItemsBy(idShoppingList)
-        } else {
-            shoppingListDao.markAsDeleted(idShoppingList)
-        }
+        shoppingListDao.deleteShoppingListWithItemsBy(idShoppingList)
     }
+
+    override suspend fun getShoppingListVersionBy(idShoppingList: UUID) = shoppingListDao.getShoppingListBy(idShoppingList)
+    override suspend fun markAsDeleted(idShoppingList: UUID) = shoppingListDao.markAsDeleted(idShoppingList)
 }
 
 private data class TempShoppingList(

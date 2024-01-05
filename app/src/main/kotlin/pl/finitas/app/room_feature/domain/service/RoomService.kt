@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.data.model.Room
+import pl.finitas.app.core.data.model.RoomMember
 import pl.finitas.app.room_feature.domain.AddRoomDto
 import pl.finitas.app.room_feature.domain.RoomPreviewDto
 import pl.finitas.app.room_feature.domain.RoomWithAdditionalInfoView
@@ -57,6 +58,10 @@ class RoomService(
 
     fun getRoomWithAdditionalInfo(idRoom: UUID): Flow<RoomWithAdditionalInfoView> {
         return roomRepository.getRoomWithAdditionalInfo(idRoom)
+    }
+
+    suspend fun getRoomMembers(idRoom: UUID): List<RoomMember> {
+        return roomRepository.getRoomMembers(idRoom)
     }
 
     suspend fun addRoom(addRoomState: AddRoomState) {

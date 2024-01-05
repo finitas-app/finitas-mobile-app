@@ -1,5 +1,6 @@
 package pl.finitas.app.sync_feature.data.data_source
 
+import kotlinx.coroutines.flow.Flow
 import pl.finitas.app.core.data.data_source.dao.UserDao
 import pl.finitas.app.core.data.model.User
 import pl.finitas.app.sync_feature.domain.repository.UserRepository
@@ -13,7 +14,7 @@ class UserRepositoryImpl(
         return userDao.getAllUsers()
     }
 
-    override suspend fun getUsernamesByIds(ids: List<UUID>): List<UsernameDto> {
+    override fun getUsernamesByIds(ids: List<UUID>): Flow<List<UsernameDto>> {
         return userDao.getUsernamesByIds(ids)
     }
 

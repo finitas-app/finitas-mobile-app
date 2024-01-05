@@ -15,6 +15,7 @@ import pl.finitas.app.core.data.data_source.dao.RoomDao
 import pl.finitas.app.core.data.data_source.dao.RoomMemberDao
 import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.data.model.Room
+import pl.finitas.app.core.data.model.RoomMember
 import pl.finitas.app.core.data.model.RoomRole
 import pl.finitas.app.core.http.HttpUrls
 import pl.finitas.app.core.http.frontendApiUrl
@@ -125,6 +126,10 @@ class RoomRepositoryImpl(
         httpClient.patch("$frontendApiUrl/rooms/$idRoom/name") {
             setBody(ChangeRoomNameRequest(newName))
         }
+    }
+
+    override suspend fun getRoomMembers(idRoom: UUID): List<RoomMember> {
+        return roomMemberDao.getRoomMembers(idRoom)
     }
 }
 

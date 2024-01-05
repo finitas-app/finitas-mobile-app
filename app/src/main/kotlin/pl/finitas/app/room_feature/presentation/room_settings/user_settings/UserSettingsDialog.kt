@@ -22,11 +22,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import pl.finitas.app.R
 import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.core.presentation.components.constructors.DeleteIcon
 import pl.finitas.app.core.presentation.components.dialog.ConstructorBoxDialog
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
+import pl.finitas.app.navigation.NavPaths
 import pl.finitas.app.room_feature.domain.RoomMemberView
 import pl.finitas.app.room_feature.domain.RoomRoleView
 import pl.finitas.app.room_feature.presentation.room_settings.RoomSettingsViewModel
@@ -36,6 +38,7 @@ fun UserSettingsDialog(
     roomMember: RoomMemberView?,
     roles: List<RoomRoleView>,
     viewModel: RoomSettingsViewModel,
+    navController: NavController,
     hasModifyRoomAuthority: Boolean,
     hasReadUserDataAuthority: Boolean,
 ) {
@@ -54,10 +57,13 @@ fun UserSettingsDialog(
                 .padding(bottom = 10.dp)
         ) {
             Fonts.heading1.Text(text = roomMember?.username ?: "")
-            if (hasReadUserDataAuthority) {
+            if (hasReadUserDataAuthority && roomMember != null) {
                 ClickableIcon(
                     imageVector = Icons.Rounded.RemoveRedEye,
-                    onClick = { /*TODO*/ }
+                    onClick = {
+                        navController.navigate(NavPaths.HomeScreen.route + "?idsUser=${roomMember.idUser}")
+                        viewModel.closeUserDialog()
+                    }
                 )
             }
         }

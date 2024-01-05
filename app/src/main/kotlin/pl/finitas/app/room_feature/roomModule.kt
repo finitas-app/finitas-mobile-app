@@ -32,6 +32,6 @@ val roomModule = module {
     single { AuthorizedUserService(get()) }
     single { RoomShoppingListService(get()) }
     viewModel { RoomViewModel(get(), get()) }
-    viewModel { MessengerViewModel(get(), get(), get(), get(), get()) }
+    viewModel { MessengerViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { RoomSettingsViewModel(get(), get(), get()) }
 }

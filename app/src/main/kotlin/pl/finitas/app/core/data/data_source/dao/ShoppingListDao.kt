@@ -120,7 +120,7 @@ interface ShoppingListDao {
         deleteSpendingRecordsDataBy(spendingRecordDataIds.map { it.idSpendingRecordData })
     }
 
-    @Query("UPDATE ShoppingList SET isDeleted = 1 WHERE idShoppingList = :idShoppingList")
+    @Query("UPDATE ShoppingList SET isDeleted = 1, version = null WHERE idShoppingList = :idShoppingList")
     suspend fun markAsDeleted(idShoppingList: UUID)
 
     @Transaction
@@ -135,8 +135,8 @@ interface ShoppingListDao {
     @Query("SELECT * FROM ShoppingList WHERE idShoppingList in (:idsShoppingList)")
     fun  getShoppingListsBy(idsShoppingList: List<UUID>): Flow<List<ShoppingList>>
 
-    @Query("SELECT idUser, version FROM ShoppingList WHERE idShoppingList = :idShoppingList")
-    suspend fun getShoppingListVersionBy(idShoppingList: UUID): ShoppingListVersionDto
+    @Query("SELECT * FROM ShoppingList WHERE idShoppingList = :idShoppingList")
+    suspend fun getShoppingListBy(idShoppingList: UUID): ShoppingList
 
     @Query("SELECT idUser, version FROM ShoppingListVersion WHERE idUser = :idUser")
     suspend fun getShoppingListVersionByIdUser(idUser: UUID): ShoppingListVersion?

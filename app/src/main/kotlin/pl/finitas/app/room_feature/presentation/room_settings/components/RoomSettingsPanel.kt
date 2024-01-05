@@ -111,6 +111,7 @@ fun RoomSettingsPanel(
     UserSettingsDialog(
         roomMember = room!!.roomMembers.find { it.idUser == viewModel.selectedUser },
         roles = room!!.roomRoles,
+        navController = navController,
         hasModifyRoomAuthority = hasModifyRoomAuthority,
         hasReadUserDataAuthority = hasReadUserDataAuthority,
         viewModel = viewModel,

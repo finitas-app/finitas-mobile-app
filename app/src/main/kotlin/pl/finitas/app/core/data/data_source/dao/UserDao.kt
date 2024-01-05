@@ -16,7 +16,7 @@ import java.util.UUID
 interface UserDao {
 
     @Query("SELECT idUser, username FROM User WHERE idUser in (:ids)")
-    suspend fun getUsernamesByIds(ids: List<UUID>): List<UsernameDto>
+    fun getUsernamesByIds(ids: List<UUID>): Flow<List<UsernameDto>>
 
     @Insert
     suspend fun insertUser(user: User): Long

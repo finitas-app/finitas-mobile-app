@@ -5,11 +5,13 @@ import org.koin.android.ext.koin.androidApplication
 import org.koin.core.scope.Scope
 import org.koin.dsl.module
 import pl.finitas.app.core.data.data_source.FinitasDatabase
+import pl.finitas.app.core.data.data_source.repository.AuthorityRepositoryImpl
 import pl.finitas.app.core.data.data_source.repository.FinishedSpendingStoreRepositoryImpl
 import pl.finitas.app.core.data.data_source.repository.MessageSenderRepositoryImpl
 import pl.finitas.app.core.data.data_source.repository.ProfileRepositoryImpl
 import pl.finitas.app.core.data.data_source.repository.ShoppingListStoreRepositoryImpl
 import pl.finitas.app.core.data.data_source.repository.UserStoreRepositoryImpl
+import pl.finitas.app.core.domain.repository.AuthorityRepository
 import pl.finitas.app.core.domain.repository.FinishedSpendingStoreRepository
 import pl.finitas.app.core.domain.repository.MessageSenderRepository
 import pl.finitas.app.core.domain.repository.ProfileRepository
@@ -49,6 +51,7 @@ val coreModule = module {
         UserStoreRepositoryImpl(get())
     }
     httpClient()
+    single<AuthorityRepository> { AuthorityRepositoryImpl(getDatabase().roomMemberDao) }
     single<UserRepository> { UserRepositoryImpl(getDatabase().userDao) }
     single<MessageSenderRepository> { MessageSenderRepositoryImpl(get()) }
 }

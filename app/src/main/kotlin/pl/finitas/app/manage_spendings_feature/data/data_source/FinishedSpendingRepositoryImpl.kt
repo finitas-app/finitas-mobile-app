@@ -3,6 +3,7 @@ package pl.finitas.app.manage_spendings_feature.data.data_source
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import pl.finitas.app.core.data.data_source.dao.FinishedSpendingDao
+import pl.finitas.app.core.data.data_source.dao.FinishedSpendingWithRecordFlat
 import pl.finitas.app.core.data.model.FinishedSpending
 import pl.finitas.app.core.data.model.SpendingRecord
 import pl.finitas.app.core.data.model.SpendingRecordData
@@ -19,37 +20,12 @@ class FinishedSpendingRepositoryImpl(
     private val finishedSpendingDao: FinishedSpendingDao,
 ) : FinishedSpendingRepository {
 
-    override fun getFinishedSpendings(): Flow<List<FinishedSpendingWithRecordsDto>> {
-        return finishedSpendingDao.getFinishedSpendingsWithRecordFlat()
-            .map { finishedRecordWithSpendingFlat ->
-                finishedRecordWithSpendingFlat
-                    .groupBy {
-                        TempFinishedSpending(
-                            idSpendingSummary = it.idSpendingSummary,
-                            title = it.title,
-                            purchaseDate = it.purchaseDate,
-                            isDeleted = it.isDeleted,
-                        )
-                    }
-                    .map { (tempFinishedSpending, spendingRecords) ->
-                        FinishedSpendingWithRecordsDto(
-                            idSpendingSummary = tempFinishedSpending.idSpendingSummary,
-                            title = tempFinishedSpending.title,
-                            purchaseDate = tempFinishedSpending.purchaseDate,
-                            isDeleted = tempFinishedSpending.isDeleted,
-                            idReceipt = null,
-                            spendingRecords = spendingRecords.map {
-                                SpendingRecordDto(
-                                    name = it.spendingRecordName,
-                                    price = it.price,
-                                    idCategory = it.idCategory,
-                                    idSpendingRecord = it.idSpendingRecord,
-                                    idSpendingSummary = it.idSpendingSummary,
-                                )
-                            }
-                        )
-                    }
-            }
+    override fun getFinishedSpendings(idsUser: List<UUID>): Flow<List<FinishedSpendingWithRecordsDto>> {
+        return finishedSpendingDao.getFinishedSpendingsWithRecordFlat(idsUser).map { it.toDto() }
+    }
+
+    override fun getFinishedSpendingsByIdUser(idUser: UUID): Flow<List<FinishedSpendingWithRecordsDto>> {
+        return finishedSpendingDao.getFinishedSpendingsWithRecordByIdUserFlat(idUser).map { it.toDto() }
     }
 
     override suspend fun findFinishedSpendingWithRecordBy(idTotalSpending: UUID): FinishedSpendingWithRecordsDto? {
@@ -90,10 +66,46 @@ class FinishedSpendingRepositoryImpl(
         )
     }
 
-    override suspend fun deleteFinishedSpending(idFinishedSpending: UUID) {
+    override suspend fun deleteFinishedSpendingById(idFinishedSpending: UUID) {
         finishedSpendingDao.deleteWithRecords(idFinishedSpending)
     }
+
+    override suspend fun markAsDeleted(idFinishedSpending: UUID) {
+        finishedSpendingDao.markFinishedSpendingByIdAsDeleted(idFinishedSpending)
+    }
+
+    override suspend fun getById(idFinishedSpending: UUID): FinishedSpending {
+        return finishedSpendingDao.findFinishedSpendingById(idFinishedSpending)
+            ?: throw FinishedSpendingNotFoundException(idFinishedSpending)
+    }
 }
+
+private fun List<FinishedSpendingWithRecordFlat>.toDto() =
+    groupBy {
+        TempFinishedSpending(
+            idSpendingSummary = it.idSpendingSummary,
+            title = it.title,
+            purchaseDate = it.purchaseDate,
+            isDeleted = it.isDeleted,
+        )
+    }.map { (tempFinishedSpending, spendingRecords) ->
+        FinishedSpendingWithRecordsDto(
+            idSpendingSummary = tempFinishedSpending.idSpendingSummary,
+            title = tempFinishedSpending.title,
+            purchaseDate = tempFinishedSpending.purchaseDate,
+            isDeleted = tempFinishedSpending.isDeleted,
+            idReceipt = null,
+            spendingRecords = spendingRecords.map {
+                SpendingRecordDto(
+                    name = it.spendingRecordName,
+                    price = it.price,
+                    idCategory = it.idCategory,
+                    idSpendingRecord = it.idSpendingRecord,
+                    idSpendingSummary = it.idSpendingSummary,
+                )
+            }
+        )
+    }
 
 private data class TempFinishedSpending(
     val idSpendingSummary: UUID,
@@ -101,3 +113,7 @@ private data class TempFinishedSpending(
     val purchaseDate: LocalDateTime,
     val isDeleted: Boolean,
 )
+
+class FinishedSpendingNotFoundException(
+    idFinishedSpending: UUID,
+): Exception("Finished spending with id '$idFinishedSpending' not found")

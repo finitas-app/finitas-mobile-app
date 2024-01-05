@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIos
+import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.koin.androidx.compose.koinViewModel
+import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.domain.emptyUUID
 import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.core.presentation.components.background.SecondaryBackground
@@ -42,6 +44,7 @@ fun MessengerScreen(navController: NavHostController) {
     if (idRoom == null) {
         navController.navigate(NavPaths.RoomsScreen.route)
     }
+    val currentUserAuthorities by viewModel.currentUserAuthorities.collectAsState(initial = setOf())
     val roomTitle by viewModel.roomTitle.collectAsState(initial = "")
     val messages by viewModel.messages.collectAsState(initial = listOf())
     val idUser by viewModel.authorizedUserId.collectAsState(emptyUUID)
@@ -57,7 +60,9 @@ fun MessengerScreen(navController: NavHostController) {
             MessengerHeader(
                 roomTitle = roomTitle,
                 onBackClick = { navController.navigate(NavPaths.RoomsScreen.route) },
-                onSettingsClick = { navController.navigate(NavPaths.RoomsSettingsScreen.route + "?idRoom=${viewModel.idRoom}") }
+                onSettingsClick = { navController.navigate(NavPaths.RoomsSettingsScreen.route + "?idRoom=${viewModel.idRoom}") },
+                onShowRoomSpendingsClick = { viewModel.onShowRoomSpendingsClick(navController) },
+                hasReadDataAuthority = Authority.READ_USERS_DATA in currentUserAuthorities,
             )
             LazyColumn(
                 reverseLayout = true,
@@ -106,6 +111,8 @@ private fun MessengerHeader(
     roomTitle: String,
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onShowRoomSpendingsClick: () -> Unit,
+    hasReadDataAuthority: Boolean,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -126,6 +133,12 @@ private fun MessengerHeader(
             modifier = Modifier,
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            if (hasReadDataAuthority) {
+                ClickableIcon(
+                    imageVector = Icons.Rounded.BarChart,
+                    onClick = onShowRoomSpendingsClick,
+                )
+            }
             ClickableIcon(
                 imageVector = Icons.Rounded.Settings,
                 onClick = onSettingsClick,

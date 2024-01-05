@@ -323,7 +323,7 @@ class SynchronizationService(
         if (response.isEmpty()) return
 
         finishedSpendingSyncRepository.upsertFinishedSpendingWithRecords(
-            response.flatMap { it.updates.toServiceDto(it.idUser) }
+            response.flatMap { it.updates.toServiceDto(authorizedUserId) }
         )
         finishedSpendingSyncRepository.setFinishedSpendingVersions(
             response.map { FinishedSpendingVersion(it.idUser, it.actualVersion) }

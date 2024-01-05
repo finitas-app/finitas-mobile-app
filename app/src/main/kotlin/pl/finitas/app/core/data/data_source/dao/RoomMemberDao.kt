@@ -29,6 +29,8 @@ interface RoomMemberDao {
 
     @Delete
     suspend fun deleteRoomMember(roomMember: RoomMember)
+    @Query("SELECT * FROM RoomMember WHERE idRoom = :idRoom")
+    suspend fun getRoomMembers(idRoom: UUID): List<RoomMember>
 }
 
 data class AuthoritiesDto(

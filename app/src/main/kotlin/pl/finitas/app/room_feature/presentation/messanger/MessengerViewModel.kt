@@ -6,12 +6,17 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.data.model.ShoppingList
+import pl.finitas.app.core.domain.repository.AuthorityRepository
+import pl.finitas.app.navigation.NavPaths
 import pl.finitas.app.room_feature.domain.ChatMessage
 import pl.finitas.app.room_feature.domain.IncomingChatMessage
 import pl.finitas.app.room_feature.domain.ShoppingListMessage
@@ -27,6 +32,7 @@ class MessengerViewModel(
     private val roomService: RoomService,
     private val authorizedUserService: AuthorizedUserService,
     private val roomShoppingListService: RoomShoppingListService,
+    private val authorityRepository: AuthorityRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     var authorizedUserId = authorizedUserService.getAuthorizedIdUser()
@@ -46,10 +52,11 @@ class MessengerViewModel(
     var isSendObjectDialogOpen by mutableStateOf(false)
         private set
 
+    val currentUserAuthorities: Flow<Set<Authority>>
+
     init {
-        val idRoom = savedStateHandle
-            .get<String>("idRoom")
-            ?.let { UUID.fromString(it) } ?: throw IdRoomNotProvidedException()
+        val idRoom = savedStateHandle.get<String>("idRoom")?.let { UUID.fromString(it) }
+            ?: throw IdRoomNotProvidedException()
         this@MessengerViewModel.idRoom = idRoom
         viewModelScope.launch {
             roomService.getRoomsPreview().collect { rooms ->
@@ -77,22 +84,21 @@ class MessengerViewModel(
 
                 message
             }
-            messageService.readMessage(
-                messages
-                    .filter { (it as? IncomingChatMessage)?.isRead == false }
-                    .map { it.idMessage }
-            )
+            messageService.readMessage(messages.filter { (it as? IncomingChatMessage)?.isRead == false }
+                .map { it.idMessage })
             result
         }
         shoppingLists = messages.flatMapLatest { messages ->
-            roomShoppingListService.getShoppingListsBy(
-                messages
-                    .filterIsInstance<ShoppingListMessage>()
-                    .map { it.idShoppingList }
-            ).map { shoppingLists ->
+            roomShoppingListService.getShoppingListsBy(messages.filterIsInstance<ShoppingListMessage>()
+                .map { it.idShoppingList }).map { shoppingLists ->
                 shoppingLists.associateBy { it.idShoppingList }
             }
         }
+        currentUserAuthorities =
+            authorizedUserService.getAuthorizedIdUser().flatMapLatest { idUser ->
+                if (idUser == null) flow { emit(setOf()) }
+                else authorityRepository.getAuthorityOfUser(idUser, idRoom)
+            }
     }
 
     fun sendTextMessage(message: String) {
@@ -114,6 +120,21 @@ class MessengerViewModel(
 
     fun closeSendObjectDialog() {
         isSendObjectDialogOpen = false
+    }
+
+    fun onShowRoomSpendingsClick(navController: NavController) {
+        viewModelScope.launch {
+            if (idRoom != null) {
+                val members = roomService.getRoomMembers(idRoom!!).map { it.idUser }.toSet()
+                navController.navigate(
+                    "${NavPaths.HomeScreen.route}?idsUser=${
+                        members.joinToString(
+                            separator = ",",
+                        )
+                    }"
+                )
+            }
+        }
     }
 }
 
