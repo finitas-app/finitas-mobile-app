@@ -1,5 +1,6 @@
 package pl.finitas.app.room_feature.presentation.room_settings.components
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -28,8 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import pl.finitas.app.R
 import pl.finitas.app.core.presentation.components.ClickableIcon
@@ -60,6 +63,7 @@ fun RoomSettingsPanel(
         navController.navigate(NavPaths.RoomsScreen.route)
         return
     }
+    val invitationLink = remember(room) { "finitas.pl/${room!!.invitationLinkUUID}" }
     Column {
         RoomHeader(
             title = room!!.title,
@@ -68,9 +72,8 @@ fun RoomSettingsPanel(
             onBackClick = { navController.popBackStack() }
         )
         RoomLink(
-            invitationLink = "finitas.pl/${room!!.invitationLinkUUID}".trimOnOverflow(19),
+            invitationLink = invitationLink,
             onRefreshClick = viewModel::regenerateLink,
-            onShareClick = {},
             hasModifyRoomAuthority = hasModifyRoomAuthority,
             modifier = Modifier
                 .padding(start = 20.dp, end = 20.dp, top = 20.dp)
@@ -111,6 +114,7 @@ fun RoomSettingsPanel(
     UserSettingsDialog(
         roomMember = room!!.roomMembers.find { it.idUser == viewModel.selectedUser },
         roles = room!!.roomRoles,
+        navController = navController,
         hasModifyRoomAuthority = hasModifyRoomAuthority,
         hasReadUserDataAuthority = hasReadUserDataAuthority,
         viewModel = viewModel,
@@ -154,10 +158,15 @@ private fun RoomHeader(
 private fun RoomLink(
     invitationLink: String,
     onRefreshClick: () -> Unit,
-    onShareClick: () -> Unit,
     hasModifyRoomAuthority: Boolean,
     modifier: Modifier = Modifier,
 ) {
+    val sendIntent = Intent(Intent.ACTION_SEND).apply {
+        putExtra(Intent.EXTRA_TEXT, invitationLink)
+        type = "text/plain"
+    }
+    val shareIntent = Intent.createChooser(sendIntent, "bob")
+    val context = LocalContext.current
     Column(
         modifier = modifier,
     ) {
@@ -175,7 +184,7 @@ private fun RoomLink(
                     )
                     .padding(horizontal = 12.dp, vertical = 6.dp)
             ) {
-                Fonts.regular.Text(text = invitationLink)
+                Fonts.regular.Text(text = invitationLink.trimOnOverflow(19))
             }
             if (hasModifyRoomAuthority) {
                 ClickableIcon(
@@ -185,7 +194,7 @@ private fun RoomLink(
             }
             ClickableIcon(
                 imageVector = Icons.Rounded.Share,
-                onClick = onShareClick,
+                onClick = { ContextCompat.startActivity(context, shareIntent, null) },
             )
         }
     }

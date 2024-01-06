@@ -28,7 +28,8 @@ import com.github.tehras.charts.piechart.PieChartData
 import com.github.tehras.charts.piechart.animation.simpleChartAnimation
 import com.github.tehras.charts.piechart.renderer.SimpleSliceDrawer
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
-import pl.finitas.app.manage_spendings_feature.data.data_source.CategoryDto
+import pl.finitas.app.core.presentation.components.utils.trimOnOverflow
+import pl.finitas.app.manage_spendings_feature.data.data_source.ChartCategoryDto
 import pl.finitas.app.manage_spendings_feature.data.data_source.ChartWithCategoriesDto
 import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartType
 
@@ -93,7 +94,7 @@ private fun PieChartLabels(
         chart.categories.chunked(2).forEachIndexed { index, pair ->
             Column(verticalArrangement = Arrangement.SpaceBetween) {
                 pair.forEachIndexed { innerIndex, it ->
-                    PieChartLabel(category = it, index = index * 3 + innerIndex)
+                    PieChartLabel(category = it, index = index * 2 + innerIndex)
                 }
             }
         }
@@ -101,10 +102,8 @@ private fun PieChartLabels(
 }
 
 @Composable
-private fun PieChartLabel(category: CategoryDto, index: Int) {
-    val name = if (category.categoryName.length > 8)
-        "${category.categoryName.substring(0, 8)}..."
-    else category.categoryName
+private fun PieChartLabel(category: ChartCategoryDto, index: Int) {
+    val name = category.categoryName.trimOnOverflow(8)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(horizontal = 6.dp)

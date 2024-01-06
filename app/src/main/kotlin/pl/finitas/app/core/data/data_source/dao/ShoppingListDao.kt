@@ -9,7 +9,6 @@ import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import pl.finitas.app.core.data.model.ShoppingItem
 import pl.finitas.app.core.data.model.ShoppingList
-import pl.finitas.app.core.data.model.ShoppingListVersion
 import pl.finitas.app.core.data.model.SpendingRecordData
 import pl.finitas.app.core.data.model.relations.SpendingRecordDataToShoppingItem
 import java.util.UUID
@@ -120,7 +119,7 @@ interface ShoppingListDao {
         deleteSpendingRecordsDataBy(spendingRecordDataIds.map { it.idSpendingRecordData })
     }
 
-    @Query("UPDATE ShoppingList SET isDeleted = 1 WHERE idShoppingList = :idShoppingList")
+    @Query("UPDATE ShoppingList SET isDeleted = 1, version = null WHERE idShoppingList = :idShoppingList")
     suspend fun markAsDeleted(idShoppingList: UUID)
 
     @Transaction
@@ -135,17 +134,8 @@ interface ShoppingListDao {
     @Query("SELECT * FROM ShoppingList WHERE idShoppingList in (:idsShoppingList)")
     fun  getShoppingListsBy(idsShoppingList: List<UUID>): Flow<List<ShoppingList>>
 
-    @Query("SELECT idUser, version FROM ShoppingList WHERE idShoppingList = :idShoppingList")
-    suspend fun getShoppingListVersionBy(idShoppingList: UUID): ShoppingListVersionDto
-
-    @Query("SELECT idUser, version FROM ShoppingListVersion WHERE idUser = :idUser")
-    suspend fun getShoppingListVersionByIdUser(idUser: UUID): ShoppingListVersion?
-
-    @Query("SELECT idUser, version FROM ShoppingListVersion")
-    suspend fun getShoppingListVersions(): List<ShoppingListVersion>
-
-    @Upsert
-    suspend fun setShoppingListVersion(shoppingListVersion: ShoppingListVersion)
+    @Query("SELECT * FROM ShoppingList WHERE idShoppingList = :idShoppingList")
+    suspend fun getShoppingListBy(idShoppingList: UUID): ShoppingList
 
     @Query("SELECT idShoppingList FROM ShoppingList WHERE version is not null and isDeleted = 1")
     suspend fun markedShoppingListWithVersion(): List<ShoppingListId>
@@ -158,12 +148,23 @@ interface ShoppingListDao {
         }
     }
 
+    @Query("SELECT * FROM ShoppingList WHERE idUser = :idUser")
+    suspend fun findByIdUser(idUser: UUID): List<ShoppingList>
+
     @Transaction
-    suspend fun createShoppingListVersionIfNotPresent(idUser: UUID): ShoppingListVersion {
-        return getShoppingListVersionByIdUser(idUser) ?: run {
-            val newVersion = ShoppingListVersion(idUser, 0)
-            setShoppingListVersion(newVersion)
-            newVersion
+    suspend fun deleteByIdUser(idUser: UUID) {
+        findByIdUser(idUser).forEach {
+            deleteShoppingListWithItemsBy(it.idShoppingList)
+        }
+    }
+
+    @Query("SELECT * FROM ShoppingList WHERE idUser is not null")
+    suspend fun findAllForeignShoppingLists(): List<ShoppingList>
+
+    @Transaction
+    suspend fun deleteAllForeignShoppingLists() {
+        findAllForeignShoppingLists().forEach {
+            deleteShoppingListWithItemsBy(it.idShoppingList)
         }
     }
 }

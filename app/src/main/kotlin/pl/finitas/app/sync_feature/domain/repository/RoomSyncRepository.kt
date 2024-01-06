@@ -18,6 +18,7 @@ interface RoomSyncRepository {
     suspend fun getRoomsWithAuthority(authorizedUserId: UUID, authority: Authority): List<UUID>
 
     suspend fun getRoomMembers(idsRoom: List<UUID>): List<User>
+    suspend fun getRoomMembers(): List<User>
 }
 
 @Serializable

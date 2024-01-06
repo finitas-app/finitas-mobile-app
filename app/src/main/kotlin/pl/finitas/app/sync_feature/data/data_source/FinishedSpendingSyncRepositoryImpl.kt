@@ -38,6 +38,7 @@ class FinishedSpendingSyncRepositoryImpl(
                         purchaseDate = tempFinishedSpending.purchaseDate,
                         isDeleted = tempFinishedSpending.isDeleted,
                         idReceipt = null,
+                        idUser = null,
                         spendingRecords = spendingRecords.map {
                             SpendingRecordDto(
                                 name = it.spendingRecordName,
@@ -98,6 +99,10 @@ class FinishedSpendingSyncRepositoryImpl(
         finishedSpendingVersions.forEach {
             userDao.setFinishedSpendingVersion(it.idUser, it.version)
         }
+    }
+
+    override suspend fun deleteByIdUser(idUser: UUID) {
+        finishedSpendingDao.deleteByIdUser(idUser)
     }
 }
 

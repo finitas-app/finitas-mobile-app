@@ -10,7 +10,9 @@ interface SpendingCategoryRepository {
 
     suspend fun getSpendingCategories(): List<SpendingCategory>
 
-    fun getAllUsersSpendingCategories(): Flow<List<SpendingCategory>>
+    suspend fun getSpendingCategoriesByIdUser(idUser: UUID): List<SpendingCategory>
+
+    fun getAllUsersSpendingCategoriesFlow(): Flow<List<SpendingCategory>>
 
     suspend fun findSpendingCategoryBy(idCategory: UUID): SpendingCategory?
 
@@ -29,6 +31,8 @@ interface SpendingCategoryRepository {
 
     suspend fun getChangedCategories(): List<SpendingCategory>
     fun getSpendingCategoriesOfAllUsersFlow(): Flow<List<SpendingCategory>>
+    suspend fun getAllUsersSpendingCategories(): List<SpendingCategory>
+    suspend fun deleteByIdUser(idUser: UUID)
 }
 
 

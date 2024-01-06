@@ -16,4 +16,5 @@ object HttpUrls {
     const val sendMessage = "$frontendApiUrl/rooms/messages"
     const val addRoom = "$frontendApiUrl/rooms"
     const val parseReceipt = "$frontendApiUrl/receipts/parse"
+    const val joinRoom = "$frontendApiUrl/rooms/users"
 }

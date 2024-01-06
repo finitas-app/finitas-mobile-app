@@ -45,8 +45,8 @@ val manageSpendingsModule = module {
     single {
         ScanReceiptService(get())
     }
-    viewModel { FinishedSpendingViewModel(get()) }
-    viewModel { AddSpendingViewModel(get(), get(), get()) }
-    viewModel { ChartDisplayViewModel(get()) }
-    viewModel { ChartConstructorViewModel(get()) }
+    viewModel { AddSpendingViewModel(get(), get(), get(), get()) }
+    viewModel { FinishedSpendingViewModel(get(), get(), get()) }
+    viewModel { ChartDisplayViewModel(get(), get(), get()) }
+    viewModel { ChartConstructorViewModel(get(), get()) }
 }

@@ -41,6 +41,10 @@ class RoomSyncRepositoryImpl(
     override suspend fun getRoomMembers(idsRoom: List<UUID>): List<User> {
         return roomDao.getRoomMembers(idsRoom)
     }
+
+    override suspend fun getRoomMembers(): List<User> {
+        return roomDao.getRoomMembers()
+    }
 }
 
 @Serializable

@@ -71,7 +71,7 @@ data class RoomPreviewDto(
 )
 
 @Serializable
-data class AddRoomDto(
+data class CreateRoomDto(
     val roomName: String,
 )
 

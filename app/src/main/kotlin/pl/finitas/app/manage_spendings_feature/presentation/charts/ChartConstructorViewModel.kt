@@ -5,8 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import pl.finitas.app.core.domain.exceptions.InputValidationException
+import pl.finitas.app.core.domain.services.AuthorizedUserService
 import pl.finitas.app.core.domain.services.SpendingCategoryView
 import pl.finitas.app.manage_spendings_feature.data.data_source.ChartWithCategoriesDto
 import pl.finitas.app.manage_spendings_feature.domain.service.ChartService
@@ -20,19 +22,35 @@ enum class ConstructorType(val headerTitle: String) {
 
 class ChartConstructorViewModel(
     private val service: ChartService,
+    private val authorizedUserService: AuthorizedUserService,
 ) : ViewModel() {
     var errors: List<String>? by mutableStateOf(null)
+
     var chartState by mutableStateOf(ChartState.empty())
         private set
+
     var isChartConstructorDialogOpen by mutableStateOf(false)
         private set
+
     var constructorType by mutableStateOf(ConstructorType.CREATE)
+
     var enabledCategories by mutableStateOf(setOf<UUID>())
         private set
 
-    fun openCreateConstructor() {
+    fun openCreateConstructor(idRoom: UUID?, idTargetUser: UUID?) {
         viewModelScope.launch {
-            chartState = chartState.copy(categories = service.getSpendingCategories())
+            val authorizedUser = authorizedUserService.getAuthorizedIdUser().first()
+            val targetUserOrCurrent =
+                if (authorizedUser == idTargetUser)
+                    null
+                else {
+                    idTargetUser
+                }
+            chartState = ChartState.empty().copy(
+                categories = service.getSpendingCategories(idRoom, targetUserOrCurrent),
+                idTargetUser = idTargetUser,
+                idRoom = idRoom
+            )
             constructorType = ConstructorType.CREATE
             isChartConstructorDialogOpen = true
         }
@@ -96,7 +114,9 @@ class ChartConstructorViewModel(
                 chartType = chart.chartType,
                 startDate = chart.startDate,
                 endDate = chart.endDate,
-                categories = service.getSpendingCategories()
+                categories = service.getSpendingCategories(chart.idRoom, chart.idTargetUser),
+                idTargetUser = chart.idTargetUser,
+                idRoom = chart.idRoom,
             )
         }
     }
@@ -121,7 +141,7 @@ class ChartConstructorViewModel(
 
     private fun getAllSpendingCategoryChildrenIdsRecursively(
         category: SpendingCategoryView,
-        set: MutableSet<UUID>
+        set: MutableSet<UUID>,
     ) {
         set.add(category.idCategory)
 

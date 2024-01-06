@@ -1,12 +1,15 @@
 package pl.finitas.app.manage_spendings_feature.domain.repository
 
 import kotlinx.coroutines.flow.Flow
+import pl.finitas.app.core.data.model.FinishedSpending
 import pl.finitas.app.manage_spendings_feature.domain.model.FinishedSpendingWithRecordsDto
 import java.util.UUID
 
 interface FinishedSpendingRepository {
 
-    fun getFinishedSpendings(): Flow<List<FinishedSpendingWithRecordsDto>>
+    fun getFinishedSpendings(idsUser: List<UUID>): Flow<List<FinishedSpendingWithRecordsDto>>
+
+    fun getFinishedSpendingsByIdUser(idUser: UUID): Flow<List<FinishedSpendingWithRecordsDto>>
 
     suspend fun findFinishedSpendingWithRecordBy(idTotalSpending: UUID): FinishedSpendingWithRecordsDto?
 
@@ -18,7 +21,9 @@ interface FinishedSpendingRepository {
 
     suspend fun upsertFinishedSpendingWithRecords(finishedSpending: FinishedSpendingWithRecordsDto)
 
-    suspend fun deleteFinishedSpending(idFinishedSpending: UUID)
+    suspend fun deleteFinishedSpendingById(idFinishedSpending: UUID)
+    suspend fun markAsDeleted(idFinishedSpending: UUID)
+    suspend fun getById(idFinishedSpending: UUID): FinishedSpending
 }
 
 

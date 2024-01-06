@@ -71,7 +71,7 @@ private fun GeneralInfo(
             DiagramTypeInput(viewModel = viewModel)
             StartDateInput(viewModel = viewModel)
             EndDateInput(viewModel = viewModel)
-            InputError(errors = viewModel.errors)
+            InputError(errors = viewModel.errors, Modifier.padding(top = 26.dp))
         }
     }
 }

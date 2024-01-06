@@ -1,9 +1,12 @@
 package pl.finitas.app.manage_spendings_feature.domain.service
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import pl.finitas.app.core.data.model.SpendingCategory
+import pl.finitas.app.core.domain.dto.store.DeleteFinishedSpendingRequest
 import pl.finitas.app.core.domain.dto.store.RemoteFinishedSpendingDto
 import pl.finitas.app.core.domain.dto.store.RemoteSpendingRecordDto
 import pl.finitas.app.core.domain.repository.FinishedSpendingStoreRepository
@@ -28,71 +31,150 @@ class FinishedSpendingService(
     private val profileRepository: ProfileRepository,
 ) {
 
-    fun getTotalSpendings(): Flow<List<Pair<LocalDate, List<FinishedSpendingView>>>> =
-        finishedSpendingRepository.getFinishedSpendings().combine(
-            spendingCategoryRepository
-                .getSpendingCategoriesOfAllUsersFlow()
-        ) { totalSpendings, categories ->
-            val categoriesById = categories
-                .associateBy { it.idCategory }
-
-
-            totalSpendings
-                .groupBy(keySelector = { it.purchaseDate.toLocalDate() }) { totalSpendingWithRecords ->
-                    val (
-                        idTotalSpending,
-                        title,
-                        time,
-                        _,
-                        _,
-                        spendingRecords,
-                    ) = totalSpendingWithRecords
-                    val recordsByCategory = spendingRecords.groupBy { it.idCategory }
-
-                    FinishedSpendingView(
-                        idFinishedSpending = idTotalSpending,
-                        name = title,
-                        date = time,
-                        elements = recordsByCategory.map { (idCategory, records) ->
-                            SpendingCategoryView(
-                                name = categoriesById[idCategory]?.name
-                                    ?: throw SpendingCategoryNotFoundException(idCategory),
-                                idCategory = idCategory,
-                                elements = records.map { record ->
-                                    SpendingRecordView(
-                                        name = record.name,
-                                        totalPrice = record.price,
-                                        idSpendingRecord = record.idSpendingRecord,
-                                        idCategory = record.idCategory,
-                                    )
-                                }
-                            )
-                        }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getTotalSpendings(idsUser: List<UUID>): Flow<List<Pair<LocalDate, List<FinishedSpendingView>>>> {
+        return profileRepository.getAuthorizedUserId().flatMapLatest { currentUser ->
+            when {
+                idsUser.isEmpty() || (idsUser.size == 1 && idsUser[0] == currentUser) -> {
+                    finishedSpendingRepository.getFinishedSpendings(listOf()).combine(
+                        spendingCategoryRepository
+                            .getSpendingCategoriesFlow(),
+                        transform = ::mapToView,
                     )
                 }
-                .map { (date, totalSpendingsByDay) ->
-                    date to totalSpendingsByDay.map { it.normalizeTotalSpendingView(categoriesById) }
-                        .sortedByDescending { it.date }
+
+                idsUser.size == 1 && idsUser[0] != currentUser -> {
+                    finishedSpendingRepository.getFinishedSpendingsByIdUser(idsUser[0]).combine(
+                        spendingCategoryRepository
+                            .getSpendingCategoriesOfAllUsersFlow(),
+                        transform = ::mapToView,
+                    )
                 }
-                .sortedByDescending { it.first }
+
+                else -> {
+                    finishedSpendingRepository.getFinishedSpendings(idsUser).combine(
+                        spendingCategoryRepository
+                            .getSpendingCategoriesOfAllUsersFlow(),
+                        transform = ::mapToView,
+                    )
+                }
+            }
         }
+    }
 
-    suspend fun upsertTotalSpending(totalSpending: FinishedSpendingState) {
+
+    suspend fun upsertFinishedSpending(totalSpending: FinishedSpendingState) {
+        val currentUser = profileRepository.getAuthorizedUserId().first()
         val dto = totalSpending.toTotalSpendingWithRecords()
-        finishedSpendingRepository.upsertFinishedSpendingWithRecords(dto)
-        val currentUser = profileRepository.getAuthorizedUserId().first() ?: return
-        try {
-            finishedSpendingStoreRepository.changeFinishedSpendings(
-                listOf(dto.toRemote(currentUser))
-            )
-        } catch (_: Exception) {
+        if (dto.idUser == null || dto.idUser == currentUser) {
+            finishedSpendingRepository.upsertFinishedSpendingWithRecords(dto)
+            if (currentUser != null) {
+                try {
+                    finishedSpendingStoreRepository.changeFinishedSpendings(
+                        listOf(dto.toRemote(currentUser))
+                    )
+                } catch (_: Exception) {
 
+                }
+            }
+        } else if (currentUser != null) {
+            try {
+                val remoteDto = dto.toRemote(dto.idUser)
+                if (totalSpending.idFinishedSpending == null) {
+                    finishedSpendingStoreRepository.createFinishedSpending(remoteDto)
+                } else {
+                    finishedSpendingStoreRepository.updateFinishedSpending(remoteDto)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
     suspend fun deleteFinishedSpending(idFinishedSpending: UUID) {
-        finishedSpendingRepository.deleteFinishedSpending(idFinishedSpending)
+        val currentUser = profileRepository.getAuthorizedUserId().first()
+        val finishedSpending = finishedSpendingRepository.getById(idFinishedSpending)
+        if (
+            finishedSpending.version == null
+        ) {
+            finishedSpendingRepository.deleteFinishedSpendingById(idFinishedSpending)
+            return
+        }
+
+        if (finishedSpending.idUser == null) {
+            finishedSpendingRepository.markAsDeleted(idFinishedSpending)
+            if (currentUser != null) {
+                try {
+                    finishedSpendingStoreRepository.deleteFinishedSpending(
+                        DeleteFinishedSpendingRequest(
+                            idFinishedSpending,
+                            currentUser,
+                        )
+                    )
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            return
+        }
+        //TODO: maybe disable for all not user data and just remove from database
+        finishedSpendingStoreRepository.deleteFinishedSpending(
+            DeleteFinishedSpendingRequest(
+                idFinishedSpending,
+                finishedSpending.idUser,
+            )
+        )
     }
+}
+
+private fun mapToView(
+    totalSpendings: List<FinishedSpendingWithRecordsDto>,
+    categories: List<SpendingCategory>,
+): List<Pair<LocalDate, List<FinishedSpendingView>>> {
+    val categoriesById = categories
+        .associateBy { it.idCategory }
+
+
+    return totalSpendings
+        .groupBy(keySelector = { it.purchaseDate.toLocalDate() }) { totalSpendingWithRecords ->
+            val (
+                idTotalSpending,
+                title,
+                time,
+                _,
+                _,
+                idUser,
+                spendingRecords,
+            ) = totalSpendingWithRecords
+            val recordsByCategory = spendingRecords.groupBy { it.idCategory }
+
+            FinishedSpendingView(
+                idFinishedSpending = idTotalSpending,
+                name = title,
+                date = time,
+                idUser = idUser,
+                elements = recordsByCategory.map { (idCategory, records) ->
+                    SpendingCategoryView(
+                        name = categoriesById[idCategory]?.name
+                            ?: throw SpendingCategoryNotFoundException(idCategory),
+                        idCategory = idCategory,
+                        elements = records.map { record ->
+                            SpendingRecordView(
+                                name = record.name,
+                                totalPrice = record.price,
+                                idSpendingRecord = record.idSpendingRecord,
+                                idCategory = record.idCategory,
+                            )
+                        }
+                    )
+                }
+            )
+        }
+        .map { (date, totalSpendingsByDay) ->
+            date to totalSpendingsByDay.map { it.normalizeTotalSpendingView(categoriesById) }
+                .sortedByDescending { it.date }
+        }
+        .sortedByDescending { it.first }
 }
 
 
@@ -174,6 +256,7 @@ fun FinishedSpendingState.toTotalSpendingWithRecords(): FinishedSpendingWithReco
         purchaseDate = date.atStartOfDay(),
         isDeleted = false,
         idReceipt = null,
+        idUser = idUser,
         spendingRecords = categories.flatMap { category ->
             category.elements.map { spendingRecord ->
                 if (spendingRecord !is SpendingRecordView) throw InvalidFinishedSpendingState(this)

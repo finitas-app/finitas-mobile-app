@@ -16,7 +16,7 @@ import java.util.UUID
 interface UserDao {
 
     @Query("SELECT idUser, username FROM User WHERE idUser in (:ids)")
-    suspend fun getUsernamesByIds(ids: List<UUID>): List<UsernameDto>
+    fun getUsernamesByIds(ids: List<UUID>): Flow<List<UsernameDto>>
 
     @Insert
     suspend fun insertUser(user: User): Long
@@ -37,7 +37,7 @@ interface UserDao {
     @Transaction
     suspend fun addUserIfNotPresent(idUser: UUID) {
         if(getUserById(idUser) == null) {
-            insertUser(User(username = "", idUser = idUser, 0, -1, -1))
+            insertUser(User(username = "", idUser = idUser, 0, -1, -1, -1))
         }
     }
     @Query("SELECT * FROM User")
@@ -50,5 +50,18 @@ interface UserDao {
 
     @Query("UPDATE User set finishedSpendingVersion = :version WHERE idUser = :idUser")
     suspend fun setFinishedSpendingVersion(idUser: UUID, version: Int)
+
+    @Query("UPDATE User set shoppingListVersion = :version WHERE idUser = :idUser")
+    suspend fun setShoppingListVersion(idUser: UUID, version: Int)
+
+    @Query("""
+        UPDATE User 
+        set version = -1, 
+            spendingCategoryVersion = -1, 
+            finishedSpendingVersion = -1, 
+            shoppingListVersion = -1 
+        WHERE idUser = :idUser
+    """)
+    fun clearVersions(idUser: UUID)
 
 }

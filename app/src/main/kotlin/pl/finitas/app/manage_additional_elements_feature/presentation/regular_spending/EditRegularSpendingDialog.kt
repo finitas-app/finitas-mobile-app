@@ -91,7 +91,7 @@ private fun FormGeneralInfo(
 
             ActualizationPeriodInput(viewModel = viewModel)
 
-            InputError(viewModel.errors)
+            InputError(viewModel.errors, Modifier.padding(top = 26.dp))
         }
     }
 }

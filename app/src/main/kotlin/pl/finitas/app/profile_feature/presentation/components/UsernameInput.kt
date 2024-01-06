@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
+import pl.finitas.app.core.presentation.components.constructors.InputError
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.profile_feature.presentation.ProfileViewModel
 
@@ -47,5 +48,6 @@ fun UsernameInput(viewModel: ProfileViewModel, modifier: Modifier) {
                 )
             }
         }
+        InputError(errors = viewModel.usernameErrors, Modifier.padding(top = 6.dp))
     }
 }

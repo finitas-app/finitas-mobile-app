@@ -1,11 +1,13 @@
 package pl.finitas.app.navigation
 
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import pl.finitas.app.auth_feature.presentation.AuthScreen
 import pl.finitas.app.manage_additional_elements_feature.presentation.AdditionalElementsScreen
 import pl.finitas.app.manage_spendings_feature.presentation.HomeScreen
@@ -33,7 +35,17 @@ fun AppNavigation() {
             AuthScreen(navController)
         }
         composable(
-            NavPaths.HomeScreen.route,
+            route = NavPaths.HomeScreen.route + "?idsUser={idsUser}&idRoom={idRoom}",
+            arguments = listOf(
+                navArgument(name = "idsUser") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+                navArgument(name = "idRoom") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+            )
         ) {
             HomeScreen(navController)
         }
@@ -48,7 +60,19 @@ fun AppNavigation() {
             ShoppingListsScreen(navController)
         }
         composable(
-            NavPaths.RoomsScreen.route
+            route = NavPaths.RoomsScreen.route,
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "https://finitas.pl/{idInvitationLink}"
+                    action = Intent.ACTION_VIEW
+                }
+            ),
+            arguments = listOf(
+                navArgument(name = "idInvitationLink") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
         ) {
             RoomsScreen(navController)
         }

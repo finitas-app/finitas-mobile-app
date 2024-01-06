@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import pl.finitas.app.core.data.model.SpendingCategory
+import pl.finitas.app.core.domain.dto.store.DeleteShoppingListRequest
 import pl.finitas.app.core.domain.dto.store.RemoteShoppingItemDto
 import pl.finitas.app.core.domain.dto.store.RemoteShoppingListDto
 import pl.finitas.app.core.domain.repository.ProfileRepository
@@ -25,7 +26,7 @@ class ShoppingListService(
             .getShoppingLists()
             .combine(
                 spendingCategoryRepository
-                    .getAllUsersSpendingCategories()
+                    .getAllUsersSpendingCategoriesFlow()
             ) { shoppingLists: List<ShoppingListDto>, categories ->
                 val categoriesById = categories.associateBy { it.idCategory }
 
@@ -94,7 +95,10 @@ class ShoppingListService(
     }
 
     suspend fun upsertShoppingList(shoppingListState: ShoppingListState) {
-        if (shoppingListState.idUser != null) throw InvalidShoppingListState(shoppingListState, "Is not possible to upsert shopping list of not current user.")
+        if (shoppingListState.idUser != null) throw InvalidShoppingListState(
+            shoppingListState,
+            "Is not possible to upsert shopping list of not current user."
+        )
         val generatedUUID = shoppingListState.idShoppingList ?: UUID.randomUUID()
         val dto = ShoppingListDto(
             name = shoppingListState.title,
@@ -129,7 +133,38 @@ class ShoppingListService(
     }
 
     suspend fun deleteShoppingListBy(idShoppingList: UUID) {
-        shoppingListRepository.deleteShoppingListBy(idShoppingList)
+        val currentUser = profileRepository.getAuthorizedUserId().first()
+        val shoppingList = shoppingListRepository.getShoppingListVersionBy(idShoppingList)
+        if (
+            shoppingList.version == null
+        ) {
+            shoppingListRepository.deleteShoppingListBy(idShoppingList)
+            return
+        }
+
+        if (shoppingList.idUser == null) {
+            shoppingListRepository.markAsDeleted(idShoppingList)
+            if (currentUser != null) {
+                try {
+                    shoppingListStoreRepository.deleteShoppingList(
+                        DeleteShoppingListRequest(
+                            idShoppingList,
+                            currentUser,
+                        )
+                    )
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            return
+        }
+        //TODO: maybe disable for all not user data and just remove from database
+        shoppingListStoreRepository.deleteShoppingList(
+            DeleteShoppingListRequest(
+                idShoppingList,
+                shoppingList.idUser,
+            )
+        )
     }
 }
 
@@ -222,5 +257,8 @@ private fun ShoppingListDto.toRemote(idUser: UUID): RemoteShoppingListDto = Remo
 )
 
 
-class InvalidShoppingListState(shoppingListState: ShoppingListState, message: String = "Total spending state is invalid: $shoppingListState") :
+class InvalidShoppingListState(
+    shoppingListState: ShoppingListState,
+    message: String = "Total spending state is invalid: $shoppingListState",
+) :
     Exception(message)

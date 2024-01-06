@@ -1,5 +1,6 @@
 package pl.finitas.app.sync_feature.domain.repository
 
+import kotlinx.coroutines.flow.Flow
 import pl.finitas.app.core.data.model.User
 import java.util.UUID
 
@@ -7,7 +8,7 @@ interface UserRepository {
 
     suspend fun getUsers(): List<User>
 
-    suspend fun getUsernamesByIds(ids: List<UUID>): List<UsernameDto>
+    fun getUsernamesByIds(ids: List<UUID>): Flow<List<UsernameDto>>
 
     suspend fun getUserById(idUser: UUID): User?
 
@@ -16,6 +17,7 @@ interface UserRepository {
     suspend fun getUserIds(): List<UUID>
 
     suspend fun saveUsers(users: List<User>)
+    suspend fun clearVersions(idUser: UUID)
 }
 
 data class UsernameDto(

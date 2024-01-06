@@ -11,4 +11,5 @@ data class User(
     val version: Int,
     val spendingCategoryVersion: Int,
     val finishedSpendingVersion: Int,
+    val shoppingListVersion: Int,
 )

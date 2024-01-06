@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +24,10 @@ interface SpendingCategoryDao {
     suspend fun getSpendingCategories(): List<SpendingCategory>
 
     @Query("SELECT * FROM SpendingCategory")
-    fun getAllUsersSpendingCategories(): Flow<List<SpendingCategory>>
+    fun getAllUsersSpendingCategoriesFlow(): Flow<List<SpendingCategory>>
+
+    @Query("SELECT * FROM SpendingCategory")
+    suspend fun getAllUsersSpendingCategories(): List<SpendingCategory>
 
     @Query("SELECT * FROM SpendingCategory WHERE idCategory = :idCategory")
     suspend fun findSpendingCategoryBy(idCategory: UUID): SpendingCategory?
@@ -48,4 +52,13 @@ interface SpendingCategoryDao {
 
     @Query("SELECT * FROM SpendingCategory WHERE version is null")
     suspend fun getChangedCategories(): List<SpendingCategory>
+
+    @Query("SELECT * FROM SpendingCategory WHERE idUser = :idUser")
+    suspend fun getSpendingCategoriesByIdUser(idUser: UUID): List<SpendingCategory>
+
+
+    @Transaction
+    suspend fun deleteByIdUser(idUser: UUID) {
+        deleteSpendingCategoryBy(getSpendingCategoriesByIdUser(idUser).map { it.idCategory })
+    }
 }

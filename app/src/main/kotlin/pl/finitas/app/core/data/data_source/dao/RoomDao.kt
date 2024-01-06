@@ -59,6 +59,7 @@ interface RoomDao {
                     version = -1,
                     spendingCategoryVersion = -1,
                     finishedSpendingVersion = -1,
+                    shoppingListVersion = -1,
                 )
             }
         })
@@ -99,9 +100,17 @@ interface RoomDao {
         SELECT DISTINCT u.*
         FROM RoomMember rm
         JOIN User u ON rm.idUser = u.idUser
-        WHERE idRoom in (:idsRoom)
+        WHERE idRoom in (:idsRoom) and rm.isActive = 1
     """)
     fun getRoomMembers(idsRoom: List<UUID>): List<User>
+
+    @Query("""
+        SELECT DISTINCT u.*
+        FROM RoomMember rm
+        JOIN User u ON rm.idUser = u.idUser
+        WHERE rm.isActive = 1
+    """)
+    fun getRoomMembers(): List<User>
 
     @Query("SELECT * FROM RoomRole WHERE idRoom = :idRoom")
     fun getRoomRolesByIdRoom(idRoom: UUID): Flow<List<RoomRole>>

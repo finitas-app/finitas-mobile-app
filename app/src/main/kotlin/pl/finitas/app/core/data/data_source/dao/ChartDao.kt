@@ -24,6 +24,8 @@ interface ChartDao {
         ch.chartType as 'chartType',
         ch.startDate as 'startDate',
         ch.endDate as 'endDate',
+        ch.idTargetUser as 'idTargetUser',
+        ch.idRoom as 'idRoom',
         ca.name as 'categoryName',
         ca.idCategory as 'idCategory',
         fs.purchaseDate as 'purchaseDate',
@@ -35,10 +37,62 @@ interface ChartDao {
         JOIN SpendingRecordData srd on ca.idCategory = srd.idCategory
         JOIN SpendingRecord sr on sr.idSpendingRecordData = srd.idSpendingRecordData
         JOIN FinishedSpending fs on fs.idSpendingSummary = sr.idSpendingSummary
-        
+        WHERE ch.idRoom is null and ch.idTargetUser is null
     """
     )
     fun getChartsWithCategoriesFlatFlow(): Flow<List<ChartWithCategoryFlat>>
+    @Transaction
+    @Query(
+        """
+        SELECT 
+        ch.idChart as 'idChart',
+        ch.chartType as 'chartType',
+        ch.startDate as 'startDate',
+        ch.endDate as 'endDate',
+        ch.idTargetUser as 'idTargetUser',
+        ch.idRoom as 'idRoom',
+        ca.name as 'categoryName',
+        ca.idCategory as 'idCategory',
+        fs.purchaseDate as 'purchaseDate',
+        sr.price as 'price'
+        
+        FROM Chart ch
+        JOIN ChartToCategoryRef ctc on ch.idChart = ctc.idChart
+        JOIN SpendingCategory ca on ctc.idCategory = ca.idCategory
+        JOIN SpendingRecordData srd on ca.idCategory = srd.idCategory
+        JOIN SpendingRecord sr on sr.idSpendingRecordData = srd.idSpendingRecordData
+        JOIN FinishedSpending fs on fs.idSpendingSummary = sr.idSpendingSummary
+        WHERE ch.idRoom = :idRoom
+    """
+    )
+    fun getChartsWithCategoriesFlatByIdRoomFlow(idRoom: UUID): Flow<List<ChartWithCategoryFlat>>
+    @Transaction
+    @Query(
+        """
+        SELECT 
+        ch.idChart as 'idChart',
+        ch.chartType as 'chartType',
+        ch.startDate as 'startDate',
+        ch.endDate as 'endDate',
+        ch.idTargetUser as 'idTargetUser',
+        ch.idRoom as 'idRoom',
+        ca.name as 'categoryName',
+        ca.idCategory as 'idCategory',
+        fs.purchaseDate as 'purchaseDate',
+        sr.price as 'price'
+        
+        FROM Chart ch
+        JOIN ChartToCategoryRef ctc on ch.idChart = ctc.idChart
+        JOIN SpendingCategory ca on ctc.idCategory = ca.idCategory
+        JOIN SpendingRecordData srd on ca.idCategory = srd.idCategory
+        JOIN SpendingRecord sr on sr.idSpendingRecordData = srd.idSpendingRecordData
+        JOIN FinishedSpending fs on fs.idSpendingSummary = sr.idSpendingSummary
+        WHERE ch.idTargetUser = :idTargetUser
+    """
+    )
+    fun getChartsWithCategoriesFlatByIdTargetUserFlow(idTargetUser: UUID?): Flow<List<ChartWithCategoryFlat>>
+
+
 
     @Query("DELETE FROM ChartToCategoryRef WHERE idChart = :idChart")
     suspend fun deleteCategoryRefsByChart(idChart: UUID)
@@ -64,6 +118,8 @@ data class ChartWithCategoryFlat(
     val idChart: UUID,
     val startDate: LocalDateTime?,
     val endDate: LocalDateTime?,
+    val idTargetUser: UUID?,
+    val idRoom: UUID?,
     val categoryName: String,
     val idCategory: UUID,
     val purchaseDate: LocalDateTime,

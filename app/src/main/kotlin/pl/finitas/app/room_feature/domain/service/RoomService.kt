@@ -4,13 +4,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.data.model.Room
-import pl.finitas.app.room_feature.domain.AddRoomDto
+import pl.finitas.app.core.data.model.RoomMember
+import pl.finitas.app.room_feature.domain.CreateRoomDto
 import pl.finitas.app.room_feature.domain.RoomPreviewDto
 import pl.finitas.app.room_feature.domain.RoomWithAdditionalInfoView
 import pl.finitas.app.room_feature.domain.repository.AddRoleRequest
 import pl.finitas.app.room_feature.domain.repository.AssignRoleToUserRequest
 import pl.finitas.app.room_feature.domain.repository.DeleteRoleRequest
 import pl.finitas.app.room_feature.domain.repository.DeleteUserRequest
+import pl.finitas.app.room_feature.domain.repository.JoinRoomDto
 import pl.finitas.app.room_feature.domain.repository.MessageRepository
 import pl.finitas.app.room_feature.domain.repository.RoomRepository
 import pl.finitas.app.room_feature.domain.repository.UpdateRoleRequest
@@ -59,8 +61,17 @@ class RoomService(
         return roomRepository.getRoomWithAdditionalInfo(idRoom)
     }
 
+    suspend fun getRoomMembers(idRoom: UUID): List<RoomMember> {
+        return roomRepository.getRoomMembers(idRoom)
+    }
+
     suspend fun addRoom(addRoomState: AddRoomState) {
-        roomRepository.addRoomRepository(addRoomState.toDto())
+        //TODO: Add validation
+        if (addRoomState.title.isNotBlank()) {
+            roomRepository.createRoom(addRoomState.toCreateDto())
+        } else if (addRoomState.invitationLink.isNotBlank()) {
+            roomRepository.joinRoom(addRoomState.toJoinDto())
+        }
     }
 
     suspend fun upsertRole(idRoom: UUID, upsertRoleState: UpsertRoleState) {
@@ -118,4 +129,9 @@ class RoomService(
         roomRepository.changeRoomName(idRoom, newName)
 }
 
-private fun AddRoomState.toDto() = AddRoomDto(title)
+private fun AddRoomState.toJoinDto(): JoinRoomDto {
+    val idInvitationLink = invitationLink.trim().split("/").last()
+    return JoinRoomDto(UUID.fromString(idInvitationLink))
+}
+
+private fun AddRoomState.toCreateDto() = CreateRoomDto(title)

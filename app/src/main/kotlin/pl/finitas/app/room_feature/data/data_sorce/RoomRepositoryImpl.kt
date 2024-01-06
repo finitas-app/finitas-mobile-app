@@ -15,10 +15,11 @@ import pl.finitas.app.core.data.data_source.dao.RoomDao
 import pl.finitas.app.core.data.data_source.dao.RoomMemberDao
 import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.data.model.Room
+import pl.finitas.app.core.data.model.RoomMember
 import pl.finitas.app.core.data.model.RoomRole
 import pl.finitas.app.core.http.HttpUrls
 import pl.finitas.app.core.http.frontendApiUrl
-import pl.finitas.app.room_feature.domain.AddRoomDto
+import pl.finitas.app.room_feature.domain.CreateRoomDto
 import pl.finitas.app.room_feature.domain.RoomMemberView
 import pl.finitas.app.room_feature.domain.RoomRoleView
 import pl.finitas.app.room_feature.domain.RoomWithAdditionalInfoView
@@ -26,6 +27,7 @@ import pl.finitas.app.room_feature.domain.repository.AddRoleRequest
 import pl.finitas.app.room_feature.domain.repository.AssignRoleToUserRequest
 import pl.finitas.app.room_feature.domain.repository.DeleteRoleRequest
 import pl.finitas.app.room_feature.domain.repository.DeleteUserRequest
+import pl.finitas.app.room_feature.domain.repository.JoinRoomDto
 import pl.finitas.app.room_feature.domain.repository.RoomRepository
 import pl.finitas.app.room_feature.domain.repository.UpdateRoleRequest
 import pl.finitas.app.room_feature.presentation.messanger.IdRoomNotProvidedException
@@ -45,11 +47,17 @@ class RoomRepositoryImpl(
         return roomDao.findRoomById(idRoom)
     }
 
-    override suspend fun addRoomRepository(addRoomDto: AddRoomDto) {
+    override suspend fun createRoom(createRoomDto: CreateRoomDto) {
         val response: RoomDto = httpClient.post(HttpUrls.addRoom) {
-            setBody(addRoomDto)
+            setBody(createRoomDto)
         }.body()
         roomDao.upsertRoomsWithMembersAndRoles(listOf(response))
+    }
+
+    override suspend fun joinRoom(joinRoomDto: JoinRoomDto) {
+        httpClient.post(HttpUrls.joinRoom) {
+            setBody(joinRoomDto)
+        }
     }
 
     override fun getRoomWithAdditionalInfo(idRoom: UUID): Flow<RoomWithAdditionalInfoView> {
@@ -125,6 +133,10 @@ class RoomRepositoryImpl(
         httpClient.patch("$frontendApiUrl/rooms/$idRoom/name") {
             setBody(ChangeRoomNameRequest(newName))
         }
+    }
+
+    override suspend fun getRoomMembers(idRoom: UUID): List<RoomMember> {
+        return roomMemberDao.getRoomMembers(idRoom)
     }
 }
 

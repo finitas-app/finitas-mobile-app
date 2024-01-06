@@ -1,6 +1,7 @@
 package pl.finitas.app.manage_spendings_feature.presentation.spendings
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,27 +25,37 @@ import pl.finitas.app.core.presentation.components.constructors.GestureVerticalM
 import pl.finitas.app.core.presentation.components.constructors.LayeredList
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.manage_spendings_feature.domain.util.convertToView
+import java.util.UUID
 
 @Composable
 fun BoxScope.FinishedSpendingsPanel(
     viewModel: FinishedSpendingViewModel,
-    onAddSpendingClick: (FinishedSpendingView?) -> Unit,
+    onAddSpendingClick: (FinishedSpendingView?, idUser: UUID?) -> Unit,
+    hasModifyAuthority: Boolean,
+    context: FinishedSpendingContext,
 ) {
     GestureVerticalMenu(
         topLimit = 0f,
         bottomLimit = .55f,
     ) {
-        val spendings = viewModel.totalSpendings.collectAsState(listOf())
+        val spendings by viewModel.totalSpendings.collectAsState(listOf())
 
         TotalSpendingHeader(
-            onAddSpendingClick = { onAddSpendingClick(null) },
+            onAddSpendingClick = {
+                when(context.idsUser.size) {
+                    1 -> onAddSpendingClick(null, context.idsUser[0])
+                    else -> onAddSpendingClick(null, null)
+                }
+            },
+            hasModifyAuthority = hasModifyAuthority,
         )
 
         Column(
             Modifier
                 .verticalScroll(rememberScrollState())
-                .padding(bottom = 100.dp)) {
-            spendings.value.forEach { (date, spendings) ->
+                .padding(bottom = 100.dp)
+        ) {
+            spendings.forEach { (date, spendings) ->
                 Column(
                     modifier = Modifier
                         .padding(horizontal = 30.dp, vertical = 12.dp),
@@ -62,8 +74,8 @@ fun BoxScope.FinishedSpendingsPanel(
                             }
                         },
                         onNameClick = { spendingElement ->
-                            if (spendingElement is FinishedSpendingView) {
-                                onAddSpendingClick(spendingElement)
+                            if (hasModifyAuthority && spendingElement is FinishedSpendingView) {
+                                onAddSpendingClick(spendingElement, spendingElement.idUser)
                             }
                         }
                     )
@@ -76,6 +88,7 @@ fun BoxScope.FinishedSpendingsPanel(
 @Composable
 private fun TotalSpendingHeader(
     onAddSpendingClick: () -> Unit,
+    hasModifyAuthority: Boolean,
 ) {
     Row(
         modifier = Modifier
@@ -86,11 +99,16 @@ private fun TotalSpendingHeader(
     ) {
         Fonts.heading1.Text(
             text = "Spendings",
+            Modifier.padding(vertical = 10.dp)
         )
-        ClickableIcon(
-            imageVector = Icons.Rounded.AddCircle,
-            onClick = onAddSpendingClick,
-            modifier = Modifier.padding(top = 5.dp)
-        )
+        if (hasModifyAuthority) {
+            ClickableIcon(
+                imageVector = Icons.Rounded.AddCircle,
+                onClick = onAddSpendingClick,
+                modifier = Modifier.padding(top = 5.dp)
+            )
+        } else {
+            Box(Modifier)
+        }
     }
 }

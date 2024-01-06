@@ -40,8 +40,13 @@ class SpendingCategoryService(
         }
 
 
-    suspend fun getSpendingCategoriesFlat(): List<SpendingCategoryView> {
-        val categories = spendingCategoryRepository.getSpendingCategories()
+    suspend fun getSpendingCategoriesByIdUserFlat(idUser: UUID? = null): List<SpendingCategoryView> {
+        val categories =
+            if (idUser == null) {
+                spendingCategoryRepository.getSpendingCategories()
+            } else {
+                spendingCategoryRepository.getSpendingCategoriesByIdUser(idUser)
+            }
 
         val (originCategories, nestedCategories) = categories.partition { it.idParent == null }
         val categoriesByParentId = nestedCategories.groupBy { it.idParent }.toMutableMap()

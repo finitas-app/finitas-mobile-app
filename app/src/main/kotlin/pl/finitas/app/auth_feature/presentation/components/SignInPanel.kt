@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.auth_feature.presentation.AuthType
 import pl.finitas.app.auth_feature.presentation.AuthViewModel
+import pl.finitas.app.core.presentation.components.constructors.InputError
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
 
 @Composable
@@ -67,23 +68,27 @@ fun SignInPanel(
                 onValueChange = viewModel::setPassword,
                 modifier = Modifier.padding(top = 11.dp)
             )
+            InputError(errors = viewModel.errors, Modifier.padding(top = 26.dp))
 
             AuthButton(
                 text = "Sign in",
                 onClick = { viewModel.signIn(onSuccessfulLogin) },
+                isLoading = viewModel.isLoading,
+                isDisable = viewModel.isDisableLogin,
+                showLoadingIcon = true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 40.dp)
-
             )
 
             AuthButton(
                 text = "Create account",
                 onClick = { viewModel.changeAuthType(AuthType.SignUp) },
+                isLoading = viewModel.isLoading,
+                isDisable = viewModel.isDisableLogin,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 20.dp)
-
             )
         }
     }

@@ -9,7 +9,6 @@ import pl.finitas.app.room_feature.data.data_sorce.RoomShoppingListRepositoryImp
 import pl.finitas.app.room_feature.domain.repository.MessageRepository
 import pl.finitas.app.room_feature.domain.repository.RoomRepository
 import pl.finitas.app.room_feature.domain.repository.RoomShoppingListRepository
-import pl.finitas.app.room_feature.domain.service.AuthorizedUserService
 import pl.finitas.app.room_feature.domain.service.MessageService
 import pl.finitas.app.room_feature.domain.service.RoomService
 import pl.finitas.app.room_feature.domain.service.RoomShoppingListService
@@ -29,7 +28,6 @@ val roomModule = module {
     single<RoomShoppingListRepository> { RoomShoppingListRepositoryImpl(getDatabase().shoppingListDao) }
     single { RoomService(get(), get()) }
     single { MessageService(get(), get(), get(), get()) }
-    single { AuthorizedUserService(get()) }
     single { RoomShoppingListService(get()) }
     viewModel { RoomViewModel(get(), get()) }
     viewModel { MessengerViewModel(get(), get(), get(), get(), get()) }

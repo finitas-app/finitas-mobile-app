@@ -3,6 +3,8 @@ package pl.finitas.app.manage_additional_elements_feature.presentation
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -28,7 +30,11 @@ fun AdditionalElementsScreen(
         isDialogOpen = spendingCategoryViewModel.isUpsertCategoryDialogOpen
                 || regularSpendingViewModel.isDialogOpen,
     ) {
-        Column {
+        Column(
+            Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 100.dp)
+        ) {
             val panelModifier = Modifier
                 .fillMaxWidth()
                 .padding(26.dp)

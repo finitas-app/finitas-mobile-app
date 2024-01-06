@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import pl.finitas.app.core.data.model.Authority
+import pl.finitas.app.core.domain.services.AuthorizedUserService
 import pl.finitas.app.room_feature.domain.RoomWithAdditionalInfoView
-import pl.finitas.app.room_feature.domain.service.AuthorizedUserService
 import pl.finitas.app.room_feature.domain.service.RoomService
 import pl.finitas.app.room_feature.presentation.messanger.IdRoomNotProvidedException
 import pl.finitas.app.room_feature.presentation.room_settings.roles.UpsertRoleState

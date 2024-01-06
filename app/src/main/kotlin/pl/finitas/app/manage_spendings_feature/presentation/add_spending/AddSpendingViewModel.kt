@@ -5,20 +5,27 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import pl.finitas.app.core.domain.repository.SettingsRepository
 import pl.finitas.app.core.domain.services.FinishedSpendingView
 import pl.finitas.app.core.domain.services.SpendingCategoryService
 import pl.finitas.app.core.domain.services.SpendingRecordView
 import pl.finitas.app.manage_spendings_feature.domain.service.FinishedSpendingService
 import pl.finitas.app.manage_spendings_feature.domain.service.ScanReceiptService
+import pl.finitas.app.profile_feature.presentation.CurrencyValues
 import java.time.LocalDate
 import java.util.UUID
 
 class AddSpendingViewModel(
     private val spendingCategoryService: SpendingCategoryService,
     private val finishedSpendingService: FinishedSpendingService,
-    private val scanReceiptService: ScanReceiptService
-) : ViewModel() {
+    private val scanReceiptService: ScanReceiptService,
+    private val settingsRepository: SettingsRepository,
+): ViewModel() {
+
+    var currencyValue by mutableStateOf(CurrencyValues.PLN)
+        private set
 
     var isDialogOpen by mutableStateOf(false)
         private set
@@ -26,15 +33,22 @@ class AddSpendingViewModel(
     var finishedSpendingState by mutableStateOf(FinishedSpendingState.emptyState)
         private set
 
-    fun openDialog(finishedSpendingView: FinishedSpendingView?) {
+    init {
         viewModelScope.launch {
-            val categories = spendingCategoryService.getSpendingCategoriesFlat()
+            currencyValue = settingsRepository.getDefaultCurrency().first() ?: CurrencyValues.PLN
+        }
+    }
+
+    fun openDialog(finishedSpendingView: FinishedSpendingView?, idUser: UUID?) {
+        viewModelScope.launch {
             finishedSpendingState =
-                if (finishedSpendingView == null) {
-                    FinishedSpendingState(categories = categories)
-                } else {
-                    FinishedSpendingState(categories = categories, finishedSpendingView)
-                }
+            if (finishedSpendingView == null) {
+                val categories = spendingCategoryService.getSpendingCategoriesByIdUserFlat(idUser)
+                FinishedSpendingState(categories = categories, idUser)
+            } else {
+                val categories = spendingCategoryService.getSpendingCategoriesByIdUserFlat(idUser)
+                FinishedSpendingState(categories = categories, finishedSpendingView)
+            }
             isDialogOpen = true
         }
     }
@@ -42,14 +56,6 @@ class AddSpendingViewModel(
     fun closeDialog() {
         finishedSpendingState = FinishedSpendingState.emptyState
         isDialogOpen = false
-    }
-
-    init {
-        viewModelScope.launch {
-            finishedSpendingState = spendingCategoryService.getSpendingCategoriesFlat().let {
-                finishedSpendingState.copy(categories = it)
-            }
-        }
     }
 
     fun setTitle(title: String) {
@@ -70,9 +76,13 @@ class AddSpendingViewModel(
 
     fun onSave() {
         viewModelScope.launch {
-            finishedSpendingService.upsertTotalSpending(finishedSpendingState)
+            finishedSpendingService.upsertFinishedSpending(finishedSpendingState)
             closeDialog()
         }
+    }
+
+    fun setCurrency(currencyValue: CurrencyValues) {
+        this.currencyValue = currencyValue
     }
 
     fun deleteFinishedSpending(idFinishedSpending: UUID) {

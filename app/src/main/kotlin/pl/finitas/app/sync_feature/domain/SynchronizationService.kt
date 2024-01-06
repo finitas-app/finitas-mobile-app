@@ -69,6 +69,18 @@ class SynchronizationService(
         val (remoteRooms, unavailableRooms) = roomSyncRepository.getRoomsFromVersionRemote(
             roomVersions
         )
+        val localRoomMembers = roomSyncRepository.getRoomMembers(remoteRooms.map { it.idRoom })
+        val membersDataToDeleteIds = localRoomMembers.map { it.idUser } - remoteRooms
+            .flatMap { room -> room.members.map { it.idUser } }
+            .toSet()
+
+        (membersDataToDeleteIds + roomSyncRepository.getRoomMembers(unavailableRooms).map { it.idUser }).forEach {
+            finishedSpendingSyncRepository.deleteByIdUser(it)
+            shoppingListSyncRepository.deleteByIdUser(it)
+            categoriesRepository.deleteByIdUser(it)
+            userRepository.clearVersions(it)
+        }
+
         roomSyncRepository.deleteRooms(unavailableRooms)
         roomSyncRepository.upsertRooms(remoteRooms)
 
@@ -91,11 +103,6 @@ class SynchronizationService(
             if (currentMessageVersion.version + 1 != sortedMessagesByVersion[0].version) {
                 fullSyncMessages(authorizedUserId)
                 break
-            }
-            messages.forEach {
-                if (it.idShoppingList != null) {
-                    shoppingListSyncRepository.createShoppingListVersionIfNotPresent(it.idUser)
-                }
             }
             messageSyncRepository.upsertMessages(
                 sortedMessagesByVersion.map {
@@ -134,6 +141,8 @@ class SynchronizationService(
                             spendingCategoryVersion = usersById[it.idUser]?.spendingCategoryVersion
                                 ?: -1,
                             finishedSpendingVersion = usersById[it.idUser]?.finishedSpendingVersion
+                                ?: -1,
+                            shoppingListVersion = usersById[it.idUser]?.shoppingListVersion
                                 ?: -1,
                         )
                     }
@@ -207,11 +216,6 @@ class SynchronizationService(
             } catch (_: Exception) {
             }
         }
-        response.messages.forEach {
-            if (it.idShoppingList != null) {
-                shoppingListSyncRepository.createShoppingListVersionIfNotPresent(it.idUser)
-            }
-        }
 
         val messagesByIdRoom = response.messages.groupBy { it.idRoom }
         messageSyncRepository.upsertMessages(
@@ -251,16 +255,25 @@ class SynchronizationService(
     }
 
     suspend fun retrieveNewShoppingLists(authorizedUserId: UUID) {
-        userRepository.getUserIds().forEach {
-            shoppingListSyncRepository.createShoppingListVersionIfNotPresent(it)
-        }
-        var versions = shoppingListSyncRepository.getShoppingListVersions()
-
-        if (versions.find { it.idUser == authorizedUserId } == null) {
-            val currentUserVersions = ShoppingListVersion(authorizedUserId, 0)
-            shoppingListSyncRepository.setShoppingListVersion(currentUserVersions)
-            versions = versions + currentUserVersions
-        }
+        val versions = roomSyncRepository.getRoomMembers()
+            .map {
+                ShoppingListVersion(
+                    it.idUser,
+                    it.finishedSpendingVersion
+                )
+            }
+            .let { versions ->
+                if (versions.find { it.idUser == authorizedUserId } == null) {
+                    val authorizedUser = userRepository.getUserById(authorizedUserId)
+                        ?: throw UserNotFoundException(authorizedUserId)
+                    versions + ShoppingListVersion(
+                        authorizedUser.idUser,
+                        authorizedUser.finishedSpendingVersion,
+                    )
+                } else {
+                    versions
+                }
+            }
 
         // TODO: Add unavailable users ids to response
         val responses = shoppingListStoreRepository
@@ -323,7 +336,7 @@ class SynchronizationService(
         if (response.isEmpty()) return
 
         finishedSpendingSyncRepository.upsertFinishedSpendingWithRecords(
-            response.flatMap { it.updates.toServiceDto(it.idUser) }
+            response.flatMap { it.updates.toServiceDto(authorizedUserId) }
         )
         finishedSpendingSyncRepository.setFinishedSpendingVersions(
             response.map { FinishedSpendingVersion(it.idUser, it.actualVersion) }

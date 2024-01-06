@@ -35,7 +35,13 @@ fun ChartPanel(
     ) {
         ClickableIcon(
             imageVector = Icons.Rounded.AddCircle,
-            onClick = chartConstructorViewModel::openCreateConstructor,
+            onClick = {
+                when(chartDisplayViewModel.idsUser.size) {
+                    0 -> chartConstructorViewModel.openCreateConstructor(null, null)
+                    1 -> chartConstructorViewModel.openCreateConstructor(null, chartDisplayViewModel.idsUser[0])
+                    else -> chartConstructorViewModel.openCreateConstructor(chartDisplayViewModel.idRoom, null)
+                }
+            },
             modifier = Modifier
                 .align(Alignment.End)
                 .padding(top = 10.dp, end = 10.dp)
