@@ -6,14 +6,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,7 +37,8 @@ fun <T : Any> Dropdown(
     values: List<T>,
     onClick: (T) -> Unit,
     modifier: Modifier = Modifier,
-    mapToString: (T) -> String = Any::toString
+    mapToString: (T) -> String = Any::toString,
+    textAlign: Alignment = Alignment.Center,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
@@ -47,6 +46,7 @@ fun <T : Any> Dropdown(
     Box(modifier = modifier) {
         CurrentValueInput(
             value = mapToString(currentValue),
+            textAlign,
             Modifier
                 .clickable(
                     indication = null,
@@ -83,6 +83,7 @@ fun <T : Any> Dropdown(
 @Composable
 private fun CurrentValueInput(
     value: String,
+    textAlign: Alignment,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -98,7 +99,7 @@ private fun CurrentValueInput(
         Fonts.regular.Text(
             text = value,
             color = textColor,
-            modifier = Modifier.align(Alignment.Center)
+            modifier = Modifier.align(textAlign).padding(horizontal = 12.dp)
         )
     }
 }

@@ -21,7 +21,7 @@ import pl.finitas.app.core.data.data_source.dao.UserDao
 import pl.finitas.app.core.domain.repository.ProfileRepository
 import java.util.UUID
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "profile")
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "profile")
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProfileRepositoryImpl(

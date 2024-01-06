@@ -34,6 +34,7 @@ import pl.finitas.app.core.domain.services.SpendingRecordView
 import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
+import pl.finitas.app.core.presentation.components.constructors.Dropdown
 import pl.finitas.app.core.presentation.components.constructors.LayeredList
 import pl.finitas.app.core.presentation.components.dialog.NestedDialog
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
@@ -50,7 +51,7 @@ fun CategorySpendingList(
     var filterSearch by remember { mutableStateOf("") }
     var idSpendingCategory by remember { mutableStateOf<UUID?>(null) }
     var isOpenedAddSpendingRecord by remember { mutableStateOf(false) }
-
+    var selected by remember { mutableStateOf<SpendingRecordView?>(null) }
     ConstructorBox(
         modifier = modifier,
         postModifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 12.dp, bottom = 30.dp),
@@ -84,49 +85,63 @@ fun CategorySpendingList(
 
             LayeredList<SpendingElementView>(
                 nameableCollection = categories.filter { it.name.contains(filterSearch) },
-                modifier = Modifier.padding(top = 20.dp)
-            ) { spendingElement ->
-                when (spendingElement) {
-                    is SpendingCategoryView -> {
-                        Box(modifier = Modifier.padding(end = 10.dp)) {
-                            ClickableIcon(
-                                imageVector = Icons.Rounded.AddCircle, onClick = {
-                                    idSpendingCategory = spendingElement.idCategory
-                                    isOpenedAddSpendingRecord = true
-                                }, modifier = Modifier
-                                    .size(32.dp)
-                                    .align(Alignment.Center)
-                            )
+                modifier = Modifier.padding(top = 20.dp),
+                itemExtras = { spendingElement ->
+                    when (spendingElement) {
+                        is SpendingCategoryView -> {
+                            Box(modifier = Modifier.padding(end = 10.dp)) {
+                                ClickableIcon(
+                                    imageVector = Icons.Rounded.AddCircle, onClick = {
+                                        idSpendingCategory = spendingElement.idCategory
+                                        isOpenedAddSpendingRecord = true
+                                    }, modifier = Modifier
+                                        .size(32.dp)
+                                        .align(Alignment.Center)
+                                )
+                            }
                         }
-                    }
 
-                    is SpendingRecordView -> {
-                        Row(
-                            modifier = Modifier.padding(end = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Fonts.regular.Text(
-                                text = spendingElement.totalPrice.toString(),
-                                modifier = Modifier.padding(end = 30.dp)
-                            )
+                        is SpendingRecordView -> {
+                            Row(
+                                modifier = Modifier.padding(end = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Fonts.regular.Text(
+                                    text = spendingElement.totalPrice.toString(),
+                                    modifier = Modifier.padding(end = 30.dp)
+                                )
 
-                            ClickableIcon(
-                                imageVector = Icons.Rounded.Delete,
-                                onClick = { onDeleteElement(spendingElement) },
-                                modifier = Modifier.size(32.dp)
-                            )
+                                ClickableIcon(
+                                    imageVector = Icons.Rounded.Delete,
+                                    onClick = { onDeleteElement(spendingElement) },
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
                         }
-                    }
 
-                    else -> {}
+                        else -> {}
+                    }
+                },
+                onNameClick = { element ->
+                    if (element is SpendingRecordView) {
+                        selected = element
+                        idSpendingCategory = element.idCategory
+                        isOpenedAddSpendingRecord = true
+                    }
                 }
-            }
+            )
 
             AddSpendingRecordDialog(
                 isOpen = isOpenedAddSpendingRecord,
                 idCategory = idSpendingCategory ?: UUID.randomUUID(),
-                onSave = onSave,
+                onSave = {
+                    selected?.let(onDeleteElement)
+                    onSave(it)
+                },
+                categories = categories,
+                spendingRecord = selected,
                 onClose = {
+                    selected = null
                     idSpendingCategory = null
                     isOpenedAddSpendingRecord = false
                 },
@@ -139,11 +154,16 @@ fun CategorySpendingList(
 private fun AddSpendingRecordDialog(
     isOpen: Boolean,
     idCategory: UUID,
+    spendingRecord: SpendingRecordView?,
+    categories: List<SpendingCategoryView>,
     onSave: (SpendingRecordView) -> Unit,
     onClose: () -> Unit,
 ) {
 // TODO: rewrite to ConstructorBoxDialog()
     NestedDialog(isOpen = isOpen, onDismiss = onClose) {
+        val categoriesById = remember(categories) {
+            categories.associateBy { it.idCategory }
+        }
         val interactionSource = remember { MutableInteractionSource() }
 
         ConstructorBox(
@@ -164,7 +184,7 @@ private fun AddSpendingRecordDialog(
                     Fonts.heading1.Text(text = "Add spending")
                 }
                 var spendingTitle by remember {
-                    mutableStateOf("")
+                    mutableStateOf(spendingRecord?.name ?: "")
                 }
                 Fonts.regular.Text(
                     text = "Title", modifier = Modifier.padding(top = 20.dp)
@@ -177,9 +197,27 @@ private fun AddSpendingRecordDialog(
                         .padding(top = 4.dp),
                 )
 
+                var category by remember {
+                    mutableStateOf(spendingRecord?.idCategory ?: idCategory)
+                }
+                Fonts.regular.Text(
+                    text = "Category", modifier = Modifier.padding(top = 10.dp)
+                )
+                Dropdown(
+                    currentValue = categoriesById[category]!!,
+                    values = categories,
+                    onClick = { category = it.idCategory },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
+                    mapToString = { it.name },
+                    textAlign = Alignment.CenterStart
+                )
+
+
 
                 var totalPrice by remember {
-                    mutableStateOf("")
+                    mutableStateOf(spendingRecord?.totalPrice?.toString() ?: "")
                 }
                 Fonts.regular.Text(
                     text = "Total sum", modifier = Modifier.padding(top = 10.dp)
@@ -205,7 +243,7 @@ private fun AddSpendingRecordDialog(
                             SpendingRecordView(
                                 name = spendingTitle,
                                 totalPrice = totalPrice.toBigDecimal(),
-                                idCategory = idCategory,
+                                idCategory = category,
                                 idSpendingRecord = UUID.randomUUID(),
                             )
                         )
