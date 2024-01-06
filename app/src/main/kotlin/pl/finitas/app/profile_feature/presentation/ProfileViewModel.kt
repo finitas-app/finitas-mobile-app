@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import pl.finitas.app.core.domain.exceptions.InputValidationException
 import pl.finitas.app.profile_feature.domain.services.ProfileService
 
 class ProfileViewModel(
@@ -14,6 +15,8 @@ class ProfileViewModel(
 ) : ViewModel() {
 
     val isAuthorize = profileService.getToken().map { it != null }
+    var usernameErrors by mutableStateOf<List<String>?>(null)
+        private set
 
     var profileSettingsState by mutableStateOf(ProfileSettingsState.empty)
         private set
@@ -22,7 +25,14 @@ class ProfileViewModel(
 
     fun setVisibleName(value: String) {
         viewModelScope.launch {
-            profileService.setUsername(value)
+            usernameErrors = try {
+                profileService.setUsername(value)
+                null
+            } catch (e: InputValidationException) {
+                e.errors
+            } catch (e: Exception) {
+                listOf("Failed to change name, check your internet connection")
+            }
         }
     }
 

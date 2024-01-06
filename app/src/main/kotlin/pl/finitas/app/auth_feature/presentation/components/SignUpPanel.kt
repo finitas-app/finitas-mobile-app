@@ -51,7 +51,7 @@ fun SignUpPanel(
                         Color(0XFFF85784).copy(.5f),
                     )
                 ),
-                onValueChange = viewModel::setLogin
+                onValueChange = viewModel::setLogin,
             )
 
             AuthInput(
@@ -67,23 +67,28 @@ fun SignUpPanel(
                 onValueChange = viewModel::setPassword,
                 modifier = Modifier.padding(top = 11.dp)
             )
-            InputError(errors = viewModel.errors)
+            InputError(errors = viewModel.errors, Modifier.padding(top = 26.dp))
 
             AuthButton(
                 text = "Sign up",
                 onClick = viewModel::signUp,
+                isLoading = viewModel.isLoading,
+                isDisable = viewModel.isDisableSignUp,
+                showLoadingIcon = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 40.dp)
+                    .padding(top = 40.dp),
 
             )
 
             AuthButton(
                 text = "Return to login",
                 onClick = { viewModel.changeAuthType(AuthType.SignIn) },
+                isLoading = viewModel.isLoading,
+                isDisable = viewModel.isDisableSignUp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 20.dp)
+                    .padding(top = 20.dp),
 
             )
         }

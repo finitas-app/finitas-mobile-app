@@ -7,7 +7,7 @@ class ValidationBuilder {
     val errors = LinkedList<String>()
     fun validate(value: Boolean, lazyMessage: () -> Any) {
         if(!value) {
-            errors += lazyMessage.toString()
+            errors += lazyMessage().toString()
         }
     }
 }

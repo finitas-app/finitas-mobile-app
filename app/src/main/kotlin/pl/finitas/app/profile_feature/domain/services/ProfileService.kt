@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import pl.finitas.app.core.domain.dto.store.VisibleName
 import pl.finitas.app.core.domain.repository.ProfileRepository
 import pl.finitas.app.core.domain.repository.UserStoreRepository
+import pl.finitas.app.core.domain.validateBuilder
 
 class ProfileService(
     private val profileRepository: ProfileRepository,
@@ -13,9 +14,10 @@ class ProfileService(
     fun getToken() = profileRepository.getAuthToken()
     suspend fun logout() = profileRepository.clear()
     suspend fun setUsername(username: String) {
-        println("Patched!!!Start")
-        userStoreRepository.patchVisibleName(visibleName = VisibleName(username))
-        println("Patched!!!End")
+        validateBuilder {
+            validate(username.isNotBlank()) { "Your name can't be blank" }
+        }
+        userStoreRepository.patchVisibleName(visibleName = VisibleName(username.trim()))
     }
 
     fun getUsername(): Flow<String?> = profileRepository.getUsername()
