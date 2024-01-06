@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import pl.finitas.app.core.domain.dto.SerializableBigDecimal
 import pl.finitas.app.core.domain.dto.SerializableLocalDateTime
 import pl.finitas.app.core.domain.dto.SerializableUUID
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 
 @Serializable
 data class DeleteFinishedSpendingRequest(
@@ -16,6 +17,7 @@ class RemoteFinishedSpendingDto(
     val idSpendingSummary: SerializableUUID,
     val idReceipt: SerializableUUID?,
     val purchaseDate: SerializableLocalDateTime,
+    val currencyValue: CurrencyValue,
     override val version: Int,
     override val idUser: SerializableUUID,
     override val isDeleted: Boolean,

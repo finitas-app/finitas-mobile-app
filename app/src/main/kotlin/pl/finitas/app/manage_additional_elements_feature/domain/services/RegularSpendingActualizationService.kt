@@ -53,6 +53,7 @@ class Actualizator(context: Context, workerParams: WorkerParameters) :
             idSpendingSummary = idSpendingSummary,
             title = regularSpending.name,
             purchaseDate = getExpectedActualizationDate(regularSpending),
+            currencyValue = regularSpending.currencyValue,
             spendingRecords = regularSpending.spendingRecords.map {
                 it.copy(
                     idSpendingSummary = idSpendingSummary,

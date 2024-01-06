@@ -20,8 +20,8 @@ import pl.finitas.app.core.presentation.components.constructors.Dropdown
 import pl.finitas.app.core.presentation.components.dialog.CustomDialog
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.manage_spendings_feature.presentation.add_spending.components.CategorySpendingList
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import pl.finitas.app.manage_spendings_feature.presentation.add_spending.components.ScanReceiptIcon
-import pl.finitas.app.profile_feature.presentation.CurrencyValues
 
 @Composable
 fun AddSpendingDialog(
@@ -114,8 +114,8 @@ private fun AddSpendingFormGeneralInfo(
                     text = "Currency",
                 )
                 Dropdown(
-                    currentValue = addSpendingViewModel.currencyValue,
-                    values = CurrencyValues.entries,
+                    currentValue = addSpendingViewModel.finishedSpendingState.currencyValue,
+                    values = CurrencyValue.entries,
                     onClick = addSpendingViewModel::setCurrency,
                     modifier = Modifier.padding(start = 15.dp, top = 4.dp)
                 )

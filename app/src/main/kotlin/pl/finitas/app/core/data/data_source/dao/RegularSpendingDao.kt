@@ -14,6 +14,7 @@ import pl.finitas.app.core.data.model.SpendingRecordData
 import pl.finitas.app.core.data.model.SpendingSummary
 import pl.finitas.app.core.data.model.relations.SpendingRecordDataToSpendingRecord
 import pl.finitas.app.core.data.model.relations.SpendingSummaryToRegularSpending
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.UUID
@@ -30,6 +31,7 @@ interface RegularSpendingDao {
         rs.periodUnit as 'periodUnit',
         ss.name as 'title',
         sr.price as 'price',
+        ss.currencyValue as 'currencyValue',
         srd.name as 'spendingRecordName',
         srd.idCategory as 'idCategory',
         srd.idSpendingRecordData as 'idSpendingRecord'
@@ -51,6 +53,7 @@ interface RegularSpendingDao {
         rs.periodUnit as 'periodUnit',
         ss.name as 'title',
         sr.price as 'price',
+        ss.currencyValue as 'currencyValue',
         srd.name as 'spendingRecordName',
         srd.idCategory as 'idCategory',
         srd.idSpendingRecordData as 'idSpendingRecord'
@@ -128,10 +131,11 @@ data class RegularSpendingWithRecordFlat(
     val idSpendingSummary: UUID,
     val title: String,
     val price: BigDecimal,
+    val currencyValue: CurrencyValue,
     val spendingRecordName: String,
     val idCategory: UUID,
     val idSpendingRecord: UUID,
     val periodUnit: Int,
     val actualizationPeriod: Int,
-    val lastActualizationDate: LocalDateTime
+    val lastActualizationDate: LocalDateTime,
 )

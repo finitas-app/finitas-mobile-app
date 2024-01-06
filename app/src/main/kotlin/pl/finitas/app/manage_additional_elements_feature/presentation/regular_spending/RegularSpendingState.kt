@@ -4,6 +4,7 @@ import pl.finitas.app.core.domain.services.SpendingCategoryView
 import pl.finitas.app.core.domain.services.SpendingElementView
 import pl.finitas.app.core.domain.services.SpendingRecordView
 import pl.finitas.app.manage_additional_elements_feature.domain.PeriodUnit
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -13,6 +14,7 @@ data class RegularSpendingState(
     val periodUnit: PeriodUnit = PeriodUnit.Months,
     val lastActualizationDate: LocalDateTime = LocalDateTime.now(),
     val actualizationPeriod: UInt = 1.toUInt(),
+    val currencyValue: CurrencyValue = CurrencyValue.PLN,
     val categories: List<SpendingCategoryView> = arrayListOf(),
 ) {
     val addSpending = getSpendingsMutator { list, spending -> list + spending }

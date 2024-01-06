@@ -2,6 +2,7 @@ package pl.finitas.app.sync_feature.domain.repository
 
 import pl.finitas.app.core.domain.repository.FinishedSpendingVersion
 import pl.finitas.app.manage_spendings_feature.domain.model.FinishedSpendingWithRecordsDto
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.UUID
@@ -26,6 +27,7 @@ data class SyncFinishedSpendingWithRecordsDto(
     val idSpendingSummary: UUID,
     val title: String,
     val purchaseDate: LocalDateTime,
+    val currencyValue: CurrencyValue,
     val isDeleted: Boolean,
     val idUser: UUID?,
     val version: Int,

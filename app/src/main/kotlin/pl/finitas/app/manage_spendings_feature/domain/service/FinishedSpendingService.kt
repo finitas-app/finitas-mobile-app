@@ -141,6 +141,7 @@ private fun mapToView(
                 idTotalSpending,
                 title,
                 time,
+                currencyValue,
                 _,
                 _,
                 idUser,
@@ -153,6 +154,7 @@ private fun mapToView(
                 name = title,
                 date = time,
                 idUser = idUser,
+                currency = currencyValue,
                 elements = recordsByCategory.map { (idCategory, records) ->
                     SpendingCategoryView(
                         name = categoriesById[idCategory]?.name
@@ -163,6 +165,7 @@ private fun mapToView(
                                 name = record.name,
                                 totalPrice = record.price,
                                 idSpendingRecord = record.idSpendingRecord,
+                                currency = currencyValue,
                                 idCategory = record.idCategory,
                             )
                         }
@@ -183,9 +186,7 @@ private fun FinishedSpendingView.normalizeTotalSpendingView(categoryById: Map<UU
     val recordsByCategoryId = elements.associate { element ->
         (element as SpendingCategoryView).let { it.idCategory to it.elements }
     }.toMutableMap()
-    /*.groupBy {
-    (it as? SpendingRecordView)?.idCategory ?: -1
-}.toMutableMap()*/
+
     val result = mutableListOf<SpendingElementView>()
     val previousSpendingElements = mutableMapOf<UUID, SpendingCategoryView>()
 
@@ -254,6 +255,7 @@ fun FinishedSpendingState.toTotalSpendingWithRecords(): FinishedSpendingWithReco
         idSpendingSummary = idSpendingSummary,
         title = title,
         purchaseDate = date.atStartOfDay(),
+        currencyValue = currencyValue,
         isDeleted = false,
         idReceipt = null,
         idUser = idUser,
@@ -282,6 +284,7 @@ private fun FinishedSpendingWithRecordsDto.toRemote(idUser: UUID): RemoteFinishe
         idUser = idUser,
         isDeleted = isDeleted,
         name = title,
+        currencyValue = currencyValue,
         spendingRecords = spendingRecords.map {
             RemoteSpendingRecordDto(
                 idSpendingRecordData = it.idSpendingRecord,

@@ -38,6 +38,7 @@ import pl.finitas.app.core.presentation.components.constructors.LayeredList
 import pl.finitas.app.core.presentation.components.dialog.NestedDialog
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.util.UUID
 
 // todo: add validation for add record dialog
@@ -84,45 +85,46 @@ fun CategorySpendingList(
 
             LayeredList<SpendingElementView>(
                 nameableCollection = categories.filter { it.name.contains(filterSearch) },
-                modifier = Modifier.padding(top = 20.dp)
-            ) { spendingElement ->
-                when (spendingElement) {
-                    is SpendingCategoryView -> {
-                        Box(modifier = Modifier.padding(end = 10.dp)) {
-                            ClickableIcon(
-                                imageVector = Icons.Rounded.AddCircle,
-                                onClick = {
-                                    idSpendingCategory = spendingElement.idCategory
-                                    isOpenedAddSpendingRecord = true
-                                },
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .align(Alignment.Center)
-                            )
+                modifier = Modifier.padding(top = 20.dp),
+                itemExtras = { spendingElement ->
+                    when (spendingElement) {
+                        is SpendingCategoryView -> {
+                            Box(modifier = Modifier.padding(end = 10.dp)) {
+                                ClickableIcon(
+                                    imageVector = Icons.Rounded.AddCircle,
+                                    onClick = {
+                                        idSpendingCategory = spendingElement.idCategory
+                                        isOpenedAddSpendingRecord = true
+                                    },
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .align(Alignment.Center)
+                                )
+                            }
                         }
-                    }
 
-                    is SpendingRecordView -> {
-                        Row(
-                            modifier = Modifier.padding(end = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Fonts.regular.Text(
-                                text = spendingElement.totalPrice.toString(),
-                                modifier = Modifier.padding(end = 30.dp)
-                            )
+                        is SpendingRecordView -> {
+                            Row(
+                                modifier = Modifier.padding(end = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Fonts.regular.Text(
+                                    text = spendingElement.totalPrice.toString(),
+                                    modifier = Modifier.padding(end = 30.dp)
+                                )
 
-                            ClickableIcon(
-                                imageVector = Icons.Rounded.Delete,
-                                onClick = { onDeleteElement(spendingElement) },
-                                modifier = Modifier.size(32.dp)
-                            )
+                                ClickableIcon(
+                                    imageVector = Icons.Rounded.Delete,
+                                    onClick = { onDeleteElement(spendingElement) },
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
                         }
-                    }
 
-                    else -> {}
+                        else -> {}
+                    }
                 }
-            }
+            )
 
             AddSpendingRecordDialog(
                 isOpen = isOpenedAddSpendingRecord,
@@ -210,6 +212,7 @@ private fun AddSpendingRecordDialog(
                                     totalPrice = totalPrice.toBigDecimal(),
                                     idCategory = idCategory,
                                     idSpendingRecord = UUID.randomUUID(),
+                                    currency = CurrencyValue.PLN, // TODO: to remove after view and command dto split
                                 )
                             )
                             onClose()

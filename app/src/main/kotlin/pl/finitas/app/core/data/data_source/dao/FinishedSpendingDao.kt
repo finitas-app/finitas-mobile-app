@@ -13,6 +13,7 @@ import pl.finitas.app.core.data.model.SpendingRecordData
 import pl.finitas.app.core.data.model.SpendingSummary
 import pl.finitas.app.core.data.model.relations.SpendingRecordDataToSpendingRecord
 import pl.finitas.app.core.data.model.relations.SpendingSummaryToFinishedSpending
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.UUID
@@ -26,6 +27,7 @@ interface FinishedSpendingDao {
         fs.idSpendingSummary as 'idSpendingSummary',
         ss.name as 'title',
         fs.purchaseDate as 'purchaseDate',
+        ss.currencyValue as 'currencyValue',
         fs.isDeleted as 'isDeleted',
         fs.idUser as 'idUser',
         srd.name as 'spendingRecordName',
@@ -36,7 +38,7 @@ interface FinishedSpendingDao {
         JOIN SpendingSummary ss on fs.idSpendingSummary = ss.idSpendingSummary
         JOIN SpendingRecord sr on ss.idSpendingSummary == sr.idSpendingSummary
         JOIN SpendingRecordData srd on sr.idSpendingRecordData = srd.idSpendingRecordData
-        WHERE fs.idUser is null OR fs.idUser in (:idsUser)
+        WHERE (fs.idUser is null OR fs.idUser in (:idsUser)) and isDeleted = 0
     """
     )
     fun getFinishedSpendingsWithRecordFlat(idsUser: List<UUID>): Flow<List<FinishedSpendingWithRecordFlat>>
@@ -47,6 +49,7 @@ interface FinishedSpendingDao {
         fs.idSpendingSummary as 'idSpendingSummary',
         ss.name as 'title',
         fs.purchaseDate as 'purchaseDate',
+        ss.currencyValue as 'currencyValue',
         fs.isDeleted as 'isDeleted',
         fs.idUser as 'idUser',
         srd.name as 'spendingRecordName',
@@ -57,7 +60,7 @@ interface FinishedSpendingDao {
         JOIN SpendingSummary ss on fs.idSpendingSummary = ss.idSpendingSummary
         JOIN SpendingRecord sr on ss.idSpendingSummary == sr.idSpendingSummary
         JOIN SpendingRecordData srd on sr.idSpendingRecordData = srd.idSpendingRecordData
-        WHERE fs.idUser = :idUser
+        WHERE fs.idUser = :idUser and isDeleted = 0
     """
     )
     fun getFinishedSpendingsWithRecordByIdUserFlat(idUser: UUID): Flow<List<FinishedSpendingWithRecordFlat>>
@@ -69,7 +72,9 @@ interface FinishedSpendingDao {
         fs.idSpendingSummary as 'idSpendingSummary',
         ss.name as 'title',
         fs.purchaseDate as 'purchaseDate',
+        ss.currencyValue as 'currencyValue',
         fs.isDeleted as 'isDeleted',
+        fs.idUser as 'idUser',
         srd.name as 'spendingRecordName',
         sr.price as 'price',
         srd.idCategory as 'idCategory',
@@ -201,6 +206,7 @@ data class FinishedSpendingWithRecordFlat(
     val idSpendingSummary: UUID,
     val title: String,
     val purchaseDate: LocalDateTime,
+    val currencyValue: CurrencyValue,
     val isDeleted: Boolean,
     val idUser: UUID?,
     val spendingRecordName: String,

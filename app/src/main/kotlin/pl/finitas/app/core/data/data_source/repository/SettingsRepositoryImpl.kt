@@ -9,7 +9,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import pl.finitas.app.core.domain.repository.SettingsRepository
-import pl.finitas.app.profile_feature.presentation.CurrencyValues
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -18,17 +18,17 @@ private val currencyKey = stringPreferencesKey("currency")
 class SettingsRepositoryImpl(
     private val context: Context,
 ) : SettingsRepository {
-    override suspend fun setDefaultCurrency(currencyValue: CurrencyValues) {
+    override suspend fun setDefaultCurrency(currencyValue: CurrencyValue) {
         context.dataStore.edit {
             it[currencyKey] = currencyValue.toString()
         }
     }
 
-    override fun getDefaultCurrency(): Flow<CurrencyValues> {
+    override fun getDefaultCurrency(): Flow<CurrencyValue> {
         return context.dataStore.data.map { preferences ->
             preferences[currencyKey]
-                ?.let { CurrencyValues.valueOf(it) }
-                ?: CurrencyValues.PLN
+                ?.let { CurrencyValue.valueOf(it) }
+                ?: CurrencyValue.PLN
         }
     }
 }

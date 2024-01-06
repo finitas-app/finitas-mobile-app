@@ -354,6 +354,7 @@ private fun List<RemoteFinishedSpendingDto>.toServiceDto(idUser: UUID) = map { f
         isDeleted = finishedSpending.isDeleted,
         idUser = if (finishedSpending.idUser == idUser) null else finishedSpending.idUser,
         version = finishedSpending.version,
+        currencyValue = finishedSpending.currencyValue,
         spendingRecords = finishedSpending.spendingRecords.map {
             SyncSpendingRecordDto(
                 name = it.name,
@@ -370,12 +371,13 @@ private fun List<RemoteFinishedSpendingDto>.toServiceDto(idUser: UUID) = map { f
 private fun List<FinishedSpendingWithRecordsDto>.toRemote(idUser: UUID): List<RemoteFinishedSpendingDto> =
     map {
         RemoteFinishedSpendingDto(
-            it.idSpendingSummary,
-            null,
-            it.purchaseDate,
-            -1,
-            idUser,
-            it.isDeleted,
+            idSpendingSummary = it.idSpendingSummary,
+            idReceipt = null,
+            purchaseDate = it.purchaseDate,
+            currencyValue = it.currencyValue,
+            version = -1,
+            idUser = idUser,
+            isDeleted = it.isDeleted,
             name = it.title,
             spendingRecords = it.spendingRecords.map { spendingRecord ->
                 RemoteSpendingRecordDto(

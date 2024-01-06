@@ -4,23 +4,33 @@ import pl.finitas.app.core.domain.services.FinishedSpendingView
 import pl.finitas.app.core.domain.services.SpendingCategoryView
 import pl.finitas.app.core.domain.services.SpendingElementView
 import pl.finitas.app.core.domain.services.SpendingRecordView
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.time.LocalDate
 import java.util.UUID
 
 data class FinishedSpendingState(
     val title: String,
     val date: LocalDate,
+    val currencyValue: CurrencyValue,
     val categories: List<SpendingCategoryView>,
     val idUser: UUID?,
     val idFinishedSpending: UUID? = null,
 ) {
-    constructor(categories: List<SpendingCategoryView>, idUser: UUID?) : this("", LocalDate.now(), categories, idUser)
+    constructor(categories: List<SpendingCategoryView>, idUser: UUID?, currencyValue: CurrencyValue) : this(
+        title = "",
+        date = LocalDate.now(),
+        currencyValue = currencyValue,
+        categories = categories,
+        idUser = idUser
+    )
+
     constructor(
         categories: List<SpendingCategoryView>,
         finishedSpendingView: FinishedSpendingView,
     ) : this(
         title = finishedSpendingView.name,
         date = finishedSpendingView.date.toLocalDate(),
+        currencyValue = finishedSpendingView.currency,
         categories = finishedSpendingView.elements.flatten().let { finishedSpendingCategories ->
             val associatedById = finishedSpendingCategories.groupBy { it.idCategory }
 
@@ -53,7 +63,8 @@ data class FinishedSpendingState(
         }
 
     companion object {
-        val emptyState = FinishedSpendingState("", LocalDate.now(), listOf(), null)
+        val emptyState =
+            FinishedSpendingState("", LocalDate.now(), CurrencyValue.PLN, listOf(), null)
     }
 }
 

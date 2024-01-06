@@ -35,6 +35,7 @@ class RegularSpendingRepositoryImpl(
                     actualizationPeriod = firstFlattened.actualizationPeriod,
                     periodUnit = PeriodUnit.entries[firstFlattened.periodUnit],
                     lastActualizationDate = firstFlattened.lastActualizationDate,
+                    currencyValue = firstFlattened.currencyValue,
                     spendingRecords = it.map { spendingRecord ->
                         SpendingRecordDto(
                             idSpendingRecord = spendingRecord.idSpendingRecord,
@@ -59,7 +60,8 @@ class RegularSpendingRepositoryImpl(
             SpendingSummaryToFinishedSpending(
                 spendingSummary = SpendingSummary(
                     idSpendingSummary = generatedSpendingSummary,
-                    name = totalSpending.title
+                    name = totalSpending.title,
+                    currencyValue = totalSpending.currencyValue,
                 ),
                 finishedSpending = FinishedSpending(
                     idReceipt = null,
@@ -96,7 +98,8 @@ class RegularSpendingRepositoryImpl(
         SpendingSummaryToRegularSpending(
             spendingSummary = SpendingSummary(
                 idSpendingSummary = regularSpendingDto.idSpendingSummary,
-                name = regularSpendingDto.name
+                name = regularSpendingDto.name,
+                currencyValue = regularSpendingDto.currencyValue,
             ),
             RegularSpending(
                 idSpendingSummary = regularSpendingDto.idSpendingSummary,

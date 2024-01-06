@@ -6,6 +6,7 @@ import pl.finitas.app.manage_additional_elements_feature.domain.RegularSpendingW
 import pl.finitas.app.manage_additional_elements_feature.domain.SpendingRecordDto
 import pl.finitas.app.manage_additional_elements_feature.domain.repositories.RegularSpendingRepository
 import pl.finitas.app.manage_additional_elements_feature.presentation.regular_spending.RegularSpendingState
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.util.UUID
 
 class RegularSpendingService(val repository: RegularSpendingRepository) {
@@ -28,6 +29,7 @@ class RegularSpendingService(val repository: RegularSpendingRepository) {
     private fun getCategoryViewsFrom(
         spendingRecords: List<SpendingRecordDto>,
         allCategories: List<SpendingCategoryView>,
+        currencyValue: CurrencyValue,
     ): List<SpendingCategoryView> {
         val spendingRecordsAssociatedByIdCategory = spendingRecords.groupBy { it.idCategory }
         return allCategories
@@ -42,6 +44,7 @@ class RegularSpendingService(val repository: RegularSpendingRepository) {
                                 totalPrice = dto.price,
                                 idSpendingRecord = dto.idSpendingRecord,
                                 idCategory = dto.idCategory,
+                                currency = currencyValue,
                             )
                         } ?: listOf(),
                     name = categoryView.name,
@@ -62,6 +65,7 @@ class RegularSpendingService(val repository: RegularSpendingRepository) {
                 periodUnit = regularSpendingState.periodUnit,
                 name = regularSpendingState.title,
                 lastActualizationDate = regularSpendingState.lastActualizationDate,
+                currencyValue = regularSpendingState.currencyValue,
                 spendingRecords = getSpendingRecordsFrom(
                     categories = regularSpendingState.categories,
                     idSpendingSummary = idSpendingSummary
@@ -81,7 +85,8 @@ class RegularSpendingService(val repository: RegularSpendingRepository) {
         lastActualizationDate = regularSpending.lastActualizationDate,
         categories = getCategoryViewsFrom(
             spendingRecords = regularSpending.spendingRecords,
-            allCategories = allCategories
+            allCategories = allCategories,
+            currencyValue = regularSpending.currencyValue,
         )
     )
 
