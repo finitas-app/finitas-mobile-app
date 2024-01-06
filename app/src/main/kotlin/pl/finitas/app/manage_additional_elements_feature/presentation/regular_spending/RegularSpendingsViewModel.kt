@@ -30,10 +30,13 @@ class RegularSpendingsViewModel(
     var isDialogOpen by mutableStateOf(false)
         private set
 
+    var errors: List<String>? by mutableStateOf(null)
+        private set
+
     var titleErrors: List<String>? by mutableStateOf(null)
         private set
 
-    var errors: List<String>? by mutableStateOf(null)
+    var actualizationPeriodError: List<String>? by mutableStateOf(null)
         private set
 
     var constructorAction by mutableStateOf(ConstructorAction.EDIT)
@@ -81,6 +84,7 @@ class RegularSpendingsViewModel(
                 regularSpendingService.upsertRegularSpendingWithRecords(regularSpendingState)
                 closeDialog()
             } catch (inputError: InputValidationException) {
+                actualizationPeriodError = inputError.errors["actualizationPeriod"]
                 titleErrors = inputError.errors["title"]
                 errors = inputError.errors[null]
             }

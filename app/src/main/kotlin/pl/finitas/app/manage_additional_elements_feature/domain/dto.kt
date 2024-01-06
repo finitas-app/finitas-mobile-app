@@ -33,7 +33,7 @@ data class RegularSpendingWithSpendingDataDto(
     init {
         validateBuilder {
             validate(name.isNotBlank(), "title") { "Title cannot be blank." }
-            validate(actualizationPeriod > 0) { "Actualization period should be a positive number." }
+            validate(actualizationPeriod > 0, "actualizationPeriod") { "Actualization period should be a positive number." }
             validate(spendingRecords.isNotEmpty()) { "Regular spending should have at least 1 product." }
         }
     }

@@ -1,4 +1,4 @@
-package pl.finitas.app.manage_spendings_feature.presentation.add_spending.components
+package pl.finitas.app.core.presentation.components.constructors
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,11 +34,6 @@ import pl.finitas.app.core.domain.services.SpendingCategoryView
 import pl.finitas.app.core.domain.services.SpendingElementView
 import pl.finitas.app.core.domain.services.SpendingRecordView
 import pl.finitas.app.core.presentation.components.ClickableIcon
-import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
-import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
-import pl.finitas.app.core.presentation.components.constructors.Dropdown
-import pl.finitas.app.core.presentation.components.constructors.InputError
-import pl.finitas.app.core.presentation.components.constructors.LayeredList
 import pl.finitas.app.core.presentation.components.dialog.NestedDialog
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.core.presentation.components.utils.text.Fonts

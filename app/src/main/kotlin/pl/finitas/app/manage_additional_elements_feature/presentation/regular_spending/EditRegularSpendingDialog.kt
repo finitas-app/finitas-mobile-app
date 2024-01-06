@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import pl.finitas.app.core.presentation.components.constructors.CategorySpendingList
 import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
 import pl.finitas.app.core.presentation.components.constructors.Dropdown
@@ -92,6 +93,7 @@ private fun FormGeneralInfo(
             InputError(viewModel.titleErrors, Modifier.padding(top = 18.dp))
 
             ActualizationPeriodInput(viewModel = viewModel)
+            InputError(viewModel.actualizationPeriodError, Modifier.padding(top = 18.dp))
 
             Row(
                 modifier = Modifier.padding(top = 18.dp),
