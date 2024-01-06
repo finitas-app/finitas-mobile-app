@@ -33,7 +33,7 @@ class ProfileViewModel(
                 profileService.setUsername(value)
                 null
             } catch (e: InputValidationException) {
-                e.errors
+                e.errors[null]
             } catch (e: Exception) {
                 listOf("Failed to change name, check your internet connection")
             }

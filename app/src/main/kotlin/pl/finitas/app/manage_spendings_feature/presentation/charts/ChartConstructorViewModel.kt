@@ -68,7 +68,7 @@ class ChartConstructorViewModel(
                 errors = null
                 closeConstructor()
             } catch (exception: InputValidationException) {
-                errors = exception.errors
+                errors = exception.errors[null]
             }
         }
     }

@@ -83,6 +83,7 @@ class RegularSpendingService(val repository: RegularSpendingRepository) {
         periodUnit = regularSpending.periodUnit,
         actualizationPeriod = regularSpending.actualizationPeriod.toUInt(),
         lastActualizationDate = regularSpending.lastActualizationDate,
+        currencyValue = regularSpending.currencyValue,
         categories = getCategoryViewsFrom(
             spendingRecords = regularSpending.spendingRecords,
             allCategories = allCategories,

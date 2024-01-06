@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.Check
@@ -27,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.domain.services.SpendingCategoryView
 import pl.finitas.app.core.domain.services.SpendingElementView
@@ -35,6 +37,7 @@ import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
 import pl.finitas.app.core.presentation.components.constructors.Dropdown
+import pl.finitas.app.core.presentation.components.constructors.InputError
 import pl.finitas.app.core.presentation.components.constructors.LayeredList
 import pl.finitas.app.core.presentation.components.dialog.NestedDialog
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
@@ -151,6 +154,8 @@ fun CategorySpendingList(
     }
 }
 
+private val priceRegex = "(\\d{1,8}\\.?\\d{0,2})?".toRegex()
+
 @Composable
 private fun AddSpendingRecordDialog(
     isOpen: Boolean,
@@ -166,6 +171,7 @@ private fun AddSpendingRecordDialog(
             categories.associateBy { it.idCategory }
         }
         val interactionSource = remember { MutableInteractionSource() }
+        var errors by remember { mutableStateOf<List<String>?>(null) }
 
         ConstructorBox(
             modifier = Modifier
@@ -197,6 +203,7 @@ private fun AddSpendingRecordDialog(
                         .fillMaxWidth()
                         .padding(top = 4.dp),
                 )
+                InputError(errors = errors, modifier = Modifier.padding(top = 10.dp))
 
                 var category by remember {
                     mutableStateOf(spendingRecord?.idCategory ?: idCategory)
@@ -216,7 +223,6 @@ private fun AddSpendingRecordDialog(
                 )
 
 
-
                 var totalPrice by remember {
                     mutableStateOf(spendingRecord?.totalPrice?.toString() ?: "")
                 }
@@ -225,10 +231,17 @@ private fun AddSpendingRecordDialog(
                 )
                 ConstructorInput(
                     value = totalPrice,
-                    onValueChange = { totalPrice = it },
+                    onValueChange = {
+                        if (it.replace(',', '.').matches(priceRegex)) {
+                            totalPrice = it
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 4.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
                 )
                 Row(
                     modifier = Modifier
@@ -240,16 +253,22 @@ private fun AddSpendingRecordDialog(
                         imageVector = Icons.Rounded.Close, onClick = onClose
                     )
                     ClickableIcon(imageVector = Icons.Rounded.Check, onClick = {
-                        onSave(
-                            SpendingRecordView(
-                                name = spendingTitle,
-                                totalPrice = totalPrice.toBigDecimal(),
-                                idCategory = category,
-                                idSpendingRecord = UUID.randomUUID(),
-                                currency = CurrencyValue.PLN,
+                        if (spendingTitle.isBlank()) {
+                            errors = listOf(
+                                "Title cannot be empty."
                             )
-                        )
-                        onClose()
+                        } else {
+                            onSave(
+                                SpendingRecordView(
+                                    name = spendingTitle,
+                                    totalPrice = totalPrice.ifBlank { "0" }.toBigDecimal(),
+                                    idCategory = category,
+                                    idSpendingRecord = UUID.randomUUID(),
+                                    currency = CurrencyValue.PLN,
+                                )
+                            )
+                            onClose()
+                        }
                     })
                 }
             }

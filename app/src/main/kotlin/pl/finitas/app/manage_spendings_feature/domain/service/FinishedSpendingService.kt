@@ -9,6 +9,7 @@ import pl.finitas.app.core.data.model.SpendingCategory
 import pl.finitas.app.core.domain.dto.store.DeleteFinishedSpendingRequest
 import pl.finitas.app.core.domain.dto.store.RemoteFinishedSpendingDto
 import pl.finitas.app.core.domain.dto.store.RemoteSpendingRecordDto
+import pl.finitas.app.core.domain.exceptions.InputValidationException
 import pl.finitas.app.core.domain.repository.FinishedSpendingStoreRepository
 import pl.finitas.app.core.domain.repository.ProfileRepository
 import pl.finitas.app.core.domain.repository.SpendingCategoryNotFoundException
@@ -17,6 +18,7 @@ import pl.finitas.app.core.domain.services.FinishedSpendingView
 import pl.finitas.app.core.domain.services.SpendingCategoryView
 import pl.finitas.app.core.domain.services.SpendingElementView
 import pl.finitas.app.core.domain.services.SpendingRecordView
+import pl.finitas.app.core.domain.validateBuilder
 import pl.finitas.app.manage_spendings_feature.domain.model.FinishedSpendingWithRecordsDto
 import pl.finitas.app.manage_spendings_feature.domain.model.SpendingRecordDto
 import pl.finitas.app.manage_spendings_feature.domain.repository.FinishedSpendingRepository
@@ -63,9 +65,23 @@ class FinishedSpendingService(
     }
 
 
-    suspend fun upsertFinishedSpending(totalSpending: FinishedSpendingState) {
+    suspend fun upsertFinishedSpending(finishedSpendingState: FinishedSpendingState) {
+        validateBuilder {
+            validate(finishedSpendingState.title.isNotBlank(), "title") { "Title cannot be empty." }
+            validate(finishedSpendingState.categories.flatMap { it.elements }.isNotEmpty()) {
+                "You must add at least one item of spending."
+            }
+            validateForSingleOutput(finishedSpendingState.categories.isNotEmpty()) {
+                if (finishedSpendingState.idUser == null) {
+                    "To add a spending, you must first create a category."
+                } else {
+                    "The user you are trying to add the spending to has no categories, you will" +
+                            " only be able to do this after the user has added their first category."
+                }
+            }
+        }
         val currentUser = profileRepository.getAuthorizedUserId().first()
-        val dto = totalSpending.toTotalSpendingWithRecords()
+        val dto = finishedSpendingState.toTotalSpendingWithRecords()
         if (dto.idUser == null || dto.idUser == currentUser) {
             finishedSpendingRepository.upsertFinishedSpendingWithRecords(dto)
             if (currentUser != null) {
@@ -80,13 +96,16 @@ class FinishedSpendingService(
         } else if (currentUser != null) {
             try {
                 val remoteDto = dto.toRemote(dto.idUser)
-                if (totalSpending.idFinishedSpending == null) {
+                if (finishedSpendingState.idFinishedSpending == null) {
                     finishedSpendingStoreRepository.createFinishedSpending(remoteDto)
                 } else {
                     finishedSpendingStoreRepository.updateFinishedSpending(remoteDto)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                throw InputValidationException(
+                    "An error occurred, check your internet connection.",
+                )
             }
         }
     }

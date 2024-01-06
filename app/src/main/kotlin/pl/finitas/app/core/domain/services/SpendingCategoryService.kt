@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.map
 import pl.finitas.app.core.data.model.SpendingCategory
 import pl.finitas.app.core.domain.repository.SpendingCategoryRepository
 import pl.finitas.app.core.domain.repository.UserStoreRepository
+import pl.finitas.app.core.domain.validateBuilder
 import pl.finitas.app.manage_additional_elements_feature.presentation.spending_category.SpendingCategoryState
 import java.util.UUID
 
@@ -23,6 +24,11 @@ class SpendingCategoryService(
     }
 
     suspend fun upsertSpendingCategory(upsertSpendingCategoryCommand: UpsertSpendingCategoryCommand) {
+        validateBuilder {
+            validate(upsertSpendingCategoryCommand.name.isNotBlank(), "title") {
+                "Title cannot be empty."
+            }
+        }
         val model = upsertSpendingCategoryCommand.toModel()
         spendingCategoryRepository.upsertSpendingCategory(model)
         try {

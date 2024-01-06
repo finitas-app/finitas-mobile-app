@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import pl.finitas.app.core.domain.exceptions.InputValidationException
+import pl.finitas.app.core.domain.repository.ProfileRepository
 import pl.finitas.app.core.domain.repository.SettingsRepository
 import pl.finitas.app.core.domain.services.FinishedSpendingView
 import pl.finitas.app.core.domain.services.SpendingCategoryService
@@ -22,7 +24,8 @@ class AddSpendingViewModel(
     private val finishedSpendingService: FinishedSpendingService,
     private val scanReceiptService: ScanReceiptService,
     private val settingsRepository: SettingsRepository,
-): ViewModel() {
+    private val profileRepository: ProfileRepository,
+) : ViewModel() {
 
     var isDialogOpen by mutableStateOf(false)
         private set
@@ -30,15 +33,40 @@ class AddSpendingViewModel(
     var finishedSpendingState by mutableStateOf(FinishedSpendingState.emptyState)
         private set
 
+    var titleErrors by mutableStateOf<List<String>?>(null)
+        private set
+
+    var errors by mutableStateOf<List<String>?>(null)
+        private set
+
+    var isImageParsing by mutableStateOf(false)
+        private set
+
     fun openDialog(finishedSpendingView: FinishedSpendingView?, idUser: UUID?) {
         viewModelScope.launch {
             finishedSpendingState =
-            if (finishedSpendingView == null) {
-                val categories = spendingCategoryService.getSpendingCategoriesByIdUserFlat(idUser)
-                FinishedSpendingState(categories = categories, idUser, settingsRepository.getDefaultCurrency().first())
-            } else {
-                val categories = spendingCategoryService.getSpendingCategoriesByIdUserFlat(idUser)
-                FinishedSpendingState(categories = categories, finishedSpendingView)
+                if (finishedSpendingView == null) {
+                    val categories =
+                        spendingCategoryService.getSpendingCategoriesByIdUserFlat(idUser)
+                    FinishedSpendingState(
+                        categories = categories,
+                        idUser,
+                        settingsRepository.getDefaultCurrency().first()
+                    )
+                } else {
+                    val categories =
+                        spendingCategoryService.getSpendingCategoriesByIdUserFlat(idUser)
+                    FinishedSpendingState(categories = categories, finishedSpendingView)
+                }
+            if (finishedSpendingState.categories.isEmpty()) {
+                errors = if (finishedSpendingState.idUser == null) {
+                    listOf("To add a spending, you must first create a category.")
+                } else {
+                    listOf(
+                        "The user you are trying to add the spending to has no categories, you will" +
+                                " only be able to do this after the user has added their first category."
+                    )
+                }
             }
             isDialogOpen = true
         }
@@ -67,8 +95,15 @@ class AddSpendingViewModel(
 
     fun onSave() {
         viewModelScope.launch {
-            finishedSpendingService.upsertFinishedSpending(finishedSpendingState)
-            closeDialog()
+            try {
+                finishedSpendingService.upsertFinishedSpending(finishedSpendingState)
+                closeDialog()
+            } catch (e: InputValidationException) {
+                titleErrors = e.errors["title"]
+                errors = e.errors[null]
+            } catch (e: Exception) {
+                errors = listOf("There's been a fatal error.")
+            }
         }
     }
 
@@ -84,20 +119,34 @@ class AddSpendingViewModel(
     }
 
     fun processImage(file: ByteArray) {
-        viewModelScope.launch {
-            val currentCategories = finishedSpendingState.categories.toMutableList()
-            val firstCategory = currentCategories.removeFirst()
-            val firstCategoryWithParsedElements = firstCategory.copy(
-                elements = firstCategory.elements + scanReceiptService.scanReceipt(
-                    file,
-                    firstCategory.idCategory
-                )
-            )
-            finishedSpendingState = finishedSpendingState.copy(
-                categories = currentCategories.apply {
-                    add(0, firstCategoryWithParsedElements)
+        if (file.isNotEmpty()) {
+            viewModelScope.launch {
+                if (profileRepository.getAuthorizedUserId().first() == null) {
+                    errors = listOf("Check scanning is available only for authorized users.")
+                    return@launch
                 }
-            )
+
+                isImageParsing = true
+                try {
+                    val currentCategories = finishedSpendingState.categories.toMutableList()
+                    val firstCategory = currentCategories.removeFirst()
+                    val firstCategoryWithParsedElements = firstCategory.copy(
+                        elements = firstCategory.elements + scanReceiptService.scanReceipt(
+                            file,
+                            firstCategory.idCategory
+                        )
+                    )
+                    finishedSpendingState = finishedSpendingState.copy(
+                        categories = currentCategories.apply {
+                            add(0, firstCategoryWithParsedElements)
+                        }
+                    )
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    errors = listOf("There's been a fatal error.")
+                }
+                isImageParsing = false
+            }
         }
     }
 }

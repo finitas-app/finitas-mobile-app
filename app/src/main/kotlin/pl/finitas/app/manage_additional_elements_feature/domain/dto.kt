@@ -1,7 +1,7 @@
 package pl.finitas.app.manage_additional_elements_feature.domain
 
 import pl.finitas.app.core.domain.Nameable
-import pl.finitas.app.core.domain.exceptions.InputValidationException
+import pl.finitas.app.core.domain.validateBuilder
 import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -31,16 +31,11 @@ data class RegularSpendingWithSpendingDataDto(
     val spendingRecords: List<SpendingRecordDto>,
 ) : Nameable {
     init {
-        listOfNotNull(
-            if (name.isBlank()) "Name cannot be blank." else null,
-            if (actualizationPeriod < 1) "Actualization period should be a positive number."
-            else null,
-            if (spendingRecords.isEmpty()) "Regular spending should have at least 1 product."
-            else null,
-        )
-            .let {
-                if (it.isNotEmpty()) throw InputValidationException(it)
-            }
+        validateBuilder {
+            validate(name.isNotBlank(), "title") { "Title cannot be blank." }
+            validate(actualizationPeriod > 0) { "Actualization period should be a positive number." }
+            validate(spendingRecords.isNotEmpty()) { "Regular spending should have at least 1 product." }
+        }
     }
 }
 

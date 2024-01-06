@@ -44,5 +44,5 @@ val manageAdditionalElementsModule = module {
     }
     viewModel { SpendingCategoryViewModel(get()) }
     viewModel { RegularSpendingActualizationViewModel(get()) }
-    viewModel { RegularSpendingsViewModel(get(), get()) }
+    viewModel { RegularSpendingsViewModel(get(), get(), get()) }
 }

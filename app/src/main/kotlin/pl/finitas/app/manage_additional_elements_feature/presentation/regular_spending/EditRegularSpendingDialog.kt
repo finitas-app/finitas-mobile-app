@@ -21,6 +21,7 @@ import pl.finitas.app.core.presentation.components.constructors.InputError
 import pl.finitas.app.core.presentation.components.dialog.CustomDialog
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.manage_additional_elements_feature.domain.PeriodUnit
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 
 @Composable
 fun EditRegularSpendingDialog(
@@ -88,8 +89,24 @@ private fun FormGeneralInfo(
                     .fillMaxWidth()
                     .padding(top = 4.dp),
             )
+            InputError(viewModel.titleErrors, Modifier.padding(top = 18.dp))
 
             ActualizationPeriodInput(viewModel = viewModel)
+
+            Row(
+                modifier = Modifier.padding(top = 18.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Fonts.regular.Text(
+                    text = "Currency",
+                )
+                Dropdown(
+                    currentValue = viewModel.regularSpendingState.currencyValue,
+                    values = CurrencyValue.entries,
+                    onClick = viewModel::setCurrency,
+                    modifier = Modifier.padding(start = 15.dp, top = 4.dp)
+                )
+            }
 
             InputError(viewModel.errors, Modifier.padding(top = 26.dp))
         }
@@ -105,20 +122,20 @@ private fun ActualizationPeriodInput(viewModel: RegularSpendingsViewModel) {
             .fillMaxWidth()
             .padding(top = 18.dp)
     ) {
-        Fonts.regular.Text(text = "Period")
+        Fonts.regular.Text(text = "Period", modifier = Modifier.padding(end = 10.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             // todo: center text in input
             ConstructorInput(
                 value = viewModel.regularSpendingState.actualizationPeriod,
                 onValueChange = viewModel::setActualizationPeriod,
-                modifier = Modifier.width(80.dp),
+                modifier = Modifier.weight(.7f),
             )
 
             Spacer(modifier = Modifier.width(10.dp))
 
             Dropdown(
-                modifier = Modifier.width(80.dp),
+                modifier = Modifier.weight(1f),
                 currentValue = viewModel.regularSpendingState.periodUnit,
                 values = PeriodUnit.entries,
                 onClick = viewModel::setPeriodUnit,

@@ -49,6 +49,7 @@ fun ConstructorInput(
     borderStroke: BorderStroke? = BorderStroke(1.dp, borderColor),
     enabled: Boolean = true,
     keyboardOptions: KeyboardOptions? = null,
+    textAlign: TextAlign = TextAlign.Justify,
     rightIcon: (@Composable RowScope.() -> Unit)? = null,
 ) {
     val shape = RoundedCornerShape(8.dp)
@@ -60,7 +61,7 @@ fun ConstructorInput(
         textStyle = TextStyle(
             fontSize = 20.sp,
             color = if (value.isEmpty()) placeholderColor else transparentWhite,
-            textAlign = TextAlign.Justify
+            textAlign = textAlign,
         ),
         modifier = Modifier
             .height(35.dp)
@@ -121,6 +122,7 @@ fun ConstructorInput(
             keyboardType = KeyboardType.Number,
             imeAction = ImeAction.Done
         ),
+        textAlign = TextAlign.Center,
         modifier = modifier,
     )
 }

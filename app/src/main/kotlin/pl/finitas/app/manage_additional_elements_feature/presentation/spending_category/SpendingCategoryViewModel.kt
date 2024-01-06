@@ -6,12 +6,16 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import pl.finitas.app.core.domain.exceptions.InputValidationException
 import pl.finitas.app.core.domain.services.SpendingCategoryService
 import pl.finitas.app.core.domain.services.UpsertSpendingCategoryCommand
 
 class SpendingCategoryViewModel(
     private val spendingCategoryService: SpendingCategoryService,
 ) : ViewModel() {
+    var titleErrors by mutableStateOf<List<String>?>(null)
+        private set
+
     val categories = spendingCategoryService.getSpendingCategoriesFlow()
 
     var spendingCategoryState by mutableStateOf(SpendingCategoryState(""))
@@ -48,14 +52,18 @@ class SpendingCategoryViewModel(
 
     fun save() {
         viewModelScope.launch {
-            spendingCategoryService.upsertSpendingCategory(
-                UpsertSpendingCategoryCommand(
-                    name = spendingCategoryState.name,
-                    idSpendingCategory = spendingCategoryState.idCategory,
-                    idParentCategory = spendingCategoryState.idParentCategory,
+            try {
+                spendingCategoryService.upsertSpendingCategory(
+                    UpsertSpendingCategoryCommand(
+                        name = spendingCategoryState.name,
+                        idSpendingCategory = spendingCategoryState.idCategory,
+                        idParentCategory = spendingCategoryState.idParentCategory,
+                    )
                 )
-            )
+                closeUpsertCategoryDialog()
+            }catch (e: InputValidationException) {
+                titleErrors = e.errors["title"]
+            }
         }
-        closeUpsertCategoryDialog()
     }
 }

@@ -5,13 +5,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import pl.finitas.app.core.domain.exceptions.InputValidationException
+import pl.finitas.app.core.domain.repository.SettingsRepository
 import pl.finitas.app.core.domain.services.SpendingCategoryService
 import pl.finitas.app.core.domain.services.SpendingRecordView
 import pl.finitas.app.manage_additional_elements_feature.domain.PeriodUnit
 import pl.finitas.app.manage_additional_elements_feature.domain.RegularSpendingWithSpendingDataDto
 import pl.finitas.app.manage_additional_elements_feature.domain.services.RegularSpendingService
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 
 enum class ConstructorAction(val headerText: String) {
     CREATE("New regular spending"),
@@ -21,12 +24,17 @@ enum class ConstructorAction(val headerText: String) {
 class RegularSpendingsViewModel(
     private val spendingCategoryService: SpendingCategoryService,
     private val regularSpendingService: RegularSpendingService,
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
     var isDialogOpen by mutableStateOf(false)
         private set
 
+    var titleErrors: List<String>? by mutableStateOf(null)
+        private set
+
     var errors: List<String>? by mutableStateOf(null)
+        private set
 
     var constructorAction by mutableStateOf(ConstructorAction.EDIT)
 
@@ -48,8 +56,9 @@ class RegularSpendingsViewModel(
 
     fun addIconOnClick() {
         viewModelScope.launch {
-            regularSpendingState = regularSpendingState.copy(
-                categories = spendingCategoryService.getSpendingCategoriesByIdUserFlat()
+            regularSpendingState = RegularSpendingState().copy(
+                categories = spendingCategoryService.getSpendingCategoriesByIdUserFlat(),
+                currencyValue = settingsRepository.getDefaultCurrency().first()
             )
             constructorAction = ConstructorAction.CREATE
             isDialogOpen = true
@@ -70,10 +79,10 @@ class RegularSpendingsViewModel(
         viewModelScope.launch {
             try {
                 regularSpendingService.upsertRegularSpendingWithRecords(regularSpendingState)
-                errors = null
                 closeDialog()
             } catch (inputError: InputValidationException) {
-                errors = inputError.errors
+                titleErrors = inputError.errors["title"]
+                errors = inputError.errors[null]
             }
         }
     }
@@ -98,5 +107,9 @@ class RegularSpendingsViewModel(
 
     fun setPeriodUnit(value: PeriodUnit) {
         regularSpendingState = regularSpendingState.copy(periodUnit = value)
+    }
+
+    fun setCurrency(currencyValue: CurrencyValue) {
+        regularSpendingState = regularSpendingState.copy(currencyValue = currencyValue)
     }
 }

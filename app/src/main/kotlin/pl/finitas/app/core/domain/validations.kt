@@ -4,20 +4,34 @@ import pl.finitas.app.core.domain.exceptions.InputValidationException
 import java.util.LinkedList
 
 class ValidationBuilder {
-    val errors = LinkedList<String>()
-    fun validate(value: Boolean, lazyMessage: () -> Any) {
+    val errors = mutableMapOf<String?, LinkedList<String>>()
+    var singleError: String? = null
+        private set
+    fun validate(value: Boolean, key: String? = null, lazyMessage: () -> Any) {
         if(!value) {
-            errors += lazyMessage().toString()
+            errors.getOrPut(key) { LinkedList() } += lazyMessage().toString()
+        }
+    }
+
+    fun validateForSingleOutput(value: Boolean, lazyMessage: () -> Any) {
+        if (!value) {
+            singleError = lazyMessage().toString()
         }
     }
 }
 
-fun validateBuilder(validateBody: ValidationBuilder.() -> Unit) {
+fun validateBuilder(soft: Boolean = false, validateBody: ValidationBuilder.() -> Unit): Map<String?, List<String>> {
     val builder = ValidationBuilder()
     builder.validateBody()
-    builder.errors.let {
-        if (it.isNotEmpty()) {
-            throw InputValidationException(it)
+    if (!soft) {
+        if (builder.singleError != null) {
+            throw InputValidationException(builder.singleError!!)
+        }
+        builder.errors.let {
+            if (it.isNotEmpty()) {
+                throw InputValidationException(it)
+            }
         }
     }
+    return builder.errors
 }

@@ -17,11 +17,12 @@ import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
 import pl.finitas.app.core.presentation.components.constructors.DateInput
 import pl.finitas.app.core.presentation.components.constructors.DeleteIcon
 import pl.finitas.app.core.presentation.components.constructors.Dropdown
+import pl.finitas.app.core.presentation.components.constructors.InputError
 import pl.finitas.app.core.presentation.components.dialog.CustomDialog
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.manage_spendings_feature.presentation.add_spending.components.CategorySpendingList
-import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import pl.finitas.app.manage_spendings_feature.presentation.add_spending.components.ScanReceiptIcon
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 
 @Composable
 fun AddSpendingDialog(
@@ -76,9 +77,13 @@ private fun AddSpendingFormGeneralInfo(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Fonts.heading1.Text(text = "New report")
-                ScanReceiptIcon(addSpendingViewModel)
+                ScanReceiptIcon(
+                    addSpendingViewModel,
+                    Modifier.padding(top = 4.dp),
+                )
             }
 
             Fonts.regular.Text(
@@ -93,6 +98,7 @@ private fun AddSpendingFormGeneralInfo(
                     .fillMaxWidth()
                     .padding(top = 4.dp),
             )
+            InputError(errors = addSpendingViewModel.titleErrors, Modifier.padding(top = 18.dp))
 
             Fonts.regular.Text(
                 text = "Date",
@@ -120,6 +126,7 @@ private fun AddSpendingFormGeneralInfo(
                     modifier = Modifier.padding(start = 15.dp, top = 4.dp)
                 )
             }
+            InputError(errors = addSpendingViewModel.errors, Modifier.padding(top = 18.dp))
             if (addSpendingViewModel.finishedSpendingState.idFinishedSpending != null) {
                 DeleteIcon(
                     label = "Delete spending",
