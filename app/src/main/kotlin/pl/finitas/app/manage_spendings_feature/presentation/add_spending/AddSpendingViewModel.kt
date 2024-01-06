@@ -12,6 +12,7 @@ import pl.finitas.app.core.domain.services.FinishedSpendingView
 import pl.finitas.app.core.domain.services.SpendingCategoryService
 import pl.finitas.app.core.domain.services.SpendingRecordView
 import pl.finitas.app.manage_spendings_feature.domain.service.FinishedSpendingService
+import pl.finitas.app.manage_spendings_feature.domain.service.ScanReceiptService
 import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.time.LocalDate
 import java.util.UUID
@@ -19,6 +20,7 @@ import java.util.UUID
 class AddSpendingViewModel(
     private val spendingCategoryService: SpendingCategoryService,
     private val finishedSpendingService: FinishedSpendingService,
+    private val scanReceiptService: ScanReceiptService,
     private val settingsRepository: SettingsRepository,
 ): ViewModel() {
 
@@ -78,6 +80,24 @@ class AddSpendingViewModel(
         viewModelScope.launch {
             finishedSpendingService.deleteFinishedSpending(idFinishedSpending)
             closeDialog()
+        }
+    }
+
+    fun processImage(file: ByteArray) {
+        viewModelScope.launch {
+            val currentCategories = finishedSpendingState.categories.toMutableList()
+            val firstCategory = currentCategories.removeFirst()
+            val firstCategoryWithParsedElements = firstCategory.copy(
+                elements = firstCategory.elements + scanReceiptService.scanReceipt(
+                    file,
+                    firstCategory.idCategory
+                )
+            )
+            finishedSpendingState = finishedSpendingState.copy(
+                categories = currentCategories.apply {
+                    add(0, firstCategoryWithParsedElements)
+                }
+            )
         }
     }
 }

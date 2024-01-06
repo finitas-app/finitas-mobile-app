@@ -50,7 +50,7 @@ fun Module.httpClient() {
                 json()
             }
             defaultRequest {
-                contentType(ContentType.Application.Json)
+                contentType(contentType() ?: ContentType.Application.Json)
             }
             HttpResponseValidator {
                 validateResponse { response ->

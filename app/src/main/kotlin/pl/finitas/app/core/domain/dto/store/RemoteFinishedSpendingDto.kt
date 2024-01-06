@@ -17,7 +17,7 @@ class RemoteFinishedSpendingDto(
     val idSpendingSummary: SerializableUUID,
     val idReceipt: SerializableUUID?,
     val purchaseDate: SerializableLocalDateTime,
-    val currencyValue: CurrencyValue,
+    val currency: CurrencyValue,
     override val version: Int,
     override val idUser: SerializableUUID,
     override val isDeleted: Boolean,

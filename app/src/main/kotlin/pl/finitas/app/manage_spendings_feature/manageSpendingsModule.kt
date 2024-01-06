@@ -8,10 +8,13 @@ import pl.finitas.app.core.domain.services.SpendingCategoryService
 import pl.finitas.app.core.getDatabase
 import pl.finitas.app.manage_spendings_feature.data.data_source.ChartRepositoryImpl
 import pl.finitas.app.manage_spendings_feature.data.data_source.FinishedSpendingRepositoryImpl
+import pl.finitas.app.manage_spendings_feature.data.data_source.ScanReceiptRepositoryImpl
 import pl.finitas.app.manage_spendings_feature.domain.repository.ChartRepository
 import pl.finitas.app.manage_spendings_feature.domain.repository.FinishedSpendingRepository
+import pl.finitas.app.manage_spendings_feature.domain.repository.ScanReceiptRepository
 import pl.finitas.app.manage_spendings_feature.domain.service.ChartService
 import pl.finitas.app.manage_spendings_feature.domain.service.FinishedSpendingService
+import pl.finitas.app.manage_spendings_feature.domain.service.ScanReceiptService
 import pl.finitas.app.manage_spendings_feature.presentation.add_spending.AddSpendingViewModel
 import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartConstructorViewModel
 import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartDisplayViewModel
@@ -27,6 +30,9 @@ val manageSpendingsModule = module {
     single<ChartRepository> {
         ChartRepositoryImpl(getDatabase().chartDao)
     }
+    single<ScanReceiptRepository> {
+        ScanReceiptRepositoryImpl(get())
+    }
     single {
         FinishedSpendingService(get(), get(), get(), get())
     }
@@ -36,8 +42,11 @@ val manageSpendingsModule = module {
     single {
         ChartService(get(), get())
     }
+    single {
+        ScanReceiptService(get())
+    }
+    viewModel { AddSpendingViewModel(get(), get(), get(), get()) }
     viewModel { FinishedSpendingViewModel(get(), get(), get()) }
-    viewModel { AddSpendingViewModel(get(), get(), get()) }
     viewModel { ChartDisplayViewModel(get(), get(), get()) }
     viewModel { ChartConstructorViewModel(get(), get()) }
 }
