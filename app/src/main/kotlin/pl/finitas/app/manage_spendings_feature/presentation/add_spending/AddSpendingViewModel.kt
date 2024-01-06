@@ -11,7 +11,6 @@ import pl.finitas.app.core.domain.services.SpendingCategoryService
 import pl.finitas.app.core.domain.services.SpendingRecordView
 import pl.finitas.app.manage_spendings_feature.domain.service.FinishedSpendingService
 import pl.finitas.app.manage_spendings_feature.domain.service.ScanReceiptService
-import java.io.File
 import java.time.LocalDate
 import java.util.UUID
 
@@ -19,12 +18,10 @@ class AddSpendingViewModel(
     private val spendingCategoryService: SpendingCategoryService,
     private val finishedSpendingService: FinishedSpendingService,
     private val scanReceiptService: ScanReceiptService
-): ViewModel() {
+) : ViewModel() {
 
     var isDialogOpen by mutableStateOf(false)
         private set
-
-    private var image: File? by mutableStateOf(null)
 
     var finishedSpendingState by mutableStateOf(FinishedSpendingState.emptyState)
         private set
@@ -33,11 +30,11 @@ class AddSpendingViewModel(
         viewModelScope.launch {
             val categories = spendingCategoryService.getSpendingCategoriesFlat()
             finishedSpendingState =
-            if (finishedSpendingView == null) {
-                FinishedSpendingState(categories = categories)
-            } else {
-                FinishedSpendingState(categories = categories, finishedSpendingView)
-            }
+                if (finishedSpendingView == null) {
+                    FinishedSpendingState(categories = categories)
+                } else {
+                    FinishedSpendingState(categories = categories, finishedSpendingView)
+                }
             isDialogOpen = true
         }
     }
@@ -85,13 +82,21 @@ class AddSpendingViewModel(
         }
     }
 
-    fun setFileImage(file: ByteArray) {
-//        image = file
+    fun processImage(file: ByteArray) {
         viewModelScope.launch {
-            val scanRes = scanReceiptService.scanReceipt(file)
-            println("****************************")
-            println(scanRes)
-            println("****************************")
+            val currentCategories = finishedSpendingState.categories.toMutableList()
+            val firstCategory = currentCategories.removeFirst()
+            val firstCategoryWithParsedElements = firstCategory.copy(
+                elements = firstCategory.elements + scanReceiptService.scanReceipt(
+                    file,
+                    firstCategory.idCategory
+                )
+            )
+            finishedSpendingState = finishedSpendingState.copy(
+                categories = currentCategories.apply {
+                    add(0, firstCategoryWithParsedElements)
+                }
+            )
         }
     }
 }

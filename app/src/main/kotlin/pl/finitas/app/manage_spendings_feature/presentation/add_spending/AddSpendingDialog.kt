@@ -79,10 +79,8 @@ private fun AddSpendingFormGeneralInfo(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Fonts.heading1.Text(text = "New report")
-                // todo: how to properly set width
+                ScanReceiptIcon(addSpendingViewModel)
             }
-
-            ScanReceiptIcon(addSpendingViewModel)
 
             Fonts.regular.Text(
                 text = "Title",

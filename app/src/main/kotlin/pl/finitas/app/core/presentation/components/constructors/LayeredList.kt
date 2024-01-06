@@ -62,7 +62,7 @@ fun <T : Nameable> LayeredList(
 }
 
 @Composable
-private fun <T: Nameable> LayeredListRecursive(
+private fun <T : Nameable> LayeredListRecursive(
     nameableCollections: List<T>,
     onNameClick: (T) -> Unit = {},
     itemExtras: @Composable RowScope.(T) -> Unit,
@@ -93,7 +93,7 @@ private fun <T: Nameable> LayeredListRecursive(
 }
 
 @Composable
-private fun <T: Nameable> NameableComponent(
+private fun <T : Nameable> NameableComponent(
     nameable: T,
     onNameClick: (T) -> Unit = {},
     itemExtras: @Composable RowScope.(T) -> Unit,
@@ -118,7 +118,7 @@ private fun <T: Nameable> NameableComponent(
 }
 
 @Composable
-private fun <T: Nameable> ColumnScope.NameableCollectionBody(
+private fun <T : Nameable> ColumnScope.NameableCollectionBody(
     nameableCollection: NameableCollection<T>,
     onNameClick: (T) -> Unit,
     itemExtras: @Composable RowScope.(T) -> Unit,
@@ -187,7 +187,7 @@ private fun NestedSwitch(
 }
 
 @Composable
-private fun <T: Nameable> NameableBody(
+private fun <T : Nameable> NameableBody(
     nameable: T,
     onNameClick: (T) -> Unit = {},
     itemExtras: @Composable RowScope.(T) -> Unit,
