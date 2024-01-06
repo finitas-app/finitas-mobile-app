@@ -38,7 +38,7 @@ fun AuthScreen(navController: NavController) {
             modifier = Modifier.align(Alignment.Center),
         ) {
             SignInPanel(viewModel = viewModel, onSuccessfulLogin = {
-                navController.navigate(NavPaths.ProfileScreen.route)
+                navController.popBackStack()
             })
         }
         AnimatedVisibility(

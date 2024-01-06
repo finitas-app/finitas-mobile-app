@@ -157,6 +157,16 @@ interface ShoppingListDao {
             deleteShoppingListWithItemsBy(it.idShoppingList)
         }
     }
+
+    @Query("SELECT * FROM ShoppingList WHERE idUser is not null")
+    suspend fun findAllForeignShoppingLists(): List<ShoppingList>
+
+    @Transaction
+    suspend fun deleteAllForeignShoppingLists() {
+        findAllForeignShoppingLists().forEach {
+            deleteShoppingListWithItemsBy(it.idShoppingList)
+        }
+    }
 }
 
 data class SpendingRecordDataId(

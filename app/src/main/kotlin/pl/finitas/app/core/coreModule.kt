@@ -37,9 +37,12 @@ val coreModule = module {
     }
     single<ProfileRepository> {
         ProfileRepositoryImpl(
-            androidApplication(),
-            getDatabase().roomDao,
-            getDatabase().userDao,
+            context = androidApplication(),
+            roomDao = getDatabase().roomDao,
+            userDao = getDatabase().userDao,
+            shoppingListDao = getDatabase().shoppingListDao,
+            finishedSpendingDao = getDatabase().finishedSpendingDao,
+            clearDatabase = { getDatabase().clearAllTables() }
         )
     }
     single<FinishedSpendingStoreRepository> {

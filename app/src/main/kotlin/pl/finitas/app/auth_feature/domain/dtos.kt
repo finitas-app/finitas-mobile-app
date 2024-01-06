@@ -24,8 +24,8 @@ data class SignUpCommand(
 
     companion object {
         fun from(credentialsState: CredentialsState) = SignUpCommand(
-            credentialsState.login,
-            credentialsState.password,
+            credentialsState.login.trim(),
+            credentialsState.password.trim(),
         )
     }
 }
@@ -38,8 +38,8 @@ data class SignInCommand(
 
     companion object {
         fun from(credentialsState: CredentialsState) = SignInCommand(
-            credentialsState.login,
-            credentialsState.password,
+            credentialsState.login.trim(),
+            credentialsState.password.trim(),
         )
     }
 }

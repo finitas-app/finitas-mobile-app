@@ -185,6 +185,16 @@ interface FinishedSpendingDao {
             deleteWithRecords(it.idSpendingSummary)
         }
     }
+
+    @Query("SELECT * FROM FinishedSpending WHERE idUser is not null")
+    suspend fun findAllForeignFinishedSpendings(): List<FinishedSpending>
+
+    @Transaction
+    suspend fun deleteAllForeignFinishedSpendings() {
+        findAllForeignFinishedSpendings().forEach {
+            deleteWithRecords(it.idSpendingSummary)
+        }
+    }
 }
 
 data class FinishedSpendingWithRecordFlat(
