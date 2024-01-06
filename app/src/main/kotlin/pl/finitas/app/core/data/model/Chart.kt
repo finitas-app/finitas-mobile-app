@@ -52,6 +52,8 @@ data class Chart(
     ]
 )
 data class ChartToCategoryRef(
+    @ColumnInfo(index = true)
     val idChart: UUID,
+    @ColumnInfo(index = true)
     val idCategory: UUID,
 )

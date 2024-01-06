@@ -11,6 +11,7 @@ import pl.finitas.app.core.data.model.relations.SpendingSummaryToFinishedSpendin
 import pl.finitas.app.core.domain.repository.FinishedSpendingVersion
 import pl.finitas.app.manage_spendings_feature.domain.model.FinishedSpendingWithRecordsDto
 import pl.finitas.app.manage_spendings_feature.domain.model.SpendingRecordDto
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import pl.finitas.app.sync_feature.domain.repository.FinishedSpendingSyncRepository
 import pl.finitas.app.sync_feature.domain.repository.SyncFinishedSpendingWithRecordsDto
 import java.time.LocalDateTime
@@ -29,6 +30,7 @@ class FinishedSpendingSyncRepositoryImpl(
                         title = it.title,
                         purchaseDate = it.purchaseDate,
                         isDeleted = it.isDeleted,
+                        currencyValue = it.currencyValue,
                     )
                 }
                 .map { (tempFinishedSpending, spendingRecords) ->
@@ -39,6 +41,7 @@ class FinishedSpendingSyncRepositoryImpl(
                         isDeleted = tempFinishedSpending.isDeleted,
                         idReceipt = null,
                         idUser = null,
+                        currencyValue = tempFinishedSpending.currencyValue,
                         spendingRecords = spendingRecords.map {
                             SpendingRecordDto(
                                 name = it.spendingRecordName,
@@ -61,7 +64,8 @@ class FinishedSpendingSyncRepositoryImpl(
                 SpendingSummaryToFinishedSpending(
                     spendingSummary = SpendingSummary(
                         idSpendingSummary = generatedSpendingSummary,
-                        name = finishedSpending.title
+                        name = finishedSpending.title,
+                        currencyValue = finishedSpending.currencyValue,
                     ),
                     finishedSpending = FinishedSpending(
                         idReceipt = null,
@@ -111,4 +115,5 @@ private data class TempFinishedSpending(
     val title: String,
     val purchaseDate: LocalDateTime,
     val isDeleted: Boolean,
+    val currencyValue: CurrencyValue,
 )

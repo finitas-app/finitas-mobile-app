@@ -132,7 +132,7 @@ interface RoomDao {
     suspend fun deleteAllRooms()
 
     @Query("""
-        SELECT *
+        SELECT rm.idRoom
         FROM User u
         JOIN RoomMember rm ON u.idUser = rm.idUser
         JOIN RoomRole rr ON rm.idRole = rr.idRole

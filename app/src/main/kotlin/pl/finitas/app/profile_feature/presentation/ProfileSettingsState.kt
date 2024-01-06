@@ -16,14 +16,14 @@ data class ReminderSettingsState(
 )
 
 data class ProfileSettingsState(
-    val currency: CurrencyValues,
+    val currency: CurrencyValue,
     val reminderSettingsState: ReminderSettingsState,
     val regularSpendingsSettingsState: RegularSpendingsSettingsState
 ) {
     companion object {
         val empty
             get() = ProfileSettingsState(
-                currency = CurrencyValues.PLN,
+                currency = CurrencyValue.PLN,
                 reminderSettingsState = ReminderSettingsState(
                     notificationTime = TimeState(0, 0),
                     isNotificationsOn = true
@@ -36,7 +36,7 @@ data class ProfileSettingsState(
     }
 }
 
-enum class CurrencyValues {
+enum class CurrencyValue {
     PLN,
     USD,
     EUR

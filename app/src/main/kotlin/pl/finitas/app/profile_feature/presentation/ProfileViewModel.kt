@@ -5,15 +5,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import pl.finitas.app.core.domain.exceptions.InputValidationException
+import pl.finitas.app.core.domain.repository.SettingsRepository
 import pl.finitas.app.profile_feature.domain.services.ProfileService
 
 class ProfileViewModel(
     private val profileService: ProfileService,
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
+    val currency: Flow<CurrencyValue> = settingsRepository.getDefaultCurrency()
     val isAuthorize = profileService.getToken().map { it != null }
     var usernameErrors by mutableStateOf<List<String>?>(null)
         private set
@@ -36,8 +40,10 @@ class ProfileViewModel(
         }
     }
 
-    fun setCurrency(value: CurrencyValues) {
-        profileSettingsState = profileSettingsState.copy(currency = value)
+    fun setCurrency(value: CurrencyValue) {
+        viewModelScope.launch {
+            settingsRepository.setDefaultCurrency(value)
+        }
     }
 
     fun setRegularSpendingActualizationNotificationsOn(value: Boolean) {

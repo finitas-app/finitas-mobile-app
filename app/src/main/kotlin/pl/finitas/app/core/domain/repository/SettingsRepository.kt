@@ -1,10 +1,10 @@
 package pl.finitas.app.core.domain.repository
 
 import kotlinx.coroutines.flow.Flow
-import pl.finitas.app.profile_feature.presentation.CurrencyValues
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 
 interface SettingsRepository {
-    suspend fun setDefaultCurrency(currencyValue: CurrencyValues)
+    suspend fun setDefaultCurrency(currencyValue: CurrencyValue)
 
-    fun getDefaultCurrency(): Flow<CurrencyValues?>
+    fun getDefaultCurrency(): Flow<CurrencyValue>
 }

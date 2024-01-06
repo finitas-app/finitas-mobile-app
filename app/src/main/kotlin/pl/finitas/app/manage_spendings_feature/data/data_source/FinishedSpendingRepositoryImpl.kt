@@ -13,6 +13,7 @@ import pl.finitas.app.core.data.model.relations.SpendingSummaryToFinishedSpendin
 import pl.finitas.app.manage_spendings_feature.domain.model.FinishedSpendingWithRecordsDto
 import pl.finitas.app.manage_spendings_feature.domain.model.SpendingRecordDto
 import pl.finitas.app.manage_spendings_feature.domain.repository.FinishedSpendingRepository
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -39,7 +40,8 @@ class FinishedSpendingRepositoryImpl(
             SpendingSummaryToFinishedSpending(
                 spendingSummary = SpendingSummary(
                     idSpendingSummary = generatedSpendingSummary,
-                    name = finishedSpending.title
+                    name = finishedSpending.title,
+                    currencyValue = finishedSpending.currencyValue,
                 ),
                 finishedSpending = FinishedSpending(
                     idReceipt = finishedSpending.idReceipt,
@@ -88,12 +90,14 @@ private fun List<FinishedSpendingWithRecordFlat>.toDto() =
             purchaseDate = it.purchaseDate,
             isDeleted = it.isDeleted,
             idUser = it.idUser,
+            currencyValue = it.currencyValue,
         )
     }.map { (tempFinishedSpending, spendingRecords) ->
         FinishedSpendingWithRecordsDto(
             idSpendingSummary = tempFinishedSpending.idSpendingSummary,
             title = tempFinishedSpending.title,
             purchaseDate = tempFinishedSpending.purchaseDate,
+            currencyValue = tempFinishedSpending.currencyValue,
             isDeleted = tempFinishedSpending.isDeleted,
             idReceipt = null,
             idUser = tempFinishedSpending.idUser,
@@ -115,6 +119,7 @@ private data class TempFinishedSpending(
     val purchaseDate: LocalDateTime,
     val isDeleted: Boolean,
     val idUser: UUID?,
+    val currencyValue: CurrencyValue,
 )
 
 class FinishedSpendingNotFoundException(

@@ -39,6 +39,7 @@ import pl.finitas.app.core.presentation.components.constructors.LayeredList
 import pl.finitas.app.core.presentation.components.dialog.NestedDialog
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.util.UUID
 
 @Composable
@@ -245,6 +246,7 @@ private fun AddSpendingRecordDialog(
                                 totalPrice = totalPrice.toBigDecimal(),
                                 idCategory = category,
                                 idSpendingRecord = UUID.randomUUID(),
+                                currency = CurrencyValue.PLN,
                             )
                         )
                         onClose()

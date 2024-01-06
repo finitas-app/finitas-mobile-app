@@ -70,14 +70,17 @@ fun BoxScope.FinishedSpendingsPanel(
                         nameableCollection = spendings,
                         itemExtras = {
                             Row(Modifier.padding(end = 20.dp)) {
-                                Fonts.regular.Text(text = it.totalPrice.toString())
+                                Fonts.regular.Text(
+                                    text = "${it.totalPrice} ${it.currency}"
+                                )
                             }
                         },
                         onNameClick = { spendingElement ->
                             if (hasModifyAuthority && spendingElement is FinishedSpendingView) {
                                 onAddSpendingClick(spendingElement, spendingElement.idUser)
                             }
-                        }
+                        },
+                        maxTextLength = 16
                     )
                 }
             }
