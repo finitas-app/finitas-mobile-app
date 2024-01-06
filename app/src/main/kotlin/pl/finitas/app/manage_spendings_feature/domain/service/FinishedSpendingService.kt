@@ -284,7 +284,7 @@ private fun FinishedSpendingWithRecordsDto.toRemote(idUser: UUID): RemoteFinishe
         idUser = idUser,
         isDeleted = isDeleted,
         name = title,
-        currencyValue = currencyValue,
+        currency = currencyValue,
         spendingRecords = spendingRecords.map {
             RemoteSpendingRecordDto(
                 idSpendingRecordData = it.idSpendingRecord,

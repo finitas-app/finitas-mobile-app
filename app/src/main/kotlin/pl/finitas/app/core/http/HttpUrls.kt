@@ -1,6 +1,6 @@
 package pl.finitas.app.core.http
 
-private const val host = "0.0.0.0"
+private const val host = "192.168.64.1"
 private const val port = 8080
 const val frontendApiUrl = "http://$host:$port/api"
 
