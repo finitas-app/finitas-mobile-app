@@ -8,3 +8,8 @@ data class ParsedEntry(val title: String, val number: SerializableBigDecimal)
 
 @Serializable
 data class ReceiptParseResult(val entries: List<ParsedEntry>)
+
+@Serializable
+data class Base64Receipt(
+    val value: String
+)
