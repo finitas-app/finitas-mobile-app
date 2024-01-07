@@ -5,6 +5,9 @@ import kotlinx.coroutines.flow.combine
 import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.data.model.Room
 import pl.finitas.app.core.data.model.RoomMember
+import pl.finitas.app.core.domain.exceptions.InputValidationException
+import pl.finitas.app.core.domain.validateBuilder
+import pl.finitas.app.core.http.FrontendApiException
 import pl.finitas.app.room_feature.domain.CreateRoomDto
 import pl.finitas.app.room_feature.domain.RoomPreviewDto
 import pl.finitas.app.room_feature.domain.RoomWithAdditionalInfoView
@@ -17,6 +20,7 @@ import pl.finitas.app.room_feature.domain.repository.MessageRepository
 import pl.finitas.app.room_feature.domain.repository.RoomRepository
 import pl.finitas.app.room_feature.domain.repository.UpdateRoleRequest
 import pl.finitas.app.room_feature.presentation.room_settings.roles.UpsertRoleState
+import pl.finitas.app.room_feature.presentation.rooms.AddRoomOption
 import pl.finitas.app.room_feature.presentation.rooms.AddRoomState
 import java.util.UUID
 
@@ -66,67 +70,164 @@ class RoomService(
     }
 
     suspend fun addRoom(addRoomState: AddRoomState) {
-        //TODO: Add validation
-        if (addRoomState.title.isNotBlank()) {
-            roomRepository.createRoom(addRoomState.toCreateDto())
-        } else if (addRoomState.invitationLink.isNotBlank()) {
-            roomRepository.joinRoom(addRoomState.toJoinDto())
+        when (addRoomState.addRoomOption) {
+            AddRoomOption.Join -> {
+                validateBuilder {
+                    validate(addRoomState.invitationLink.isNotBlank()) { "The invitation link cannot be blank." }
+                }
+                try {
+                    roomRepository.joinRoom(addRoomState.toJoinDto())
+                } catch (e: IllegalArgumentException) {
+                    throw InputValidationException("The invitational link is wrong. Try another one.")
+                } catch (e: FrontendApiException) {
+                    throw InputValidationException("The invitational link is wrong. Try another one.")
+                }
+            }
+
+            AddRoomOption.Create -> {
+                validateBuilder {
+                    validate(addRoomState.title.isNotBlank()) { "Room title cannot be blank." }
+                }
+                roomRepository.createRoom(addRoomState.toCreateDto())
+            }
         }
     }
 
     suspend fun upsertRole(idRoom: UUID, upsertRoleState: UpsertRoleState) {
-        if (upsertRoleState.idRole == null)
-            roomRepository.addRole(
-                AddRoleRequest(
-                    idRoom = idRoom,
-                    name = upsertRoleState.name,
-                    authorities = upsertRoleState.authorities,
+        validateBuilder {
+            validate(upsertRoleState.name.isNotBlank(), "roleTitle") {
+                "Role title cannot be empty."
+            }
+        }
+        try {
+            if (upsertRoleState.idRole == null)
+                roomRepository.addRole(
+                    AddRoleRequest(
+                        idRoom = idRoom,
+                        name = upsertRoleState.name,
+                        authorities = upsertRoleState.authorities,
+                    )
+                )
+            else
+                roomRepository.updateRole(
+                    UpdateRoleRequest(
+                        idRole = upsertRoleState.idRole,
+                        idRoom = idRoom,
+                        name = upsertRoleState.name,
+                        authorities = upsertRoleState.authorities,
+                    )
+                )
+        } catch (e: FrontendApiException) {
+            e.printStackTrace()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw InputValidationException(
+                mapOf(
+                    "roleSummary" to listOf(
+                        "Failed to change roles, check your internet connection."
+                    )
                 )
             )
-        else
-            roomRepository.updateRole(
-                UpdateRoleRequest(
-                    idRole = upsertRoleState.idRole,
-                    idRoom = idRoom,
-                    name = upsertRoleState.name,
-                    authorities = upsertRoleState.authorities,
-                )
-            )
+        }
     }
 
     suspend fun deleteRole(idRoom: UUID, idRole: UUID) {
-        roomRepository.deleteRole(
-            DeleteRoleRequest(idRoom, idRole)
-        )
+        try {
+            roomRepository.deleteRole(
+                DeleteRoleRequest(idRoom, idRole)
+            )
+        } catch (e: Exception) {
+
+            e.printStackTrace()
+            throw InputValidationException(
+                mapOf(
+                    "deleteRole" to listOf(
+                        "Failed to delete roles, check your internet connection."
+                    )
+                )
+            )
+        }
     }
 
     suspend fun deleteUserFromRoom(idRoom: UUID, idUser: UUID) {
-        roomRepository.deleteUserFromRoom(
-            DeleteUserRequest(
-                idRoom = idRoom,
-                idUser = idUser,
+        try {
+            roomRepository.deleteUserFromRoom(
+                DeleteUserRequest(
+                    idRoom = idRoom,
+                    idUser = idUser,
+                )
             )
-        )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw InputValidationException(
+                mapOf(
+                    "userSummary" to listOf(
+                        "Failed to delete user from room, check your internet connection."
+                    )
+                )
+            )
+        }
     }
 
     suspend fun assignRoleToUser(idRoom: UUID, idUser: UUID, idRole: UUID?) {
-        roomRepository.assignRoleToUser(
-            AssignRoleToUserRequest(
-                idRoom = idRoom,
-                idRole = idRole,
-                idUser = idUser
+        try {
+            roomRepository.assignRoleToUser(
+                AssignRoleToUserRequest(
+                    idRoom = idRoom,
+                    idRole = idRole,
+                    idUser = idUser
+                )
             )
-        )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw InputValidationException(
+                mapOf(
+                    "assignRoleToUser" to listOf(
+                        "Failed to assign role to user, check your internet connection."
+                    )
+                )
+            )
+        }
     }
 
     fun getAuthoritiesForUser(idUser: UUID?, idRoom: UUID): Flow<Set<Authority>> {
         return roomRepository.getAuthorizedUserAuthorities(idUser, idRoom)
     }
 
-    suspend fun regenerateLink(idRoom: UUID) = roomRepository.regenerateLink(idRoom)
+    suspend fun regenerateLink(idRoom: UUID) {
+        try {
+            roomRepository.regenerateLink(idRoom)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw InputValidationException(
+                mapOf(
+                    "regenerateLink" to listOf(
+                        "Failed to regenerate link, check your internet connection."
+                    )
+                )
+            )
+        }
+    }
 
-    suspend fun changeRoomName(idRoom: UUID, newName: String) =
-        roomRepository.changeRoomName(idRoom, newName)
+    suspend fun changeRoomName(idRoom: UUID, newName: String) {
+        validateBuilder {
+            validate(newName.isNotBlank(), "roomName") {
+                "Room name cannot be empty."
+            }
+        }
+        try {
+            roomRepository.changeRoomName(idRoom, newName)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw InputValidationException(
+                mapOf(
+                    "roomName" to listOf(
+                        "Failed to change room name, check your internet connection."
+                    )
+                )
+            )
+        }
+    }
 }
 
 private fun AddRoomState.toJoinDto(): JoinRoomDto {

@@ -12,57 +12,60 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.SwitchLeft
 import androidx.compose.material.icons.rounded.SwitchRight
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
+import pl.finitas.app.core.presentation.components.constructors.InputError
 import pl.finitas.app.core.presentation.components.dialog.ConstructorBoxDialog
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
+import pl.finitas.app.room_feature.presentation.rooms.AddRoomOption
 import pl.finitas.app.room_feature.presentation.rooms.AddRoomState
 
 @Composable
 fun AddRoomDialog(
     isDialogOpen: Boolean,
+    errors: List<String>?,
+    addRoomState: AddRoomState,
+    onTitleChange: (String) -> Unit,
+    onInvitationLinkChange: (String) -> Unit,
+    onAddRoomOptionChange: (AddRoomOption) -> Unit,
     onClose: () -> Unit,
-    onSaveRoom: (AddRoomState) -> Unit,
+    onSaveRoom: () -> Unit,
 ) {
-    var isJoin by remember { mutableStateOf(true) }
-    var title by remember { mutableStateOf("") }
-    var invitationLink by remember { mutableStateOf("") }
 
     ConstructorBoxDialog(
         isOpen = isDialogOpen,
-        onSave = { onSaveRoom(AddRoomState(title, invitationLink)) },
+        onSave = {
+            onSaveRoom()
+        },
         onClose = { onClose() }
     ) {
-        if (isJoin) {
-            JoinRoom(
-                invitationLink = invitationLink,
-                onEdit = { invitationLink = it },
-                onSwitchMethod = {
-                    title = ""
-                    invitationLink = ""
-                    isJoin = !isJoin
-                }
-            )
-        } else {
-            CreateRoom(
-                title = title,
-                onEdit = { title = it },
-                onSwitchMethod = {
-                    title = ""
-                    invitationLink = ""
-                    isJoin = !isJoin
-                }
-            )
+        when (addRoomState.addRoomOption) {
+            AddRoomOption.Join -> {
+                JoinRoom(
+                    invitationLink = addRoomState.invitationLink,
+                    onEdit = onInvitationLinkChange,
+                    onSwitchMethod = {
+                        onAddRoomOptionChange(AddRoomOption.Create)
+                    }
+                )
+            }
+
+            AddRoomOption.Create -> {
+                CreateRoom(
+                    title = addRoomState.title,
+                    onEdit = onTitleChange,
+                    onSwitchMethod = {
+                        onAddRoomOptionChange(AddRoomOption.Join)
+                    }
+                )
+            }
         }
+        InputError(errors = errors, Modifier.padding(top = 10.dp))
     }
 }
 
@@ -78,7 +81,11 @@ private fun JoinRoom(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Fonts.heading1.Text(text = "Join room")
-        ClickableIcon(imageVector = Icons.Rounded.SwitchLeft, onClick = onSwitchMethod, modifier = Modifier.padding(top = 4.dp))
+        ClickableIcon(
+            imageVector = Icons.Rounded.SwitchLeft,
+            onClick = onSwitchMethod,
+            modifier = Modifier.padding(top = 4.dp)
+        )
     }
     Fonts.regular.Text(
         text = "Link", modifier = Modifier.padding(top = 20.dp)
@@ -104,7 +111,11 @@ private fun CreateRoom(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Fonts.heading1.Text(text = "Create room")
-        ClickableIcon(imageVector = Icons.Rounded.SwitchRight, onClick = onSwitchMethod, modifier = Modifier.padding(top = 4.dp))
+        ClickableIcon(
+            imageVector = Icons.Rounded.SwitchRight,
+            onClick = onSwitchMethod,
+            modifier = Modifier.padding(top = 4.dp)
+        )
     }
     Fonts.regular.Text(
         text = "Title", modifier = Modifier.padding(top = 20.dp)

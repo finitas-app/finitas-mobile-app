@@ -49,8 +49,13 @@ fun RoomsPanel(
     }
     AddRoomDialog(
         isDialogOpen = roomViewModel.isAddRoomDialogOpen,
+        errors = roomViewModel.addRoomErrors,
+        addRoomState = roomViewModel.addRoomState,
+        onTitleChange = roomViewModel::onTitleChange,
+        onInvitationLinkChange = roomViewModel::onInvitationLinkChange,
+        onAddRoomOptionChange = roomViewModel::onAddRoomOptionChange,
         onClose = roomViewModel::closeAddDialog,
-        onSaveRoom = { roomViewModel.addRoom(it) },
+        onSaveRoom = roomViewModel::addRoom,
     )
 }
 

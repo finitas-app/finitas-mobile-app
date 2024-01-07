@@ -26,6 +26,7 @@ import androidx.navigation.NavController
 import pl.finitas.app.R
 import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.core.presentation.components.constructors.DeleteIcon
+import pl.finitas.app.core.presentation.components.constructors.InputError
 import pl.finitas.app.core.presentation.components.dialog.ConstructorBoxDialog
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.navigation.NavPaths
@@ -88,6 +89,7 @@ fun UserSettingsDialog(
                 modifier = Modifier.padding(bottom = 13.dp)
             )
         }
+        InputError(errors = viewModel.errors["userSummary"], Modifier.padding(bottom = 10.dp))
     }
     ConstructorBoxDialog(
         isOpen = viewModel.selectedUser != null && isRoleSelectorOpen,
@@ -149,5 +151,6 @@ fun UserSettingsDialog(
                     .background(Color.White.copy(.1f))
             )
         }
+        InputError(errors = viewModel.errors["assignRoleToUser"], Modifier.padding(top = 10.dp))
     }
 }
