@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -28,6 +29,7 @@ data class Chart(
     val startDate: LocalDateTime?,
     val endDate: LocalDateTime?,
     val chartType: Int,
+    val currencyValue: CurrencyValue,
     @ColumnInfo(index = true)
     val idTargetUser: UUID?,
     @ColumnInfo(index = true)

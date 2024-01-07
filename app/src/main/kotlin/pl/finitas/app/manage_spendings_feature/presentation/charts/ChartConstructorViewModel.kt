@@ -8,10 +8,12 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import pl.finitas.app.core.domain.exceptions.InputValidationException
+import pl.finitas.app.core.domain.repository.SettingsRepository
 import pl.finitas.app.core.domain.services.AuthorizedUserService
 import pl.finitas.app.core.domain.services.SpendingCategoryView
 import pl.finitas.app.manage_spendings_feature.data.data_source.ChartWithCategoriesDto
 import pl.finitas.app.manage_spendings_feature.domain.service.ChartService
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.time.LocalDate
 import java.util.UUID
 
@@ -23,6 +25,7 @@ enum class ConstructorType(val headerTitle: String) {
 class ChartConstructorViewModel(
     private val service: ChartService,
     private val authorizedUserService: AuthorizedUserService,
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
     var errors: List<String>? by mutableStateOf(null)
 
@@ -49,7 +52,8 @@ class ChartConstructorViewModel(
             chartState = ChartState.empty().copy(
                 categories = service.getSpendingCategories(idRoom, targetUserOrCurrent),
                 idTargetUser = idTargetUser,
-                idRoom = idRoom
+                idRoom = idRoom,
+                currencyValue = settingsRepository.getDefaultCurrency().first()
             )
             constructorType = ConstructorType.CREATE
             isChartConstructorDialogOpen = true
@@ -85,6 +89,10 @@ class ChartConstructorViewModel(
         chartState = chartState.copy(endDate = value)
     }
 
+    fun setCurrency(currencyValue: CurrencyValue) {
+        chartState = chartState.copy(currencyValue = currencyValue)
+    }
+
     fun onCheckboxStateChanged(category: SpendingCategoryView) {
         val isEnabled = category.idCategory in enabledCategories
 
@@ -114,6 +122,7 @@ class ChartConstructorViewModel(
                 chartType = chart.chartType,
                 startDate = chart.startDate,
                 endDate = chart.endDate,
+                currencyValue = chart.currencyValue,
                 categories = service.getSpendingCategories(chart.idRoom, chart.idTargetUser),
                 idTargetUser = chart.idTargetUser,
                 idRoom = chart.idRoom,

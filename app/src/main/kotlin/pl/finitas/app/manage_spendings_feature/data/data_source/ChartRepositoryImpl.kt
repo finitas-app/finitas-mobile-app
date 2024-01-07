@@ -10,6 +10,7 @@ import pl.finitas.app.core.data.model.relations.ChartToCategoryRefs
 import pl.finitas.app.core.domain.validateBuilder
 import pl.finitas.app.manage_spendings_feature.domain.repository.ChartRepository
 import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartType
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -40,6 +41,7 @@ class ChartRepositoryImpl(val dao: ChartDao) : ChartRepository {
                     chartType = chart.chartType.ordinal,
                     idTargetUser = chart.idTargetUser,
                     idRoom = chart.idRoom,
+                    currencyValue = chart.currencyValue,
                 ),
                 categoryRefs = chart.categoryIds.map {
                     ChartToCategoryRef(
@@ -60,6 +62,7 @@ class ChartRepositoryImpl(val dao: ChartDao) : ChartRepository {
                 chartType = chart.chartType.ordinal,
                 idTargetUser = chart.idTargetUser,
                 idRoom = chart.idRoom,
+                currencyValue = chart.currencyValue,
             )
         )
     }
@@ -76,6 +79,7 @@ private fun List<ChartWithCategoryFlat>.toDto() = groupBy { it.idChart }
             endDate = firstFlattened.endDate?.toLocalDate(),
             idTargetUser = firstFlattened.idTargetUser,
             idRoom = firstFlattened.idRoom,
+            currencyValue = firstFlattened.currencyValue,
             categories = mapToCategoryDtoList(it)
         )
     }
@@ -88,11 +92,12 @@ private fun mapToCategoryDtoList(flatValues: List<ChartWithCategoryFlat>) =
             ChartCategoryDto(
                 categoryName = first.categoryName,
                 idCategory = first.idCategory,
-                spendings = it.map { flat ->
-                    SpendingPoint(
-                        purchaseDate = flat.purchaseDate,
-                        price = flat.price
-                    )
+                spendings = it.mapNotNull { spending ->
+                    if (spending.purchaseDate != null && spending.price != null) {
+                        SpendingPoint(spending.purchaseDate, spending.price)
+                    } else {
+                        null
+                    }
                 }
             )
         }
@@ -104,6 +109,7 @@ data class ChartDtoWithCategoryIds(
     val endDate: LocalDate?,
     val idTargetUser: UUID?,
     val idRoom: UUID?,
+    val currencyValue: CurrencyValue,
     val categoryIds: Set<UUID>,
 ) {
     companion object {
@@ -132,6 +138,7 @@ data class ChartWithCategoriesDto(
     val chartType: ChartType,
     val startDate: LocalDate?,
     val endDate: LocalDate?,
+    val currencyValue: CurrencyValue,
     val categories: List<ChartCategoryDto>,
     val idTargetUser: UUID?,
     val idRoom: UUID?,

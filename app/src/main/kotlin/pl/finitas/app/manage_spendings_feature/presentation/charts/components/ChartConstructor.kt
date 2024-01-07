@@ -28,6 +28,7 @@ import pl.finitas.app.core.presentation.components.dialog.CustomDialog
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartConstructorViewModel
 import pl.finitas.app.manage_spendings_feature.presentation.charts.ChartType
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.time.LocalDate
 
 // todo: configure blur for dialog
@@ -71,6 +72,20 @@ private fun GeneralInfo(
             DiagramTypeInput(viewModel = viewModel)
             StartDateInput(viewModel = viewModel)
             EndDateInput(viewModel = viewModel)
+            Row(
+                modifier = Modifier.padding(top = 18.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Fonts.regular.Text(
+                    text = "Currency",
+                )
+                Dropdown(
+                    currentValue = viewModel.chartState.currencyValue,
+                    values = CurrencyValue.entries,
+                    onClick = viewModel::setCurrency,
+                    modifier = Modifier.padding(start = 15.dp, top = 4.dp)
+                )
+            }
             InputError(errors = viewModel.errors, Modifier.padding(top = 26.dp))
         }
     }

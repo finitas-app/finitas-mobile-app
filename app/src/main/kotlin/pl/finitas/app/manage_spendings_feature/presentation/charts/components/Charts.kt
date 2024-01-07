@@ -2,6 +2,7 @@ package pl.finitas.app.manage_spendings_feature.presentation.charts.components
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,11 +39,23 @@ fun ChartElement(
     chart: ChartWithCategoriesDto,
     modifier: Modifier,
 ) {
+    if (chart.categories.flatMap { it.spendings }.isEmpty()) {
+        Box(
+            modifier
+        ) {
+            Fonts.heading1.Text(
+                text = "Not enough data",
+                modifier = Modifier.align(Alignment.Center),
+            )
+        }
+        return
+    }
     when (chart.chartType) {
         ChartType.PIE -> PieChartConstructor(
             chart = chart,
             modifier = modifier,
         )
+
         ChartType.BAR -> BarChartConstructor(
             chart = chart,
             modifier = modifier,
@@ -62,7 +75,7 @@ private fun PieChartConstructor(
     ) {
         PieChart(
             pieChartData = PieChartData(
-                slices = chart.categories.mapIndexed { index, category ->
+                slices = chart.categories.filter { it.spendings.isNotEmpty() }.mapIndexed { index, category ->
                     PieChartData.Slice(
                         value = category.spendings.sumOf { it.price }.toFloat(),
                         color = CHART_COLORS[index]
@@ -91,7 +104,7 @@ private fun PieChartLabels(
         modifier = modifier
             .horizontalScroll(rememberScrollState())
     ) {
-        chart.categories.chunked(2).forEachIndexed { index, pair ->
+        chart.categories.filter { it.spendings.isNotEmpty() }.chunked(2).forEachIndexed { index, pair ->
             Column(verticalArrangement = Arrangement.SpaceBetween) {
                 pair.forEachIndexed { innerIndex, it ->
                     PieChartLabel(category = it, index = index * 2 + innerIndex)
@@ -126,7 +139,7 @@ private fun BarChartConstructor(
 ) {
     BarChart(
         barChartData = BarChartData(
-            bars = chart.categories.mapIndexed { index, category ->
+            bars = chart.categories.filter { it.spendings.isNotEmpty() }.mapIndexed { index, category ->
                 BarChartData.Bar(
                     value = category.spendings.sumOf { it.price }.toFloat(),
                     color = CHART_COLORS[index],

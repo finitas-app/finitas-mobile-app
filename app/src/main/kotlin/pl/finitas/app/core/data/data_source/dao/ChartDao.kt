@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import pl.finitas.app.core.data.model.Chart
 import pl.finitas.app.core.data.model.ChartToCategoryRef
 import pl.finitas.app.core.data.model.relations.ChartToCategoryRefs
+import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.UUID
@@ -24,6 +25,7 @@ interface ChartDao {
         ch.chartType as 'chartType',
         ch.startDate as 'startDate',
         ch.endDate as 'endDate',
+        ch.currencyValue as 'currencyValue',
         ch.idTargetUser as 'idTargetUser',
         ch.idRoom as 'idRoom',
         ca.name as 'categoryName',
@@ -34,9 +36,10 @@ interface ChartDao {
         FROM Chart ch
         JOIN ChartToCategoryRef ctc on ch.idChart = ctc.idChart
         JOIN SpendingCategory ca on ctc.idCategory = ca.idCategory
-        JOIN SpendingRecordData srd on ca.idCategory = srd.idCategory
-        JOIN SpendingRecord sr on sr.idSpendingRecordData = srd.idSpendingRecordData
-        JOIN FinishedSpending fs on fs.idSpendingSummary = sr.idSpendingSummary
+        LEFT JOIN SpendingRecordData srd on ca.idCategory = srd.idCategory
+        LEFT JOIN SpendingRecord sr on sr.idSpendingRecordData = srd.idSpendingRecordData
+        LEFT JOIN SpendingSummary ss on sr.idSpendingSummary = ss.idSpendingSummary and ss.currencyValue = ch.currencyValue
+        LEFT JOIN FinishedSpending fs on fs.idSpendingSummary = ss.idSpendingSummary
         WHERE ch.idRoom is null and ch.idTargetUser is null
     """
     )
@@ -49,6 +52,7 @@ interface ChartDao {
         ch.chartType as 'chartType',
         ch.startDate as 'startDate',
         ch.endDate as 'endDate',
+        ch.currencyValue as 'currencyValue',
         ch.idTargetUser as 'idTargetUser',
         ch.idRoom as 'idRoom',
         ca.name as 'categoryName',
@@ -59,9 +63,10 @@ interface ChartDao {
         FROM Chart ch
         JOIN ChartToCategoryRef ctc on ch.idChart = ctc.idChart
         JOIN SpendingCategory ca on ctc.idCategory = ca.idCategory
-        JOIN SpendingRecordData srd on ca.idCategory = srd.idCategory
-        JOIN SpendingRecord sr on sr.idSpendingRecordData = srd.idSpendingRecordData
-        JOIN FinishedSpending fs on fs.idSpendingSummary = sr.idSpendingSummary
+        LEFT JOIN SpendingRecordData srd on ca.idCategory = srd.idCategory
+        LEFT JOIN SpendingRecord sr on sr.idSpendingRecordData = srd.idSpendingRecordData
+        LEFT JOIN SpendingSummary ss on sr.idSpendingSummary = ss.idSpendingSummary and ss.currencyValue = ch.currencyValue
+        LEFT JOIN FinishedSpending fs on fs.idSpendingSummary = ss.idSpendingSummary
         WHERE ch.idRoom = :idRoom
     """
     )
@@ -74,6 +79,7 @@ interface ChartDao {
         ch.chartType as 'chartType',
         ch.startDate as 'startDate',
         ch.endDate as 'endDate',
+        ch.currencyValue as 'currencyValue',
         ch.idTargetUser as 'idTargetUser',
         ch.idRoom as 'idRoom',
         ca.name as 'categoryName',
@@ -84,9 +90,10 @@ interface ChartDao {
         FROM Chart ch
         JOIN ChartToCategoryRef ctc on ch.idChart = ctc.idChart
         JOIN SpendingCategory ca on ctc.idCategory = ca.idCategory
-        JOIN SpendingRecordData srd on ca.idCategory = srd.idCategory
-        JOIN SpendingRecord sr on sr.idSpendingRecordData = srd.idSpendingRecordData
-        JOIN FinishedSpending fs on fs.idSpendingSummary = sr.idSpendingSummary
+        LEFT JOIN SpendingRecordData srd on ca.idCategory = srd.idCategory
+        LEFT JOIN SpendingRecord sr on sr.idSpendingRecordData = srd.idSpendingRecordData
+        LEFT JOIN SpendingSummary ss on sr.idSpendingSummary = ss.idSpendingSummary and ss.currencyValue = ch.currencyValue
+        LEFT JOIN FinishedSpending fs on fs.idSpendingSummary = ss.idSpendingSummary
         WHERE ch.idTargetUser = :idTargetUser
     """
     )
@@ -118,11 +125,12 @@ data class ChartWithCategoryFlat(
     val idChart: UUID,
     val startDate: LocalDateTime?,
     val endDate: LocalDateTime?,
+    val currencyValue: CurrencyValue,
+    val chartType: Int,
     val idTargetUser: UUID?,
     val idRoom: UUID?,
     val categoryName: String,
     val idCategory: UUID,
-    val purchaseDate: LocalDateTime,
-    val price: BigDecimal,
-    val chartType: Int,
+    val purchaseDate: LocalDateTime?,
+    val price: BigDecimal?,
 )
