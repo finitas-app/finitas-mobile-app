@@ -1,6 +1,7 @@
 package pl.finitas.app.room_feature.presentation.room_settings.components
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,7 +37,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import pl.finitas.app.R
+import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.presentation.components.ClickableIcon
+import pl.finitas.app.core.presentation.components.constructors.InputError
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 import pl.finitas.app.core.presentation.components.utils.trimOnOverflow
@@ -53,16 +57,33 @@ fun RoomSettingsPanel(
     navController: NavController,
     viewModel: RoomSettingsViewModel,
 ) {
-    var roleToDelete by remember { mutableStateOf<RoomRoleView?>(null) }
-    val hasModifyRoomAuthority by viewModel.hasModifyRoomAuthority.collectAsState(initial = false)
-    val hasReadUserDataAuthority by viewModel.hasReadUsersDataAuthority.collectAsState(initial = false)
-
 
     val room by viewModel.room.collectAsState(RoomWithAdditionalInfoView.empty)
     if (room == null) {
         navController.navigate(NavPaths.RoomsScreen.route)
         return
     }
+
+    var roleToDelete by remember { mutableStateOf<RoomRoleView?>(null) }
+    val hasModifyRoomAuthority by viewModel.hasModifyRoomAuthority.collectAsState(initial = false)
+    val hasReadUserDataAuthority by viewModel.hasReadUsersDataAuthority.collectAsState(initial = false)
+    val context = LocalContext.current
+
+    LaunchedEffect(hasModifyRoomAuthority, hasReadUserDataAuthority) {
+        if (!hasModifyRoomAuthority && !hasReadUserDataAuthority) {
+            roleToDelete = null
+        }
+    }
+
+    LaunchedEffect(roleToDelete, room) {
+        if (
+            roleToDelete != null &&
+            (room!!.roomRoles - roleToDelete!!).flatMap { it.authorities }.none { it == Authority.MODIFY_ROOM }
+        ) {
+            roleToDelete = null
+        }
+    }
+
     val invitationLink = remember(room) { "finitas.pl/${room!!.invitationLinkUUID}" }
     Column {
         RoomHeader(
@@ -73,6 +94,7 @@ fun RoomSettingsPanel(
         )
         RoomLink(
             invitationLink = invitationLink,
+            errors = viewModel.errors["regenerateLink"],
             onRefreshClick = viewModel::regenerateLink,
             hasModifyRoomAuthority = hasModifyRoomAuthority,
             modifier = Modifier
@@ -81,8 +103,27 @@ fun RoomSettingsPanel(
         RoomRoles(
             roles = room!!.roomRoles,
             onAddRole = { viewModel.openRoleDialog() },
-            onElementClick = { viewModel.openRoleDialog(it.toState()) },
-            onDeleteRole = { roleToDelete = it },
+            onElementClick = {
+                if (hasModifyRoomAuthority) {
+                    viewModel.openRoleDialog(it.toState())
+                }
+            },
+            onDeleteRole = { role ->
+                if (
+                    (room!!.roomRoles - role)
+                        .flatMap { it.authorities }
+                        .none { it == Authority.MODIFY_ROOM }
+                ) {
+                    roleToDelete = null
+                    Toast.makeText(
+                        context,
+                        "You cannot delete the last role with the MODIFY ROOM right.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    roleToDelete = role
+                }
+            },
             hasModifyRoomAuthority = hasModifyRoomAuthority,
             modifier = Modifier
                 .padding(top = 24.dp, start = 20.dp, end = 20.dp),
@@ -101,6 +142,7 @@ fun RoomSettingsPanel(
     DeleteRoleDialog(
         roleTitle = roleToDelete?.name ?: "",
         isOpen = roleToDelete != null,
+        errors = viewModel.errors["deleteRole"],
         onConfirm = {
             viewModel.deleteRole(
                 idRole = roleToDelete?.idRole!!,
@@ -121,6 +163,7 @@ fun RoomSettingsPanel(
     )
     ChangeRoomNameDialog(
         isDialogOpen = viewModel.isChangeRoomNameDialogOpen,
+        errors = viewModel.errors["roomName"],
         newNameValue = viewModel.newRoomName,
         onNameChange = viewModel::setNewRoomNameValue,
         onClose = viewModel::closeChangeRoomNameDialog,
@@ -157,6 +200,7 @@ private fun RoomHeader(
 @Composable
 private fun RoomLink(
     invitationLink: String,
+    errors: List<String>?,
     onRefreshClick: () -> Unit,
     hasModifyRoomAuthority: Boolean,
     modifier: Modifier = Modifier,
@@ -197,6 +241,7 @@ private fun RoomLink(
                 onClick = { ContextCompat.startActivity(context, shareIntent, null) },
             )
         }
+        InputError(errors = errors, Modifier.padding(top = 10.dp))
     }
 }
 

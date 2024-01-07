@@ -6,12 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
+import pl.finitas.app.core.presentation.components.constructors.InputError
 import pl.finitas.app.core.presentation.components.dialog.ConstructorBoxDialog
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 
 @Composable
 fun ChangeRoomNameDialog(
     isDialogOpen: Boolean,
+    errors: List<String>?,
     newNameValue: String,
     onNameChange: (String) -> Unit,
     onClose: () -> Unit,
@@ -33,5 +35,6 @@ fun ChangeRoomNameDialog(
             modifier = Modifier
                 .fillMaxWidth()
         )
+        InputError(errors = errors, Modifier.padding(top = 10.dp))
     }
 }

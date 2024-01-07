@@ -26,6 +26,7 @@ class ShoppingListRepositoryImpl(
                         it.isFinished,
                         it.isDeleted,
                         it.version,
+                        it.idUser,
                     )
                 }
                 .map { (shoppingList, shoppingItems) ->
@@ -33,7 +34,7 @@ class ShoppingListRepositoryImpl(
                         name = shoppingList.name,
                         color = shoppingList.color,
                         idShoppingList = shoppingList.idShoppingList,
-                        idUser = null,
+                        idUser = shoppingList.idUser,
                         isFinished = shoppingList.isFinished,
                         isDeleted = shoppingList.isDeleted,
                         version = shoppingList.version,
@@ -57,7 +58,7 @@ class ShoppingListRepositoryImpl(
             name = shoppingListFlat[0].name,
             color = shoppingListFlat[0].color,
             idShoppingList = shoppingListFlat[0].idShoppingList,
-            idUser = null,
+            idUser = shoppingListFlat[0].idUser,
             isFinished = shoppingListFlat[0].isFinished,
             isDeleted = shoppingListFlat[0].isDeleted,
             version = shoppingListFlat[0].version,
@@ -115,6 +116,7 @@ private data class TempShoppingList(
     val isFinished: Boolean,
     val isDeleted: Boolean,
     val version: Int?,
+    val idUser: UUID?,
 )
 
 class ShoppingListNotFoundException(idShoppingList: UUID): Exception("Shopping list '$idShoppingList' not found.")

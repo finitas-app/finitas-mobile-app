@@ -259,7 +259,7 @@ class SynchronizationService(
             .map {
                 ShoppingListVersion(
                     it.idUser,
-                    it.finishedSpendingVersion
+                    it.shoppingListVersion
                 )
             }
             .let { versions ->
@@ -268,7 +268,7 @@ class SynchronizationService(
                         ?: throw UserNotFoundException(authorizedUserId)
                     versions + ShoppingListVersion(
                         authorizedUser.idUser,
-                        authorizedUser.finishedSpendingVersion,
+                        authorizedUser.shoppingListVersion,
                     )
                 } else {
                     versions

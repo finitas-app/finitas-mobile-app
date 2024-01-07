@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import pl.finitas.app.core.presentation.components.constructors.InputError
 import pl.finitas.app.core.presentation.components.dialog.ConstructorBoxDialog
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
 
@@ -15,6 +16,7 @@ import pl.finitas.app.core.presentation.components.utils.text.Fonts
 fun DeleteRoleDialog(
     roleTitle: String,
     isOpen: Boolean,
+    errors: List<String>?,
     onConfirm: () -> Unit,
     onClose: () -> Unit,
 ) {
@@ -33,6 +35,7 @@ fun DeleteRoleDialog(
                 text = "You really want to remove this role. All users who own it will lose it.",
                 textAlign = TextAlign.Center
             )
+            InputError(errors = errors, Modifier.padding(top = 10.dp))
         }
     }
 }

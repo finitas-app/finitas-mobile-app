@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
+import pl.finitas.app.core.presentation.components.constructors.InputError
 import pl.finitas.app.core.presentation.components.dialog.CustomDialog
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
@@ -103,6 +104,7 @@ private fun AddSpendingFormGeneralInfo(
                     .fillMaxWidth()
                     .padding(top = 4.dp),
             )
+            InputError(errors = upsertShoppingListViewModel.titleErrors, Modifier.padding(top = 18.dp))
 
             Fonts.regular.Text(
                 text = "Color",
@@ -138,6 +140,7 @@ private fun AddSpendingFormGeneralInfo(
                     )
                 }
             }
+            InputError(errors = upsertShoppingListViewModel.errors, Modifier.padding(top = 18.dp))
         }
     }
 }

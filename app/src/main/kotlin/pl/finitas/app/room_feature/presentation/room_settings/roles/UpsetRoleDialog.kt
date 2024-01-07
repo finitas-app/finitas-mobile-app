@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.data.model.Authority
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
+import pl.finitas.app.core.presentation.components.constructors.InputError
 import pl.finitas.app.core.presentation.components.constructors.SwitchComponent
 import pl.finitas.app.core.presentation.components.dialog.ConstructorBoxDialog
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
@@ -34,6 +35,7 @@ fun UpsertRoleDialog(
             onValueChange = viewModel::setRoleName,
             modifier = Modifier.fillMaxWidth()
         )
+        InputError(errors = viewModel.errors["roleTitle"], Modifier.padding(top = 10.dp))
         Fonts.heading2.Text(text = "Permissions", modifier = Modifier.padding(vertical = 10.dp))
         Authority.entries.forEach { authority ->
             Row(
@@ -42,7 +44,7 @@ fun UpsertRoleDialog(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Fonts.regular.Text(text = authority.name, modifier = Modifier.padding(start = 8.dp, bottom = 10.dp, top = 10.dp))
+                Fonts.regular.Text(text = authority.name.replace('_', ' '), modifier = Modifier.padding(start = 8.dp, bottom = 10.dp, top = 10.dp))
                 SwitchComponent(
                     isActive = authority in viewModel.upsertRoleState.authorities,
                     onChangeState = {
@@ -62,5 +64,6 @@ fun UpsertRoleDialog(
                     .background(Color.White.copy(.1f))
             )
         }
+        InputError(errors = viewModel.errors["roleSummary"], Modifier.padding(top = 10.dp))
     }
 }

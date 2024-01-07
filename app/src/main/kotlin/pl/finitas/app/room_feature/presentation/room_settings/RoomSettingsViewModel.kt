@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import pl.finitas.app.core.data.model.Authority
+import pl.finitas.app.core.domain.exceptions.InputValidationException
 import pl.finitas.app.core.domain.services.AuthorizedUserService
 import pl.finitas.app.room_feature.domain.RoomWithAdditionalInfoView
 import pl.finitas.app.room_feature.domain.service.RoomService
@@ -27,6 +28,9 @@ class RoomSettingsViewModel(
     private val authorizedUserService: AuthorizedUserService,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
+
+    var errors by mutableStateOf(mapOf<String?, List<String>?>())
+        private set
 
     private var _idRoom by mutableStateOf<UUID?>(null)
     var idRoom: UUID
@@ -71,6 +75,14 @@ class RoomSettingsViewModel(
         }
         authorities = authorizedUserId.flatMapMerge {
             roomService.getAuthoritiesForUser(it, idRoom)
+        }.onEach {  authorities ->
+            if (Authority.MODIFY_ROOM !in authorities) {
+                closeChangeRoomNameDialog()
+                closeRoleDialog()
+            }
+            if (Authority.READ_USERS_DATA !in authorities && Authority.MODIFY_ROOM !in authorities) {
+                closeUserDialog()
+            }
         }
         hasModifyRoomAuthority = authorities.map { Authority.MODIFY_ROOM in it }
         hasReadUsersDataAuthority = authorities.map { Authority.READ_USERS_DATA in it }
@@ -92,15 +104,23 @@ class RoomSettingsViewModel(
 
     fun upsertRole() {
         viewModelScope.launch {
-            roomService.upsertRole(idRoom, upsertRoleState)
-            closeRoleDialog()
+            try {
+                roomService.upsertRole(idRoom, upsertRoleState)
+                closeRoleDialog()
+            } catch (e: InputValidationException) {
+                errors = e.errors
+            }
         }
     }
 
     fun deleteRole(idRole: UUID, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            roomService.deleteRole(idRoom, idRole)
-            onSuccess()
+            try {
+                roomService.deleteRole(idRoom, idRole)
+                onSuccess()
+            } catch (e: InputValidationException) {
+                errors = e.errors
+            }
         }
     }
 
@@ -122,35 +142,53 @@ class RoomSettingsViewModel(
 
     fun removeSelectedUserFromRoom() {
         viewModelScope.launch {
-            if (selectedUser != null) roomService.deleteUserFromRoom(
-                idRoom = idRoom,
-                idUser = selectedUser!!
-            )
-            closeUserDialog()
+            try {
+                if (selectedUser != null) {
+                    roomService.deleteUserFromRoom(
+                        idRoom = idRoom,
+                        idUser = selectedUser!!
+                    )
+                }
+                closeUserDialog()
+            } catch (e: InputValidationException) {
+                errors = e.errors
+            }
         }
     }
 
     fun assignRoleToSelectedUser(idRole: UUID?, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            if (selectedUser != null) roomService.assignRoleToUser(
-                idRoom = idRoom,
-                idUser = selectedUser!!,
-                idRole = idRole
-            )
-            onSuccess()
+            try {
+                if (selectedUser != null) roomService.assignRoleToUser(
+                    idRoom = idRoom,
+                    idUser = selectedUser!!,
+                    idRole = idRole
+                )
+                onSuccess()
+            } catch (e: InputValidationException) {
+                errors = e.errors
+            }
         }
     }
 
     fun regenerateLink() {
         viewModelScope.launch {
-            roomService.regenerateLink(idRoom)
+            try {
+                roomService.regenerateLink(idRoom)
+            } catch (e: InputValidationException) {
+                errors = e.errors
+            }
         }
     }
 
     fun changeRoomName() {
         viewModelScope.launch {
-            roomService.changeRoomName(idRoom, newRoomName)
-            closeChangeRoomNameDialog()
+            try {
+                roomService.changeRoomName(idRoom, newRoomName)
+                closeChangeRoomNameDialog()
+            } catch (e: InputValidationException) {
+                errors = e.errors
+            }
         }
     }
 

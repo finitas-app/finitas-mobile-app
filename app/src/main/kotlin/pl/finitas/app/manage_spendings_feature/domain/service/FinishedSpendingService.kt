@@ -137,12 +137,19 @@ class FinishedSpendingService(
             return
         }
         //TODO: maybe disable for all not user data and just remove from database
-        finishedSpendingStoreRepository.deleteFinishedSpending(
-            DeleteFinishedSpendingRequest(
-                idFinishedSpending,
-                finishedSpending.idUser,
+        try {
+            finishedSpendingStoreRepository.deleteFinishedSpending(
+                DeleteFinishedSpendingRequest(
+                    idFinishedSpending,
+                    finishedSpending.idUser,
+                )
             )
-        )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw InputValidationException(
+                "An error occurred, check your internet connection.",
+            )
+        }
     }
 }
 

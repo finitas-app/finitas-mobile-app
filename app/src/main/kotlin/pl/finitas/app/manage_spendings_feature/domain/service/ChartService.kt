@@ -41,6 +41,7 @@ class ChartService(
                 categoryIds = categoryIds,
                 idTargetUser = chartState.idTargetUser,
                 idRoom = chartState.idRoom,
+                currencyValue = chartState.currencyValue,
             ),
         )
     }

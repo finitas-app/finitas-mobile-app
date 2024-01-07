@@ -8,8 +8,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import pl.finitas.app.core.domain.exceptions.InputValidationException
-import pl.finitas.app.core.domain.repository.ProfileRepository
 import pl.finitas.app.core.domain.repository.SettingsRepository
+import pl.finitas.app.core.domain.services.AuthorizedUserService
 import pl.finitas.app.core.domain.services.FinishedSpendingView
 import pl.finitas.app.core.domain.services.SpendingCategoryService
 import pl.finitas.app.core.domain.services.SpendingRecordView
@@ -23,8 +23,8 @@ class AddSpendingViewModel(
     private val spendingCategoryService: SpendingCategoryService,
     private val finishedSpendingService: FinishedSpendingService,
     private val scanReceiptService: ScanReceiptService,
+    private val authorizedUserService: AuthorizedUserService,
     private val settingsRepository: SettingsRepository,
-    private val profileRepository: ProfileRepository,
 ) : ViewModel() {
 
     var isDialogOpen by mutableStateOf(false)
@@ -113,15 +113,22 @@ class AddSpendingViewModel(
 
     fun deleteFinishedSpending(idFinishedSpending: UUID) {
         viewModelScope.launch {
-            finishedSpendingService.deleteFinishedSpending(idFinishedSpending)
-            closeDialog()
+            try {
+                finishedSpendingService.deleteFinishedSpending(idFinishedSpending)
+                closeDialog()
+            } catch (e: InputValidationException) {
+                titleErrors = e.errors["title"]
+                errors = e.errors[null]
+            } catch (e: Exception) {
+                errors = listOf("There's been a fatal error.")
+            }
         }
     }
 
     fun processImage(file: ByteArray) {
         if (file.isNotEmpty()) {
             viewModelScope.launch {
-                if (profileRepository.getAuthorizedUserId().first() == null) {
+                if (authorizedUserService.getAuthorizedIdUser().first() == null) {
                     errors = listOf("Check scanning is available only for authorized users.")
                     return@launch
                 }

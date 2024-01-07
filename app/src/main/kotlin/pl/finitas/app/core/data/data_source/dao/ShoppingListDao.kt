@@ -26,6 +26,7 @@ interface ShoppingListDao {
             sl.isFinished as 'isFinished',
             sl.isDeleted as 'isDeleted',
             sl.version as 'version',
+            sl.idUser as 'idUser',
             si.idSpendingRecordData as 'idSpendingRecordData',
             si.amount as 'amount',
             srd.name as 'itemName',
@@ -47,6 +48,7 @@ interface ShoppingListDao {
             sl.isFinished as 'isFinished',
             sl.isDeleted as 'isDeleted',
             sl.version as 'version',
+            sl.idUser as 'idUser',
             si.idSpendingRecordData as 'idSpendingRecordData',
             si.amount as 'amount',
             srd.name as 'itemName',
@@ -67,6 +69,7 @@ interface ShoppingListDao {
             sl.isFinished as 'isFinished',
             sl.isDeleted as 'isDeleted',
             sl.version as 'version',
+            sl.idUser as 'idUser',
             si.idSpendingRecordData as 'idSpendingRecordData',
             si.amount as 'amount',
             srd.name as 'itemName',
@@ -74,7 +77,7 @@ interface ShoppingListDao {
         FROM ShoppingList sl
         JOIN ShoppingItem si on sl.idShoppingList = si.idShoppingList
         JOIN SpendingRecordData srd on si.idSpendingRecordData = srd.idSpendingRecordData
-        WHERE sl.idUser is null and sl.idShoppingList = :idShoppingList
+        WHERE sl.idShoppingList = :idShoppingList
     """)
     suspend fun getShoppingLisWithItemsFlatBy(idShoppingList: UUID): List<ShoppingListItemFlat>
 
@@ -184,6 +187,7 @@ data class ShoppingListItemFlat(
     val amount: Int,
     val itemName: String,
     val idSpendingCategory: UUID,
+    val idUser: UUID?,
 )
 
 data class ShoppingListVersionDto(

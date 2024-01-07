@@ -6,12 +6,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import pl.finitas.app.core.domain.exceptions.InputValidationException
 import pl.finitas.app.core.domain.services.SpendingCategoryService
 import pl.finitas.app.core.domain.services.SpendingCategoryView
 import pl.finitas.app.shopping_lists_feature.domain.ShoppingItemCategoryView
 import pl.finitas.app.shopping_lists_feature.domain.ShoppingItemView
 import pl.finitas.app.shopping_lists_feature.domain.ShoppingListService
-import java.util.UUID
+import pl.finitas.app.shopping_lists_feature.domain.ShoppingListView
 
 class UpsertShoppingListViewModel(
     private val shoppingListService: ShoppingListService,
@@ -24,17 +25,23 @@ class UpsertShoppingListViewModel(
     var shoppingListState by mutableStateOf(ShoppingListState.emptyState)
         private set
 
-    fun openDialog(idShoppingList: UUID?) {
+    var titleErrors by mutableStateOf<List<String>?>(null)
+        private set
+
+    var errors by mutableStateOf<List<String>?>(null)
+        private set
+
+    fun openDialog(shoppingList: ShoppingListView?) {
         viewModelScope.launch {
             val categories = spendingCategoryService
-                .getSpendingCategoriesByIdUserFlat()
+                .getSpendingCategoriesByIdUserFlat(shoppingList?.idUser)
                 .map { it.toShoppingItemCategory() }
-            shoppingListState = if (idShoppingList == null) {
+            shoppingListState = if (shoppingList == null) {
                 shoppingListState.copy(categories = categories)
             } else {
-                shoppingListService.getShoppingListBy(idShoppingList, categories)
+                shoppingListService.getShoppingListBy(shoppingList.idShoppingList, categories)
             }
-
+            println(shoppingList)
             isDialogOpen = true
         }
     }
@@ -62,10 +69,15 @@ class UpsertShoppingListViewModel(
     }
 
     fun onSave() {
-        if (shoppingListState.categories.flatMap { it.elements }.isNotEmpty()) {
-            viewModelScope.launch {
+        viewModelScope.launch {
+            try {
                 shoppingListService.upsertShoppingList(shoppingListState)
                 closeDialog()
+            } catch (e: InputValidationException) {
+                titleErrors = e.errors["title"]
+                errors = e.errors[null]
+            } catch (e: Exception) {
+                errors = listOf("There's been a fatal error.")
             }
         }
     }
