@@ -113,8 +113,15 @@ class AddSpendingViewModel(
 
     fun deleteFinishedSpending(idFinishedSpending: UUID) {
         viewModelScope.launch {
-            finishedSpendingService.deleteFinishedSpending(idFinishedSpending)
-            closeDialog()
+            try {
+                finishedSpendingService.deleteFinishedSpending(idFinishedSpending)
+                closeDialog()
+            } catch (e: InputValidationException) {
+                titleErrors = e.errors["title"]
+                errors = e.errors[null]
+            } catch (e: Exception) {
+                errors = listOf("There's been a fatal error.")
+            }
         }
     }
 

@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import pl.finitas.app.core.presentation.components.ClickableIcon
 import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
+import pl.finitas.app.core.presentation.components.constructors.InputError
 import pl.finitas.app.core.presentation.components.constructors.LayeredList
 import pl.finitas.app.core.presentation.components.dialog.NestedDialog
 import pl.finitas.app.core.presentation.components.utils.colors.Colors
@@ -50,6 +51,7 @@ fun CategoryShoppingList(
     var filterSearch by remember { mutableStateOf("") }
     var idSpendingCategory by remember { mutableStateOf<UUID?>(null) }
     var isOpenedAddSpendingRecord by remember { mutableStateOf(false) }
+    var selected by remember { mutableStateOf<ShoppingItemView?>(null) }
 
     ConstructorBox(
         modifier = modifier,
@@ -84,49 +86,62 @@ fun CategoryShoppingList(
 
             LayeredList<ShoppingListElement>(
                 nameableCollection = categories.filter { it.name.contains(filterSearch) },
-                modifier = Modifier.padding(top = 20.dp)
-            ) { spendingElement ->
-                when (spendingElement) {
-                    is ShoppingItemCategoryView -> {
-                        Box(modifier = Modifier.padding(end = 10.dp)) {
-                            ClickableIcon(
-                                imageVector = Icons.Rounded.AddCircle, onClick = {
-                                    idSpendingCategory = spendingElement.idSpendingCategory
-                                    isOpenedAddSpendingRecord = true
-                                }, modifier = Modifier
-                                    .size(32.dp)
-                                    .align(Alignment.Center)
-                            )
+                modifier = Modifier.padding(top = 20.dp),
+                itemExtras = { spendingElement ->
+                    when (spendingElement) {
+                        is ShoppingItemCategoryView -> {
+                            Box(modifier = Modifier.padding(end = 10.dp)) {
+                                ClickableIcon(
+                                    imageVector = Icons.Rounded.AddCircle, onClick = {
+                                        idSpendingCategory = spendingElement.idSpendingCategory
+                                        isOpenedAddSpendingRecord = true
+                                    }, modifier = Modifier
+                                        .size(32.dp)
+                                        .align(Alignment.Center)
+                                )
+                            }
                         }
-                    }
 
-                    is ShoppingItemView -> {
-                        Row(
-                            modifier = Modifier.padding(end = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Fonts.regular.Text(
-                                text = spendingElement.amount.toString(),
-                                modifier = Modifier.padding(end = 30.dp)
-                            )
+                        is ShoppingItemView -> {
+                            Row(
+                                modifier = Modifier.padding(end = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Fonts.regular.Text(
+                                    text = spendingElement.amount.toString(),
+                                    modifier = Modifier.padding(end = 30.dp)
+                                )
 
-                            ClickableIcon(
-                                imageVector = Icons.Rounded.Delete,
-                                onClick = { onDeleteElement(spendingElement) },
-                                modifier = Modifier.size(32.dp)
-                            )
+                                ClickableIcon(
+                                    imageVector = Icons.Rounded.Delete,
+                                    onClick = { onDeleteElement(spendingElement) },
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
                         }
-                    }
 
-                    else -> {}
+                        else -> {}
+                    }
+                },
+                onNameClick = { element ->
+                    if (element is ShoppingItemView) {
+                        selected = element
+                        idSpendingCategory = element.idSpendingCategory
+                        isOpenedAddSpendingRecord = true
+                    }
                 }
-            }
+            )
 
             AddSpendingRecordDialog(
+                shoppingItemView = selected,
                 isOpen = isOpenedAddSpendingRecord,
                 idCategory = idSpendingCategory ?: UUID.randomUUID(),
-                onSave = onSave,
+                onSave = {
+                    selected?.let(onDeleteElement)
+                    onSave(it)
+                },
                 onClose = {
+                    selected = null
                     idSpendingCategory = null
                     isOpenedAddSpendingRecord = false
                 },
@@ -135,8 +150,11 @@ fun CategoryShoppingList(
     }
 }
 
+private val amountRegex = "[0-9]{0,9}".toRegex()
+
 @Composable
 private fun AddSpendingRecordDialog(
+    shoppingItemView: ShoppingItemView?,
     isOpen: Boolean,
     idCategory: UUID,
     onSave: (ShoppingItemView) -> Unit,
@@ -144,6 +162,8 @@ private fun AddSpendingRecordDialog(
 ) {
     NestedDialog(isOpen = isOpen, onDismiss = onClose) {
         val interactionSource = remember { MutableInteractionSource() }
+        var titleErrors by remember { mutableStateOf<List<String>?>(null) }
+        var amountErrors by remember { mutableStateOf<List<String>?>(null) }
 
         ConstructorBox(
             modifier = Modifier
@@ -163,7 +183,7 @@ private fun AddSpendingRecordDialog(
                     Fonts.heading1.Text(text = "Add spending")
                 }
                 var spendingTitle by remember {
-                    mutableStateOf("")
+                    mutableStateOf(shoppingItemView?.name ?: "")
                 }
                 Fonts.regular.Text(
                     text = "Title", modifier = Modifier.padding(top = 20.dp)
@@ -175,21 +195,27 @@ private fun AddSpendingRecordDialog(
                         .fillMaxWidth()
                         .padding(top = 4.dp),
                 )
+                InputError(errors = titleErrors, modifier = Modifier.padding(top = 10.dp))
 
 
                 var amount by remember {
-                    mutableStateOf("")
+                    mutableStateOf(shoppingItemView?.amount?.toString() ?: "")
                 }
                 Fonts.regular.Text(
                     text = "Amount", modifier = Modifier.padding(top = 10.dp)
                 )
                 ConstructorInput(
                     value = amount,
-                    onValueChange = { amount = it },
+                    onValueChange = {
+                        if (it.matches(amountRegex)) {
+                            amount = it.ifEmpty { null }?.toInt()?.toString() ?: ""
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 4.dp),
                 )
+                InputError(errors = amountErrors, modifier = Modifier.padding(top = 10.dp))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -200,15 +226,30 @@ private fun AddSpendingRecordDialog(
                         imageVector = Icons.Rounded.Close, onClick = onClose
                     )
                     ClickableIcon(imageVector = Icons.Rounded.Check, onClick = {
-                        onSave(
-                            ShoppingItemView(
-                                name = spendingTitle,
-                                amount = amount.toInt(),
-                                idSpendingCategory = idCategory,
-                                idShoppingItem = UUID.randomUUID(),
+                        var hasErrors = false
+                        if (spendingTitle.isBlank()) {
+                            titleErrors = listOf(
+                                "Title cannot be empty."
                             )
-                        )
-                        onClose()
+                            hasErrors = true
+                        }
+                        if (amount.isEmpty() || amount == "0") {
+                            amountErrors = listOf(
+                                "Amount should be positive."
+                            )
+                            hasErrors = true
+                        }
+                        if (!hasErrors) {
+                            onSave(
+                                ShoppingItemView(
+                                    name = spendingTitle,
+                                    amount = amount.ifBlank { "0" }.toInt(),
+                                    idSpendingCategory = idCategory,
+                                    idShoppingItem = UUID.randomUUID(),
+                                )
+                            )
+                            onClose()
+                        }
                     })
                 }
             }

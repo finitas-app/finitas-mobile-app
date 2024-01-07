@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import pl.finitas.app.core.presentation.components.constructors.CategorySpendingList
 import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.constructors.ConstructorInput
 import pl.finitas.app.core.presentation.components.constructors.DateInput
@@ -20,7 +21,6 @@ import pl.finitas.app.core.presentation.components.constructors.Dropdown
 import pl.finitas.app.core.presentation.components.constructors.InputError
 import pl.finitas.app.core.presentation.components.dialog.CustomDialog
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
-import pl.finitas.app.core.presentation.components.constructors.CategorySpendingList
 import pl.finitas.app.manage_spendings_feature.presentation.add_spending.components.ScanReceiptIcon
 import pl.finitas.app.profile_feature.presentation.CurrencyValue
 
@@ -126,7 +126,6 @@ private fun AddSpendingFormGeneralInfo(
                     modifier = Modifier.padding(start = 15.dp, top = 4.dp)
                 )
             }
-            InputError(errors = addSpendingViewModel.errors, Modifier.padding(top = 18.dp))
             if (addSpendingViewModel.finishedSpendingState.idFinishedSpending != null) {
                 DeleteIcon(
                     label = "Delete spending",
@@ -140,6 +139,7 @@ private fun AddSpendingFormGeneralInfo(
                         .align(Alignment.Start),
                 )
             }
+            InputError(errors = addSpendingViewModel.errors, Modifier.padding(top = 18.dp))
         }
     }
 }

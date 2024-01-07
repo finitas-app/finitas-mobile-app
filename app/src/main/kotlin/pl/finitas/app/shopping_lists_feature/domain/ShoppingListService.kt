@@ -7,10 +7,12 @@ import pl.finitas.app.core.data.model.SpendingCategory
 import pl.finitas.app.core.domain.dto.store.DeleteShoppingListRequest
 import pl.finitas.app.core.domain.dto.store.RemoteShoppingItemDto
 import pl.finitas.app.core.domain.dto.store.RemoteShoppingListDto
+import pl.finitas.app.core.domain.exceptions.InputValidationException
 import pl.finitas.app.core.domain.repository.ProfileRepository
 import pl.finitas.app.core.domain.repository.ShoppingListStoreRepository
 import pl.finitas.app.core.domain.repository.SpendingCategoryNotFoundException
 import pl.finitas.app.core.domain.repository.SpendingCategoryRepository
+import pl.finitas.app.core.domain.validateBuilder
 import pl.finitas.app.shopping_lists_feature.presentation.write_shopping_list.ShoppingListState
 import java.util.UUID
 
@@ -38,6 +40,9 @@ class ShoppingListService(
                             idShoppingList,
                             shoppingItems,
                             isFinished,
+                            _,
+                            _,
+                            idUser,
                         ) = shoppingList
                         val itemsById = shoppingItems.groupBy { it.idSpendingCategory }
                         ShoppingListView(
@@ -45,6 +50,7 @@ class ShoppingListService(
                             color = color,
                             idShoppingList = idShoppingList,
                             isFinished = isFinished,
+                            idUser = idUser,
                             elements = itemsById.map { (idSpendingCategory, items) ->
                                 ShoppingItemCategoryView(
                                     name = categoriesById[idSpendingCategory]?.name
@@ -95,10 +101,22 @@ class ShoppingListService(
     }
 
     suspend fun upsertShoppingList(shoppingListState: ShoppingListState) {
-        if (shoppingListState.idUser != null) throw InvalidShoppingListState(
-            shoppingListState,
-            "Is not possible to upsert shopping list of not current user."
-        )
+        validateBuilder {
+            validateBuilder {
+                validate(shoppingListState.title.isNotBlank(), "title") { "Title cannot be empty." }
+                validate(shoppingListState.categories.flatMap { it.elements }.isNotEmpty()) {
+                    "You must add at least one item of list."
+                }
+                validateForSingleOutput(shoppingListState.categories.isNotEmpty()) {
+                    if (shoppingListState.idUser == null) {
+                        "To add a spending, you must first create a category."
+                    } else {
+                        "The user you are trying to add the spending to has no categories, you will" +
+                                " only be able to do this after the user has added their first category."
+                    }
+                }
+            }
+        }
         val generatedUUID = shoppingListState.idShoppingList ?: UUID.randomUUID()
         val dto = ShoppingListDto(
             name = shoppingListState.title,
@@ -106,6 +124,7 @@ class ShoppingListService(
             idShoppingList = generatedUUID,
             isFinished = false,
             isDeleted = false,
+            idUser = shoppingListState.idUser,
             version = null,
             shoppingItems = shoppingListState.categories.flatMap { shoppingItemCategory ->
                 shoppingItemCategory.elements.map { shoppingItem ->
@@ -122,13 +141,28 @@ class ShoppingListService(
                 }
             }
         )
+        val currentUser = profileRepository.getAuthorizedUserId().first()
 
-        shoppingListRepository.upsertShoppingList(dto)
-        val currentUser = profileRepository.getAuthorizedUserId().first() ?: return
-        try {
-            shoppingListStoreRepository.changeShoppingLists(listOf(dto.toRemote(currentUser)))
-        } catch (_: Exception) {
+        if (dto.idUser == null || dto.idUser == currentUser) {
+            shoppingListRepository.upsertShoppingList(dto)
+            if (currentUser != null) {
+                try {
+                    shoppingListStoreRepository.changeShoppingLists(listOf(dto.toRemote(currentUser)))
+                } catch (_: Exception) {
 
+                }
+            }
+        } else if (currentUser != null) {
+            try {
+                if (shoppingListState.idShoppingList != null) {
+                    shoppingListStoreRepository.updateShoppingList(dto.toRemote(dto.idUser))
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                throw InputValidationException(
+                    "An error occurred, check your internet connection.",
+                )
+            }
         }
     }
 
@@ -159,12 +193,19 @@ class ShoppingListService(
             return
         }
         //TODO: maybe disable for all not user data and just remove from database
-        shoppingListStoreRepository.deleteShoppingList(
-            DeleteShoppingListRequest(
-                idShoppingList,
-                shoppingList.idUser,
+        try {
+            shoppingListStoreRepository.deleteShoppingList(
+                DeleteShoppingListRequest(
+                    idShoppingList,
+                    shoppingList.idUser,
+                )
             )
-        )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw InputValidationException(
+                "An error occurred, check your internet connection.",
+            )
+        }
     }
 }
 
@@ -236,13 +277,13 @@ private fun verifyPrevious(
     return previous[categoryId]?.let { it.elements as? MutableList<ShoppingListElement> }
 }
 
-private fun ShoppingListDto.toRemote(idUser: UUID): RemoteShoppingListDto = RemoteShoppingListDto(
+private fun ShoppingListDto.toRemote(currentUserIdUser: UUID): RemoteShoppingListDto = RemoteShoppingListDto(
     idShoppingList = idShoppingList,
     name = name,
     color = color,
     //TODO: to remove
     version = 0,
-    idUser = idUser,
+    idUser = idUser ?: currentUserIdUser,
     isDeleted = isDeleted,
     isFinished = isFinished,
     shoppingItems = shoppingItems.map {

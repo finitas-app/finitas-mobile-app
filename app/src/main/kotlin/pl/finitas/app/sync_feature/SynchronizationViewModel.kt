@@ -97,12 +97,7 @@ class SynchronizationViewModel(
         with(userNotification) {
             when {
                 event == UserNotificationEvent.SYNC_MESSAGE && jsonData != null -> {
-                    with(synchronizationService) {
-                        syncMessages(
-                            authorizedUserId,
-                            Json.decodeFromString(jsonData),
-                        )
-                    }
+                    synchronizationService.syncMessages(authorizedUserId, Json.decodeFromString(jsonData))
                 }
 
                 event == UserNotificationEvent.SYNC_ROOM && jsonData == null -> {
