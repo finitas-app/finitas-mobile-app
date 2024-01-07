@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import pl.finitas.app.core.domain.exceptions.InputValidationException
 import pl.finitas.app.core.domain.repository.SettingsRepository
 import pl.finitas.app.profile_feature.domain.services.ProfileService
+import java.time.LocalTime
 
 class ProfileViewModel(
     private val profileService: ProfileService,
@@ -18,12 +19,11 @@ class ProfileViewModel(
 ) : ViewModel() {
 
     val currency: Flow<CurrencyValue> = settingsRepository.getDefaultCurrency()
+    val regularSpendingActualizationTime = settingsRepository.getRegularSpendingActualizationTime()
     val isAuthorize = profileService.getToken().map { it != null }
     var usernameErrors by mutableStateOf<List<String>?>(null)
         private set
 
-    var profileSettingsState by mutableStateOf(ProfileSettingsState.empty)
-        private set
 
     val username = profileService.getUsername()
 
@@ -46,72 +46,10 @@ class ProfileViewModel(
         }
     }
 
-    fun setRegularSpendingActualizationNotificationsOn(value: Boolean) {
-        val curState = profileSettingsState.regularSpendingsSettingsState
-        profileSettingsState =
-            profileSettingsState.copy(
-                regularSpendingsSettingsState = curState.copy(
-                    actualizationNotificationsOn = value
-                )
-            )
-    }
-
-    fun setRegularSpendingActualizationTimeHours(value: Int) {
-        val curState = profileSettingsState.regularSpendingsSettingsState
-        profileSettingsState =
-            profileSettingsState.copy(
-                regularSpendingsSettingsState = curState.copy(
-                    actualizationTime = curState.actualizationTime.copy(
-                        hours = value
-                    )
-                )
-            )
-    }
-
-    fun setRegularSpendingActualizationTimeMinutes(value: Int) {
-        val curState = profileSettingsState.regularSpendingsSettingsState
-        profileSettingsState =
-            profileSettingsState.copy(
-                regularSpendingsSettingsState = curState.copy(
-                    actualizationTime = curState.actualizationTime.copy(
-                        minutes = value
-                    )
-                )
-            )
-    }
-
-    fun setReminderNotificationsOn(value: Boolean) {
-        val curState = profileSettingsState.reminderSettingsState
-        profileSettingsState =
-            profileSettingsState.copy(
-                reminderSettingsState = curState.copy(
-                    isNotificationsOn = value
-                )
-            )
-    }
-
-    fun setReminderNotificationsTimeMinutes(value: Int) {
-        val curState = profileSettingsState.reminderSettingsState
-        profileSettingsState =
-            profileSettingsState.copy(
-                reminderSettingsState = curState.copy(
-                    notificationTime = curState.notificationTime.copy(
-                        minutes = value
-                    )
-                )
-            )
-    }
-
-    fun setReminderNotificationsTimeHours(value: Int) {
-        val curState = profileSettingsState.reminderSettingsState
-        profileSettingsState =
-            profileSettingsState.copy(
-                reminderSettingsState = curState.copy(
-                    notificationTime = curState.notificationTime.copy(
-                        hours = value
-                    )
-                )
-            )
+    fun setRegularSpendingActualizationTime(value: LocalTime) {
+        viewModelScope.launch {
+            settingsRepository.setRegularSpendingActualizationTime(value)
+        }
     }
 
     fun logout() {

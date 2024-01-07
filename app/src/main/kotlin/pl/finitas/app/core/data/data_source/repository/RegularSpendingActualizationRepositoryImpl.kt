@@ -1,4 +1,4 @@
-package pl.finitas.app.manage_additional_elements_feature.data.data_source
+package pl.finitas.app.core.data.data_source.repository
 
 import pl.finitas.app.core.data.data_source.dao.FinishedSpendingDao
 import pl.finitas.app.core.data.data_source.dao.RegularSpendingDao
@@ -9,11 +9,11 @@ import pl.finitas.app.core.data.model.SpendingRecordData
 import pl.finitas.app.core.data.model.SpendingSummary
 import pl.finitas.app.core.data.model.relations.SpendingRecordDataToSpendingRecord
 import pl.finitas.app.core.data.model.relations.SpendingSummaryToFinishedSpending
+import pl.finitas.app.core.domain.repository.RegularSpendingActualizationRepository
 import pl.finitas.app.manage_additional_elements_feature.domain.FinishedSpendingWithRecordsDto
 import pl.finitas.app.manage_additional_elements_feature.domain.PeriodUnit
 import pl.finitas.app.manage_additional_elements_feature.domain.RegularSpendingWithSpendingDataDto
 import pl.finitas.app.manage_additional_elements_feature.domain.SpendingRecordDto
-import pl.finitas.app.manage_additional_elements_feature.domain.repositories.RegularSpendingActualizationRepository
 
 class RegularSpendingActualizationRepositoryImpl(
     private val regularSpendingDao: RegularSpendingDao,

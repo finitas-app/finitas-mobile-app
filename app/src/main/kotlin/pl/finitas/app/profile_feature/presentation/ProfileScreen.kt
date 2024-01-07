@@ -1,5 +1,7 @@
 package pl.finitas.app.profile_feature.presentation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +20,8 @@ import pl.finitas.app.core.presentation.components.background.PrimaryBackground
 import pl.finitas.app.core.presentation.components.constructors.ConstructorBox
 import pl.finitas.app.core.presentation.components.navbar.NavBar
 import pl.finitas.app.core.presentation.components.utils.text.Fonts
+import pl.finitas.app.core.presentation.workers.RegularSpendingActualizationViewModel
+import pl.finitas.app.core.presentation.workers.ReminderNotificationWorkerViewModel
 import pl.finitas.app.profile_feature.presentation.components.CurrencyInput
 import pl.finitas.app.profile_feature.presentation.components.LogoutButton
 import pl.finitas.app.profile_feature.presentation.components.ReminderSettings
@@ -26,12 +30,18 @@ import pl.finitas.app.profile_feature.presentation.components.SeparatorLine
 import pl.finitas.app.profile_feature.presentation.components.SignInButton
 import pl.finitas.app.profile_feature.presentation.components.UsernameInput
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun ProfileScreen(
     navController: NavController,
 ) {
-    val viewModel: ProfileViewModel = koinViewModel()
-    val isAuthorized by viewModel.isAuthorize.collectAsState(initial = false)
+    val profileViewModel: ProfileViewModel = koinViewModel()
+    val notificationPushViewModel: NotificationPushViewModel = koinViewModel()
+    val reminderNotificationWorkerViewModel: ReminderNotificationWorkerViewModel =
+        koinViewModel()
+    val regularSpendingActualizationViewModel: RegularSpendingActualizationViewModel =
+        koinViewModel()
+    val isAuthorized by profileViewModel.isAuthorize.collectAsState(initial = false)
 
     PrimaryBackground {
         Column(
@@ -54,21 +64,29 @@ fun ProfileScreen(
                         val modifier = Modifier.padding(vertical = 20.dp)
 
                         if (isAuthorized) {
-                            UsernameInput(viewModel = viewModel, modifier = modifier)
+                            UsernameInput(viewModel = profileViewModel, modifier = modifier)
                         } else {
                             SignInButton(navController = navController, modifier = modifier)
                         }
 
                         SeparatorLine()
-                        CurrencyInput(viewModel = viewModel, modifier = modifier)
+                        CurrencyInput(viewModel = profileViewModel, modifier = modifier)
                         SeparatorLine()
-                        ReminderSettings(viewModel = viewModel, modifier = modifier)
+                        ReminderSettings(
+                            notificationPushViewModel = notificationPushViewModel,
+                            reminderNotificationWorkerViewModel = reminderNotificationWorkerViewModel,
+                            modifier = modifier,
+                        )
                         SeparatorLine()
-                        RepeatingSpendingsSetting(viewModel = viewModel, modifier = modifier)
+                        RepeatingSpendingsSetting(
+                            profileViewModel = profileViewModel,
+                            modifier = modifier,
+                            regularSpendingActualizationViewModel = regularSpendingActualizationViewModel
+                        )
 
                         if (isAuthorized) {
                             SeparatorLine()
-                            LogoutButton(viewModel = viewModel, modifier = modifier)
+                            LogoutButton(viewModel = profileViewModel, modifier = modifier)
                         }
                     }
                 }
