@@ -61,6 +61,7 @@ class ChartConstructorViewModel(
     }
 
     fun closeConstructor() {
+        errors = null
         isChartConstructorDialogOpen = false
         chartState = ChartState.empty()
     }
@@ -69,7 +70,6 @@ class ChartConstructorViewModel(
         viewModelScope.launch {
             try {
                 service.upsertChart(chartState, enabledCategories)
-                errors = null
                 closeConstructor()
             } catch (exception: InputValidationException) {
                 errors = exception.errors[null]

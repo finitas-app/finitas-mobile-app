@@ -70,8 +70,9 @@ class RegularSpendingsViewModel(
 
     fun closeDialog() {
         regularSpendingState = RegularSpendingState()
-        isDialogOpen = false
         errors = null
+        titleErrors = null
+        isDialogOpen = false
     }
 
     fun setStateTitle(value: String) {

@@ -199,6 +199,7 @@ class RoomSettingsViewModel(
 
     fun closeChangeRoomNameDialog() {
         this.newRoomName = ""
+        errors = mapOf()
         isChangeRoomNameDialogOpen = false
     }
 

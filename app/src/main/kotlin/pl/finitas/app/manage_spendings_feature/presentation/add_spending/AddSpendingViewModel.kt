@@ -74,6 +74,8 @@ class AddSpendingViewModel(
 
     fun closeDialog() {
         finishedSpendingState = FinishedSpendingState.emptyState
+        titleErrors = null
+        errors = null
         isDialogOpen = false
     }
 

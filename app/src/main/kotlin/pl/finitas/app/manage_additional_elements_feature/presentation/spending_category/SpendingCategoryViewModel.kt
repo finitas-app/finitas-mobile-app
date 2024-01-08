@@ -42,6 +42,7 @@ class SpendingCategoryViewModel(
     }
 
     fun closeUpsertCategoryDialog() {
+        titleErrors = null
         spendingCategoryState = SpendingCategoryState("")
         isUpsertCategoryDialogOpen = false
     }

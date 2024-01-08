@@ -20,6 +20,7 @@ class ValidationBuilder {
     }
 }
 
+@Throws(InputValidationException::class)
 fun validateBuilder(soft: Boolean = false, validateBody: ValidationBuilder.() -> Unit): Map<String?, List<String>> {
     val builder = ValidationBuilder()
     builder.validateBody()

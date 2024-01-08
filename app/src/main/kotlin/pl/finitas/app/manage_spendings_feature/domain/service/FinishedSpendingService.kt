@@ -65,6 +65,7 @@ class FinishedSpendingService(
     }
 
 
+    @Throws(InputValidationException::class)
     suspend fun upsertFinishedSpending(finishedSpendingState: FinishedSpendingState) {
         validateBuilder {
             validate(finishedSpendingState.title.isNotBlank(), "title") { "Title cannot be empty." }

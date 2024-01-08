@@ -3,6 +3,7 @@ package pl.finitas.app.core.domain.services
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import pl.finitas.app.core.data.model.SpendingCategory
+import pl.finitas.app.core.domain.exceptions.InputValidationException
 import pl.finitas.app.core.domain.repository.SpendingCategoryRepository
 import pl.finitas.app.core.domain.repository.UserStoreRepository
 import pl.finitas.app.core.domain.validateBuilder
@@ -23,6 +24,7 @@ class SpendingCategoryService(
         }
     }
 
+    @Throws(InputValidationException::class)
     suspend fun upsertSpendingCategory(upsertSpendingCategoryCommand: UpsertSpendingCategoryCommand) {
         validateBuilder {
             validate(upsertSpendingCategoryCommand.name.isNotBlank(), "title") {

@@ -21,7 +21,7 @@ data class FinishedSpendingWithRecordsDto(
     val spendingRecords: List<SpendingRecordDto>,
 )
 
-data class RegularSpendingWithSpendingDataDto(
+data class RegularSpendingWithSpendingDataDto (
     val idSpendingSummary: UUID,
     override val name: String,
     val lastActualizationDate: LocalDateTime,

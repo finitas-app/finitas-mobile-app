@@ -65,6 +65,8 @@ class UpsertShoppingListViewModel(
 
     fun closeDialog() {
         shoppingListState = ShoppingListState.emptyState
+        errors = null
+        titleErrors = null
         isDialogOpen = false
     }
 

@@ -30,9 +30,9 @@ class RoomViewModel(
     }
 
     fun closeAddDialog() {
-        isAddRoomDialogOpen = false
         addRoomState = AddRoomState(Join, "", "")
         addRoomErrors = null
+        isAddRoomDialogOpen = false
     }
 
     fun addRoom() {
