@@ -4,6 +4,9 @@ import pl.finitas.app.manage_additional_elements_feature.domain.FinishedSpending
 import pl.finitas.app.manage_additional_elements_feature.domain.RegularSpendingWithSpendingDataDto
 
 interface RegularSpendingActualizationRepository {
-    suspend fun upsertFinishedSpendingWithRecords(totalSpending: FinishedSpendingWithRecordsDto)
+    suspend fun upsertFinishedSpendingAndRegularSpending(
+        regularSpending: RegularSpendingWithSpendingDataDto,
+        finishedSpending: FinishedSpendingWithRecordsDto
+    )
     suspend fun getRegularSpendings(): List<RegularSpendingWithSpendingDataDto>
 }

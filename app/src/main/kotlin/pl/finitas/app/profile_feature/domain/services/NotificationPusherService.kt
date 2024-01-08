@@ -23,7 +23,7 @@ class ReminderNotificationWorker(context: Context, workerParams: WorkerParameter
     @WorkerThread
     override fun doWork(): Result {
         runBlocking {
-            service.pushRegularSpendingActualizationNotification()
+            service.pushReminderNotification()
         }
 
         return Result.success()

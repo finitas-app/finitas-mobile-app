@@ -256,7 +256,7 @@ private fun AddSpendingRecordDialog(
                             onSave(
                                 SpendingRecordView(
                                     name = spendingTitle,
-                                    totalPrice = totalPrice.ifBlank { "0" }.toBigDecimal(),
+                                    totalPrice = totalPrice.replace(',', '.').ifBlank { "0" }.toBigDecimal(),
                                     idCategory = category,
                                     idSpendingRecord = UUID.randomUUID(),
                                     currency = CurrencyValue.PLN,

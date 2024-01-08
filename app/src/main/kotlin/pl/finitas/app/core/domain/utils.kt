@@ -12,5 +12,5 @@ fun notificationChannel() =
     NotificationChannel(
         NOTIFICATION_CHANNEL_ID,
         NOTIFICATION_CHANNEL_NAME,
-        NotificationManager.IMPORTANCE_DEFAULT
+        NotificationManager.IMPORTANCE_HIGH
     )

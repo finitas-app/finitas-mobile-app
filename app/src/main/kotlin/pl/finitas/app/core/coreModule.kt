@@ -69,7 +69,6 @@ val coreModule = module {
     single<RegularSpendingActualizationRepository> {
         RegularSpendingActualizationRepositoryImpl(
             getDatabase().regularSpendingDao,
-            getDatabase().finishedSpendingDao
         )
     }
     single {

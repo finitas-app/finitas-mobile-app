@@ -16,6 +16,7 @@ import pl.finitas.app.manage_additional_elements_feature.domain.PeriodUnit
 import pl.finitas.app.manage_additional_elements_feature.domain.RegularSpendingWithSpendingDataDto
 import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -23,7 +24,7 @@ import java.util.concurrent.TimeUnit
 class Actualizator(context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams), KoinComponent {
 
-    val repository: RegularSpendingActualizationRepository by inject()
+    private val repository: RegularSpendingActualizationRepository by inject()
 
     @WorkerThread
     override fun doWork(): Result {
@@ -36,12 +37,14 @@ class Actualizator(context: Context, workerParams: WorkerParameters) :
                 .filter {
                     LocalDate.now() >= getExpectedActualizationDate(it).toLocalDate()
                 }
-                .map(::mapRegularSpendingToFinishedSpending)
                 .forEach {
                     println(
-                        "Creating new finished spending. Name - ${it.title}, id - ${it.idSpendingSummary}"
+                        "Creating new finished spending. Name - ${it.name}, id - ${it.idSpendingSummary}"
                     )
-                    repository.upsertFinishedSpendingWithRecords(it)
+                    repository.upsertFinishedSpendingAndRegularSpending(
+                        regularSpending = it.copy(lastActualizationDate = LocalDateTime.now()),
+                        finishedSpending = mapRegularSpendingToFinishedSpending(it)
+                    )
                 }
         }
 
