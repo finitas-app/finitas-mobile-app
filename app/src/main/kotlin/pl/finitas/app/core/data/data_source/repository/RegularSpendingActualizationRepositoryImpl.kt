@@ -1,23 +1,22 @@
-package pl.finitas.app.manage_additional_elements_feature.data.data_source
+package pl.finitas.app.core.data.data_source.repository
 
-import pl.finitas.app.core.data.data_source.dao.FinishedSpendingDao
 import pl.finitas.app.core.data.data_source.dao.RegularSpendingDao
 import pl.finitas.app.core.data.data_source.dao.RegularSpendingWithRecordFlat
 import pl.finitas.app.core.data.model.FinishedSpending
+import pl.finitas.app.core.data.model.RegularSpending
 import pl.finitas.app.core.data.model.SpendingRecord
 import pl.finitas.app.core.data.model.SpendingRecordData
 import pl.finitas.app.core.data.model.SpendingSummary
 import pl.finitas.app.core.data.model.relations.SpendingRecordDataToSpendingRecord
 import pl.finitas.app.core.data.model.relations.SpendingSummaryToFinishedSpending
+import pl.finitas.app.core.domain.repository.RegularSpendingActualizationRepository
 import pl.finitas.app.manage_additional_elements_feature.domain.FinishedSpendingWithRecordsDto
 import pl.finitas.app.manage_additional_elements_feature.domain.PeriodUnit
 import pl.finitas.app.manage_additional_elements_feature.domain.RegularSpendingWithSpendingDataDto
 import pl.finitas.app.manage_additional_elements_feature.domain.SpendingRecordDto
-import pl.finitas.app.manage_additional_elements_feature.domain.repositories.RegularSpendingActualizationRepository
 
 class RegularSpendingActualizationRepositoryImpl(
     private val regularSpendingDao: RegularSpendingDao,
-    private val finishedSpendingDao: FinishedSpendingDao,
 ) : RegularSpendingActualizationRepository {
 
     private fun mapEntitiesToDTOs(entities: List<RegularSpendingWithRecordFlat>) =
@@ -45,25 +44,34 @@ class RegularSpendingActualizationRepositoryImpl(
                 )
             }
 
-    override suspend fun upsertFinishedSpendingWithRecords(totalSpending: FinishedSpendingWithRecordsDto) {
-        val generatedSpendingSummary = totalSpending.idSpendingSummary
+    override suspend fun upsertFinishedSpendingAndRegularSpending(
+        regularSpending: RegularSpendingWithSpendingDataDto,
+        finishedSpending: FinishedSpendingWithRecordsDto,
+    ) {
+        val generatedSpendingSummary = finishedSpending.idSpendingSummary
 
-        finishedSpendingDao.upsertFinishedSpendingWithRecords(
+        regularSpendingDao.upsertRegularSpendingWithFinishedSpendingWithRecords(
+            RegularSpending(
+                actualizationPeriod = regularSpending.actualizationPeriod,
+                periodUnit = regularSpending.periodUnit.ordinal,
+                lastActualizationDate = regularSpending.lastActualizationDate,
+                idSpendingSummary = regularSpending.idSpendingSummary
+            ),
             SpendingSummaryToFinishedSpending(
                 spendingSummary = SpendingSummary(
                     idSpendingSummary = generatedSpendingSummary,
-                    name = totalSpending.title,
-                    currencyValue = totalSpending.currencyValue,
+                    name = finishedSpending.title,
+                    currencyValue = finishedSpending.currencyValue,
                 ),
                 finishedSpending = FinishedSpending(
                     idReceipt = null,
-                    purchaseDate = totalSpending.purchaseDate,
+                    purchaseDate = finishedSpending.purchaseDate,
                     idUser = null,
                     idSpendingSummary = generatedSpendingSummary,
                     isDeleted = false,
                 )
             ),
-            totalSpending.spendingRecords.map {
+            finishedSpending.spendingRecords.map {
                 val generatedIdSpendingRecordData = it.idSpendingRecord
                 SpendingRecordDataToSpendingRecord(
                     spendingRecord = SpendingRecord(

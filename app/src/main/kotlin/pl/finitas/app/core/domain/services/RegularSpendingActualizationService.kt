@@ -1,4 +1,4 @@
-package pl.finitas.app.manage_additional_elements_feature.domain.services
+package pl.finitas.app.core.domain.services
 
 import android.content.Context
 import androidx.annotation.WorkerThread
@@ -9,36 +9,42 @@ import androidx.work.WorkerParameters
 import kotlinx.coroutines.runBlocking
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import pl.finitas.app.core.data.WorkerProcessTags
+import pl.finitas.app.core.domain.repository.RegularSpendingActualizationRepository
 import pl.finitas.app.manage_additional_elements_feature.domain.FinishedSpendingWithRecordsDto
 import pl.finitas.app.manage_additional_elements_feature.domain.PeriodUnit
 import pl.finitas.app.manage_additional_elements_feature.domain.RegularSpendingWithSpendingDataDto
-import pl.finitas.app.manage_additional_elements_feature.domain.repositories.RegularSpendingActualizationRepository
+import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class Actualizator(context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams), KoinComponent {
 
-    val repository: RegularSpendingActualizationRepository by inject()
+    private val repository: RegularSpendingActualizationRepository by inject()
 
     @WorkerThread
     override fun doWork(): Result {
         runBlocking {
-            println("INFO: regular spendings actualization start")
+            println("Regular spendings actualization start")
             repository.getRegularSpendings()
                 .apply {
-                    println("INFO: successfully retrieved regular spendings: ${this.size}")
+                    println("Successfully retrieved regular spendings: ${this.size}")
                 }
                 .filter {
                     LocalDate.now() >= getExpectedActualizationDate(it).toLocalDate()
                 }
-                .map(::mapRegularSpendingToFinishedSpending)
                 .forEach {
                     println(
-                        "INFO: creating new finished spending. Name - ${it.title}, id - ${it.idSpendingSummary}"
+                        "Creating new finished spending. Name - ${it.name}, id - ${it.idSpendingSummary}"
                     )
-                    repository.upsertFinishedSpendingWithRecords(it)
+                    repository.upsertFinishedSpendingAndRegularSpending(
+                        regularSpending = it.copy(lastActualizationDate = LocalDateTime.now()),
+                        finishedSpending = mapRegularSpendingToFinishedSpending(it)
+                    )
                 }
         }
 
@@ -75,8 +81,25 @@ class Actualizator(context: Context, workerParams: WorkerParameters) :
 }
 
 class RegularSpendingActualizationService(private val context: Context) {
-    fun launchActualization() {
-        val request = PeriodicWorkRequestBuilder<Actualizator>(1, TimeUnit.DAYS).build()
-        WorkManager.getInstance(context).enqueue(request)
+    private fun calculateDelay(desiredTime: LocalTime): Duration {
+        val duration = Duration.between(LocalTime.now(), desiredTime)
+        return if (duration.isNegative) duration.plusDays(1) else duration
+    }
+
+    fun launchActualization(time: LocalTime) {
+        val workerManager = WorkManager.getInstance(context)
+        workerManager.cancelAllWorkByTag(WorkerProcessTags.REGULAR_SPENDING_ACTUALIZATION.toString())
+        val request = PeriodicWorkRequestBuilder<Actualizator>(1, TimeUnit.DAYS)
+            .addTag(WorkerProcessTags.REGULAR_SPENDING_ACTUALIZATION.toString())
+            .setInitialDelay(
+                calculateDelay(time)
+                    .also {
+                        println(
+                            "First regular spending update will occur in $it"
+                        )
+                    }
+            )
+            .build()
+        workerManager.enqueue(request)
     }
 }

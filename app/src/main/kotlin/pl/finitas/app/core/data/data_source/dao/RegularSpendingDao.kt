@@ -8,11 +8,13 @@ import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
+import pl.finitas.app.core.data.model.FinishedSpending
 import pl.finitas.app.core.data.model.RegularSpending
 import pl.finitas.app.core.data.model.SpendingRecord
 import pl.finitas.app.core.data.model.SpendingRecordData
 import pl.finitas.app.core.data.model.SpendingSummary
 import pl.finitas.app.core.data.model.relations.SpendingRecordDataToSpendingRecord
+import pl.finitas.app.core.data.model.relations.SpendingSummaryToFinishedSpending
 import pl.finitas.app.core.data.model.relations.SpendingSummaryToRegularSpending
 import pl.finitas.app.profile_feature.presentation.CurrencyValue
 import java.math.BigDecimal
@@ -125,6 +127,39 @@ interface RegularSpendingDao {
         upsertSpendingRecordsData(spendingRecords.map { it.spendingRecordData })
         upsertSpendingRecords(spendingRecords.map { it.spendingRecord })
     }
+
+    @Upsert
+    suspend fun upsertFinishedSpending(finishedSpending: FinishedSpending)
+
+    @Transaction
+    suspend fun upsertRegularSpendingWithFinishedSpendingWithRecords(
+        regularSpending: RegularSpending,
+        spendingSummaryToFinishedSpending: SpendingSummaryToFinishedSpending,
+        spendingRecords: List<SpendingRecordDataToSpendingRecord>,
+    ) {
+        deleteSpendingRecordsData(
+            getSpendingRecordsDataBy(
+                idSpendingSummary = spendingSummaryToFinishedSpending
+                    .spendingSummary
+                    .idSpendingSummary,
+            )
+        )
+        upsertRegularSpending(regularSpending)
+        upsertSpendingSummary(spendingSummaryToFinishedSpending.spendingSummary)
+        upsertFinishedSpending(spendingSummaryToFinishedSpending.finishedSpending)
+        upsertSpendingRecordsData(spendingRecords.map { it.spendingRecordData })
+        upsertSpendingRecords(spendingRecords.map { it.spendingRecord })
+    }
+
+    @Query(
+        """
+        SELECT srd.* 
+        FROM SpendingRecordData srd
+        JOIN SpendingRecord sr ON srd.idSpendingRecordData = sr.idSpendingRecordData
+        WHERE sr.idSpendingSummary = :idSpendingSummary
+    """
+    )
+    suspend fun getSpendingRecordsDataBy(idSpendingSummary: UUID): List<SpendingRecordData>
 }
 
 data class RegularSpendingWithRecordFlat(

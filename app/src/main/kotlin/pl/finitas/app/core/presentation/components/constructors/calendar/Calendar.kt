@@ -132,7 +132,7 @@ fun YearMonthEditor(
 }
 
 
-val months = Month.values().map { it.toString().take(3) }
+val months = Month.entries.map { it.toString().take(3) }
 val years = (2000..LocalDate.now().year + 1).toList()
 
 @Composable
@@ -267,7 +267,7 @@ fun DaySelectBoard(year: Int, month: Month, selectedDay: LocalDate, onDaySelect:
     fun colorOfDayText(dayOfWeek: Int) = if (dayOfWeek >= 5) Color(0xFFFF3B30) else calendarTextColor
     Column (Modifier.animateContentSize()){
         Row {
-            DayOfWeek.values().forEachIndexed { index, day ->
+            DayOfWeek.entries.forEachIndexed { index, day ->
                 Box(modifier = Modifier
                     .padding(vertical = 1.dp)
                     .size(35.dp)) {

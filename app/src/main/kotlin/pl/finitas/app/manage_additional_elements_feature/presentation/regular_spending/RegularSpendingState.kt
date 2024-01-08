@@ -12,7 +12,7 @@ data class RegularSpendingState(
     val title: String = "",
     val idSpendingSummary: UUID? = null,
     val periodUnit: PeriodUnit = PeriodUnit.Months,
-    val lastActualizationDate: LocalDateTime = LocalDateTime.now(),
+    val lastActualizationDate: LocalDateTime = LocalDateTime.now().minusDays(1),
     val actualizationPeriod: UInt = 1.toUInt(),
     val currencyValue: CurrencyValue = CurrencyValue.PLN,
     val categories: List<SpendingCategoryView> = arrayListOf(),

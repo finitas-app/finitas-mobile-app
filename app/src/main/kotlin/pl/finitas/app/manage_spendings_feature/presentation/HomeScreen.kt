@@ -105,7 +105,8 @@ private fun BoxScope.BackToRoomButton(
         ClickableIcon(
             imageVector = Icons.Rounded.ArrowBackIos,
             onClick = { navController.popBackStack() },
-            modifier = Modifier.align(Alignment.BottomStart)
+            modifier = Modifier
+                .align(Alignment.BottomStart)
                 .padding(16.dp)
         )
     }

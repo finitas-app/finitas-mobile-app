@@ -1,6 +1,8 @@
 package pl.finitas.app.navigation
 
 import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -17,6 +19,7 @@ import pl.finitas.app.room_feature.presentation.room_settings.RoomSettingsScreen
 import pl.finitas.app.room_feature.presentation.rooms.RoomsScreen
 import pl.finitas.app.shopping_lists_feature.presentation.ShoppingListsScreen
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()

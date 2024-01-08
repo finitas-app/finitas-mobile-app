@@ -1,16 +1,17 @@
-package pl.finitas.app.manage_additional_elements_feature.presentation.regular_spending
+package pl.finitas.app.core.presentation.workers
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import pl.finitas.app.manage_additional_elements_feature.domain.services.RegularSpendingActualizationService
+import pl.finitas.app.core.domain.services.RegularSpendingActualizationService
+import java.time.LocalTime
 
 class RegularSpendingActualizationViewModel(
     private val service: RegularSpendingActualizationService,
 ) : ViewModel() {
-    init {
+    fun launchActualization(time: LocalTime) {
         viewModelScope.launch {
-            service.launchActualization()
+            service.launchActualization(time)
         }
     }
 }
