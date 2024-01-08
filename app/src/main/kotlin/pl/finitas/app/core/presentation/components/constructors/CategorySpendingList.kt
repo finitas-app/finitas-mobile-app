@@ -149,7 +149,7 @@ fun CategorySpendingList(
     }
 }
 
-private val priceRegex = "(\\d{1,8}\\.?\\d{0,2})?".toRegex()
+private val priceRegex = "(\\d{1,8}[.,]?\\d{0,2})?".toRegex()
 
 @Composable
 private fun AddSpendingRecordDialog(
@@ -227,7 +227,7 @@ private fun AddSpendingRecordDialog(
                 ConstructorInput(
                     value = totalPrice,
                     onValueChange = {
-                        if (it.replace(',', '.').matches(priceRegex)) {
+                        if (it.matches(priceRegex)) {
                             totalPrice = it
                         }
                     },
@@ -256,7 +256,7 @@ private fun AddSpendingRecordDialog(
                             onSave(
                                 SpendingRecordView(
                                     name = spendingTitle,
-                                    totalPrice = totalPrice.ifBlank { "0" }.toBigDecimal(),
+                                    totalPrice = totalPrice.replace(',', '.').ifBlank { "0" }.toBigDecimal(),
                                     idCategory = category,
                                     idSpendingRecord = UUID.randomUUID(),
                                     currency = CurrencyValue.PLN,
