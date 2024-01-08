@@ -6,10 +6,15 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import pl.finitas.app.core.data.WorkerProcessTags
+import pl.finitas.app.core.domain.dto.store.RemoteFinishedSpendingDto
+import pl.finitas.app.core.domain.dto.store.RemoteSpendingRecordDto
+import pl.finitas.app.core.domain.repository.FinishedSpendingStoreRepository
+import pl.finitas.app.core.domain.repository.ProfileRepository
 import pl.finitas.app.core.domain.repository.RegularSpendingActualizationRepository
 import pl.finitas.app.manage_additional_elements_feature.domain.FinishedSpendingWithRecordsDto
 import pl.finitas.app.manage_additional_elements_feature.domain.PeriodUnit
@@ -25,6 +30,8 @@ class Actualizator(context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams), KoinComponent {
 
     private val repository: RegularSpendingActualizationRepository by inject()
+    private val finishedSpendingStoreRepository: FinishedSpendingStoreRepository by inject()
+    private val profileRepository: ProfileRepository by inject()
 
     @WorkerThread
     override fun doWork(): Result {
@@ -37,22 +44,39 @@ class Actualizator(context: Context, workerParams: WorkerParameters) :
                 .filter {
                     LocalDate.now() >= getExpectedActualizationDate(it).toLocalDate()
                 }
-                .forEach {
+                .map {
                     println(
                         "Creating new finished spending. Name - ${it.name}, id - ${it.idSpendingSummary}"
                     )
+                    val finishedSpendingDto = mapRegularSpendingToFinishedSpending(it)
                     repository.upsertFinishedSpendingAndRegularSpending(
                         regularSpending = it.copy(lastActualizationDate = LocalDateTime.now()),
-                        finishedSpending = mapRegularSpendingToFinishedSpending(it)
+                        finishedSpending = finishedSpendingDto
                     )
+                    finishedSpendingDto
                 }
+                .let { spendings ->
+                    val authorizedUser = profileRepository.getAuthorizedUserId().first()
+                    if (authorizedUser != null) {
+                        try {
+                            finishedSpendingStoreRepository.changeFinishedSpendings(
+                                spendings.map {
+                                    it.toRemote(authorizedUser)
+                                }
+                            )
+                        } catch (_: Exception) {
+
+                        }
+                    }
+                }
+
         }
 
         return Result.success()
     }
 
     private fun mapRegularSpendingToFinishedSpending(
-        regularSpending: RegularSpendingWithSpendingDataDto
+        regularSpending: RegularSpendingWithSpendingDataDto,
     ): FinishedSpendingWithRecordsDto {
         val idSpendingSummary = UUID.randomUUID()
         return FinishedSpendingWithRecordsDto(
@@ -102,4 +126,25 @@ class RegularSpendingActualizationService(private val context: Context) {
             .build()
         workerManager.enqueue(request)
     }
+}
+
+private fun FinishedSpendingWithRecordsDto.toRemote(idUser: UUID): RemoteFinishedSpendingDto {
+    return RemoteFinishedSpendingDto(
+        idSpendingSummary = idSpendingSummary,
+        idReceipt = null,
+        purchaseDate = purchaseDate,
+        version = 0,
+        idUser = idUser,
+        isDeleted = false,
+        name = title,
+        currency = currencyValue,
+        spendingRecords = spendingRecords.map {
+            RemoteSpendingRecordDto(
+                idSpendingRecordData = it.idSpendingRecord,
+                name = it.name,
+                price = it.price,
+                idCategory = it.idCategory,
+            )
+        }
+    )
 }
