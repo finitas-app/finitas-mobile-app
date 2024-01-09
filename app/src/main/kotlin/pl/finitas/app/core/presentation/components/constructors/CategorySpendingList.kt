@@ -127,7 +127,8 @@ fun CategorySpendingList(
                         idSpendingCategory = element.idCategory
                         isOpenedAddSpendingRecord = true
                     }
-                }
+                },
+                maxTextLength = 10
             )
 
             AddSpendingRecordDialog(

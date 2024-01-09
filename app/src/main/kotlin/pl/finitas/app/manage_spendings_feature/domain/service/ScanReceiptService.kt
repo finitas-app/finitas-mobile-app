@@ -12,7 +12,15 @@ class ScanReceiptService(val repository: ScanReceiptRepository) {
             .map {
                 SpendingRecordView(
                     name = it.title,
-                    totalPrice = it.number,
+                    totalPrice = it.number.let { price ->
+                        val str = price.toString()
+                        val dotIndex = str.indexOf('.')
+                        if (dotIndex == -1 || str.lastIndex - dotIndex <= 2) {
+                            price
+                        } else {
+                            str.substring(0..dotIndex + 2).toBigDecimal()
+                        }
+                    },
                     idCategory = idCategory,
                     idSpendingRecord = UUID.randomUUID(),
                     currency = CurrencyValue.PLN, // TODO: to remove

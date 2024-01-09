@@ -2,6 +2,7 @@ package pl.finitas.app.manage_spendings_feature.data.data_source
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.timeout
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -18,6 +19,10 @@ class ScanReceiptRepositoryImpl(private val httpClient: HttpClient) : ScanReceip
             .post(HttpUrls.parseReceipt) {
                 setBody(Base64Receipt(value = Base64.getEncoder().encodeToString(file)))
                 contentType(ContentType.Application.Json)
+                timeout {
+                    requestTimeoutMillis = 30000
+                    socketTimeoutMillis = 30000
+                }
             }
             .body()
     }
