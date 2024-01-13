@@ -13,9 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AccountCircle
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -34,14 +32,13 @@ fun RoomCard(
     onClick: (UUID) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val icon = Icons.Rounded.AccountCircle
     val interactionSource = remember { MutableInteractionSource() }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(2.dp, 12.dp, 15.dp, 0.dp)
+            .padding(15.dp, 12.dp, 15.dp, 0.dp)
             .then(modifier)
             .clickable(
                 indication = null,
@@ -50,7 +47,7 @@ fun RoomCard(
             )
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(imageVector = icon, contentDescription = "Room avatar", Modifier.size(64.dp))
+            Box(modifier = Modifier.size(64.dp).background(Colors.incomingMessageBackground, RoundedCornerShape(100f)))
             Spacer(modifier = Modifier.width(10.dp))
             Column {
                 Fonts.regular.Text(text = roomPreviewDto.title)

@@ -102,22 +102,20 @@ class SynchronizationViewModel(
 
                 event == UserNotificationEvent.SYNC_ROOM && jsonData == null -> {
                     synchronizationService.fullSyncRooms(authorizedUserId)
+                    synchronizationService.retrieveNewFinishedSpendings(authorizedUserId)
                 }
 
                 event == UserNotificationEvent.USERNAME_CHANGE && jsonData != null -> {
                     val data = Json.decodeFromString<UserIdValue>(jsonData)
-                    // TODO: Send username using websocket
                     synchronizationService.fullSyncNames(listOf(data))
                 }
 
                 event == UserNotificationEvent.CATEGORY_CHANGED && jsonData != null -> {
                     val data = Json.decodeFromString<UserIdValue>(jsonData)
-                    // TODO: Send categories using websocket or optimize providing user id
                     synchronizationService.retrieveNewCategories(authorizedUserId)
                 }
 
                 event == UserNotificationEvent.SHOPPING_LIST_CHANGED -> {
-                    // TODO: Send categories using websocket or optimize providing user id
                     synchronizationService.retrieveNewShoppingLists(authorizedUserId)
                 }
 
@@ -139,13 +137,10 @@ class SynchronizationViewModel(
 
                 event == UserNotificationEvent.DELETE_USER_FROM_ROOM -> {
                     synchronizationService.fullSyncRooms(authorizedUserId)
-                    // TODO: Send deleted user id using websocket
                 }
 
                 event == UserNotificationEvent.ASSIGN_ROLE_TO_USER -> {
-                    // TODO: Optimize with provided new role for user
                     synchronizationService.fullSyncRooms(authorizedUserId)
-                    // TODO: run only if new role
                     synchronizationService.retrieveNewFinishedSpendings(authorizedUserId)
                 }
 
