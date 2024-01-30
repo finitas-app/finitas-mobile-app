@@ -44,7 +44,7 @@ fun SignInPanel(
         Column {
             AuthInput(
                 value = viewModel.credentialsState.login,
-                label = "Login",
+                label = "Email",
                 inputBorderColor = Brush.linearGradient(
                     listOf(
                         Color(0XFF2C7B99).copy(.5f),

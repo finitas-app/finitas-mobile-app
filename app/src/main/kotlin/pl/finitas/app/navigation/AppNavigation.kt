@@ -3,6 +3,8 @@ package pl.finitas.app.navigation
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -25,7 +27,9 @@ fun AppNavigation() {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = NavPaths.HomeScreen.route
+        startDestination = NavPaths.HomeScreen.route,
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None },
     ) {
         composable(
             NavPaths.ProfileScreen.route

@@ -89,6 +89,10 @@ class AuthViewModel(
                 } catch (e: FrontendApiException) {
                     errors = listOf(
                         when (e.errorCode) {
+                            ErrorCode.SIGN_UP_LOGIN_INVALID -> {
+                                "The e-mail address is wrong"
+                            }
+
                             ErrorCode.SIGN_UP_USER_EXISTS -> {
                                 "A user with that e-mail address already exists"
                             }
