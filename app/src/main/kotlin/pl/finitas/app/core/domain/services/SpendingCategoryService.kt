@@ -1,9 +1,11 @@
 package pl.finitas.app.core.domain.services
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import pl.finitas.app.core.data.model.SpendingCategory
 import pl.finitas.app.core.domain.exceptions.InputValidationException
+import pl.finitas.app.core.domain.repository.ProfileRepository
 import pl.finitas.app.core.domain.repository.SpendingCategoryRepository
 import pl.finitas.app.core.domain.repository.UserStoreRepository
 import pl.finitas.app.core.domain.validateBuilder
@@ -13,6 +15,7 @@ import java.util.UUID
 class SpendingCategoryService(
     private val spendingCategoryRepository: SpendingCategoryRepository,
     private val userStoreRepository: UserStoreRepository,
+    private val profileRepository: ProfileRepository,
 ) {
     suspend fun getSpendingCategoryById(idSpendingCategory: UUID): SpendingCategoryState {
         return spendingCategoryRepository.getSpendingCategoryBy(idSpendingCategory).let {
@@ -50,7 +53,7 @@ class SpendingCategoryService(
 
     suspend fun getSpendingCategoriesByIdUserFlat(idUser: UUID? = null): List<SpendingCategoryView> {
         val categories =
-            if (idUser == null) {
+            if (idUser == null || idUser == profileRepository.getAuthorizedUserId().first()) {
                 spendingCategoryRepository.getSpendingCategories()
             } else {
                 spendingCategoryRepository.getSpendingCategoriesByIdUser(idUser)

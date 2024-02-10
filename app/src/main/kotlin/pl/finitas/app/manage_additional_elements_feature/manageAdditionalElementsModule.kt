@@ -26,7 +26,7 @@ val manageAdditionalElementsModule = module {
         SpendingCategoryRepositoryImpl(getDatabase().spendingCategoryDao, getDatabase().userDao)
     }
     single {
-        SpendingCategoryService(get(), get())
+        SpendingCategoryService(get(), get(), get())
     }
     viewModel { SpendingCategoryViewModel(get()) }
     viewModel { RegularSpendingsViewModel(get(), get(), get()) }

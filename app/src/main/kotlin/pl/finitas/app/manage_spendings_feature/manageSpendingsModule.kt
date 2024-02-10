@@ -37,7 +37,7 @@ val manageSpendingsModule = module {
         FinishedSpendingService(get(), get(), get(), get())
     }
     single {
-        SpendingCategoryService(get(), get())
+        SpendingCategoryService(get(), get(), get())
     }
     single {
         ChartService(get(), get())
